@@ -1,0 +1,118 @@
+from rest_framework import viewsets
+from appAUDITAI.Views.UTILS.serializers import *
+from rest_framework.generics import RetrieveAPIView
+from django.contrib.auth.models import *
+from rest_framework.decorators import action
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from appAUDITAI.Views.UTILS.serializers import CompanySerializer
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.generics import RetrieveAPIView, ListAPIView
+
+class GroupViewSet(viewsets.ModelViewSet):
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+class GroupViewSetByID(RetrieveAPIView):
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+    lookup_field = 'roleId'
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+#Permission
+class PermissionViewSet(viewsets.ModelViewSet):
+    queryset = Permission.objects.all()
+    serializer_class = PermissionSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+class PermissionViewSetByID(viewsets.ModelViewSet):
+    queryset = Permission.objects.all()
+    serializer_class = PermissionSerializer
+    lookup_field = 'roleId'  
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+#User
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    lookup_field = 'username'
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    # def get_queryset(self):
+    #     # Filter only active users
+    #     return User.objects.filter(is_active=True)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class UserViewSetbyID(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    lookup_field = 'username'
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated] 
+
+class USERROLESViewSet(viewsets.ModelViewSet):
+    queryset = USERROLES.objects.all()
+    serializer_class = USERROLESSerializer
+    lookup_field = 'USERNAME'
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated] 
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class USERROLESViewSetbyID(viewsets.ModelViewSet):
+    queryset = USERROLES.objects.all()
+    serializer_class = USERROLESSerializer
+    lookup_field = 'USERNAME'  
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+    
+class USERROLESViewSetbyCompany(ListAPIView):
+    queryset = USERROLES.objects.all()
+    serializer_class = USERROLESSerializer
+    lookup_field = 'COMPANY_ID'  
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        company_id = self.kwargs['COMPANY_ID']  # Fetching company_id from URL parameter
+        return USERROLES.objects.filter(COMPANY_ID=company_id)
+
+class SystemSettingViewSet(viewsets.ModelViewSet):
+    queryset = PASSWORDCONFIG.objects.all()
+    serializer_class = SystemSettingSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+
+class SystemSettingViewSetbyID(viewsets.ModelViewSet):
+    queryset = PASSWORDCONFIG.objects.all()
+    serializer_class = SystemSettingSerializer
+    lookup_field = 'id'
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated] 

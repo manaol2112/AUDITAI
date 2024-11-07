@@ -1,0 +1,23 @@
+# Ignore node_modules folders
+node_modules/
+
+# Ignore Django migrations folder (optional, depending on your use case)
+django/migrations/
+
+# Ignore environment variables files
+.env
+
+# Ignore Python cache files
+__pycache__/
+
+# Ignore logs
+*.log
+
+# Ignore OS-specific files
+.DS_Store
+
+# Ignore build files from React
+react/build/
+
+# Ignore the virtual environment folder if present
+venv/
