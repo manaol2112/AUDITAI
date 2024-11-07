@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const BASE_URL = process.env.REACT_APP_API_URL; // Adjust URL as per your Django development server URL
+const BASE_URL = 'http://localhost:8000/api' // http://audit-ai.net/api
 const token = Cookies.get('token');
 const refresh_token = Cookies.get('refresh_token')
 

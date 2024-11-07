@@ -60,12 +60,13 @@ const App = () => {
       <Routes>
         {/* Public route */}
         <Route path="/login" element={<Login />} />
+        <Route path="" element={<Login />} />
 
         {/* Private routes based on user groups */}
         {isGroupMember('Administrator') && (
-          <Route path="/" element={<PrivateRoute requiredGroup="Administrator" />}>
-             <Route index path="/" element={<Dashboard />} />
-            <Route index path="/Dashboard" element={<Dashboard />} />
+          <Route element={<PrivateRoute requiredGroup="Administrator" />}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/Dashboard" element={<Dashboard />} />
             <Route path="/Companies" element={<Companies />} />
             <Route path="/Companies/:companyId" element={<CompanyDetails />} />
             <Route path="/SystemRoles" element={<SystemRoles />} />

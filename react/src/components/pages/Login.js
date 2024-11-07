@@ -7,31 +7,29 @@ import { useNavigate } from 'react-router-dom';
 import AuthService from '../../services/AuthService';
 import Cookies from 'js-cookie'
 
+
+
+
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState(null); // State for error message
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const response = await AuthService.login(username, password);
-
+  
       if (response && response.access) {
-        const { access } = response;
-
-        const { groups } = response;
-
-        Cookies.set('token', access, { expires: 1, secure: true, sameSite: 'strict', httpOnly: true });
-
-         // Optionally: Save groups in localStorage or state if needed
-         Cookies.set('groups', JSON.stringify(groups));
-
-
-        // Navigate to Dashboard or any other authenticated route
-        navigate('/Dashboard');
+        const { access, groups } = response;
+  
+        Cookies.set('token', access, { expires: 1, secure: true, sameSite: 'strict' });
+        Cookies.set('groups', JSON.stringify(groups));
+        
+        setIsLoggedIn(true); // Update state to show logged-in UI
+        navigate('/dashboard'); // Redirect to the Dashboard page
       } else {
         setErrorMessage('Invalid username or password. Please try again.');
       }
@@ -40,16 +38,24 @@ const Login = () => {
       setErrorMessage('Login failed. Please try again.');
     }
   };
+  
 
   const handleLogout = async (e) => {
     e.preventDefault();
-    localStorage.removeItem('token'); // Remove access token from localStorage
-    Cookies.remove('token'); // Remove access token from cookies
-    localStorage.removeItem('refresh_token'); // Remove refresh token from localStorage
-    Cookies.remove('refresh_token'); // Remove refresh token from cookies
-    Cookies.remove('csrftoken'); // Remove refresh token from cookies
-    window.location.href = '/login';
+    Cookies.remove('token');
+    Cookies.remove('groups');
+    setIsLoggedIn(false);
+    navigate('/login'); // Navigate to the login page instead
   };
+
+  useEffect(() => {
+    const token = Cookies.get('token');
+    if (token) {
+      setIsLoggedIn(true); // If token exists, mark the user as logged in
+    }
+  }, []);
+  
+  
 
   return (
     <div style={{ 
