@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import './styles.css'; 
-import logo from '/Users/apple/Desktop/auditai/auditai/auditai_ui/src/assets/images/logo.jpeg'
+import logo from '../../../..//src/assets/images/logo.jpeg'
 import * as mui from '@mui/material';
 import Cookies from 'js-cookie'
 
