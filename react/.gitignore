@@ -16,8 +16,5 @@ __pycache__/
 # Ignore OS-specific files
 .DS_Store
 
-# Ignore build files from React
-react/build/
-
 # Ignore the virtual environment folder if present
 venv/
