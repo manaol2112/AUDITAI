@@ -13,11 +13,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RenameField(
-            model_name='auditfile',
-            old_name='AUDIT_ID',
-            new_name='FILE_NAME',
-        ),
+       
         migrations.RemoveField(
             model_name='auditfile',
             name='DATE_SENT',
