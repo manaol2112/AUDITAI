@@ -8,8 +8,6 @@ import AuthService from '../../services/AuthService';
 import Cookies from 'js-cookie'
 
 
-
-
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
