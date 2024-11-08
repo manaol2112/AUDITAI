@@ -2,7 +2,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 
 
-const API_URL = 'http://audit-ai.net/api'
+const API_URL = 'https://audit-ai.net/api'
 
 const AuthService = {
 
