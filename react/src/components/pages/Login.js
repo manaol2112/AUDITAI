@@ -7,12 +7,6 @@ import { useNavigate } from 'react-router-dom';
 import AuthService from '../../services/AuthService';
 import Cookies from 'js-cookie'
 
-
-<<<<<<< HEAD
-=======
-
-
->>>>>>> a0db5c3 (update to commit)
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
