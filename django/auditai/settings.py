@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -130,14 +131,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'auditai.wsgi.application'
 
+# Initialize environment variables
+env = environ.Env()
+# Reading the .env file
+environ.Env.read_env()
+
+
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',  # Use PostgreSQL as the database backend
-        'NAME': 'auditaidb3',  # The name of the database you want to connect to
-        'USER': 'audit-ai',  # Your username
-        }
+        'ENGINE': 'django.db.backends.mysql',  # MySQL backend
+        'NAME': env('DB_NAME'),  # Your database name
+        'USER': env('DB_USER'),  # Your database username
+        'PASSWORD': env('DB_PW'),  # Your database password
+        'HOST': env('DB_HOST'),  # The host for your database
+        'PORT': env('DB_PORT', default='3306'), 
+    }
 }
 
 

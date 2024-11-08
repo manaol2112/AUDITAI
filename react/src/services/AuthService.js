@@ -2,8 +2,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 
 
-const API_URL = 'http://localhost:8000/api' // http://audit-ai.net/api
-
+const API_URL = 'http://audit-ai.net/api'
 
 const AuthService = {
 
