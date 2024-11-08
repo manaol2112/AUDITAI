@@ -28,8 +28,7 @@ SECRET_KEY = 'django-insecure-3pna*w=(iii=nanf_($k^#fbrth!@n=dgomh245l&i(d#wgz$#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
-
+ALLOWED_HOSTS = ['audit-ai.net', 'www.audit-ai.net', '*']
 
 # Application definition
 INSTALLED_APPS = [
