@@ -34,6 +34,27 @@ class SysOwnerSideBar extends Component {
         window.location.href = '/login';
     };
 
+
+    handleDashboard = () => {
+        window.location.href = '/dashboard';
+    };
+
+    handleApps = () => {
+        window.location.href = '/applications';
+    };
+
+    handleCompliance = () => {
+        window.location.href = '/compliance';
+    };
+
+    handleAccessRequest = () => {
+        window.location.href = '/accessrequests';
+    };
+
+    handleDocumentRequest = () => {
+        window.location.href = '/documentrequests';
+    };
+
     render() {
         let drawerClass = [];
         let mainClass = [];
@@ -65,23 +86,23 @@ class SysOwnerSideBar extends Component {
                 </navbar>
                 <aside className={drawerClass.join(' ')}>
                     <ul>
-                        <li>
+                        <li onClick={this.handleDashboard}>
                             <i className="material-icons">dashboard</i>
                             <span>Dashboard</span>
                         </li>
-                        <li>
+                        <li onClick={this.handleApps}>
                             <i className="material-icons">grid_view</i>
                             <span>Applications</span>
                         </li>
-                        <li>
+                        <li onClick={this.handleCompliance}>
                             <i className="material-icons">assured_workload</i>
                             <span>Compliance</span>
                         </li>
-                        <li>
+                        <li onClick={this.handleAccessRequest}>
                             <i className="material-icons">lock_person</i>
                             <span>Access Requests</span>
                         </li>
-                        <li>
+                        <li onClick={this.handleDocumentRequest}>
                             <i className="material-icons">cloud_sync</i>
                             <span>Document Requests</span>
                         </li>

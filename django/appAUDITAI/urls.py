@@ -48,7 +48,7 @@ urlpatterns = [
     path('api/', include(router.urls)),  
     path('api/companies/<uuid:companyId>/', CompanyViewSetByID.as_view, name = 'company-details' ),
     path('api/applications/<uuid:appId>/', AppViewSetByID.as_view, name = 'app-details' ),
-    path('api/app-password/<uuid:APP_NAME>/', AppPasswordViewSetbyApp.as_view({'get':'retrieve'}), name='app-password-by-app'),
+    path('api/app-password/appid/<uuid:APP_NAME>/', AppPasswordViewSetbyApp.as_view({'get': 'retrieve','post': 'create', 'put': 'update','delete': 'destroy'}), name='app-password-by-app'),
     path('api/app-users/<str:APP_NAME>/', AppRecordViewSetbyApp.as_view(), name='app-user-by-app'),
     path('api/audit/mapping/app/<uuid:APP_NAME>/<uuid:COMPANY_ID>/', RiskMappingViewSetbyAPP.as_view({'get':'list'}), name='riskmapping-by-app'),
     path('api/audit/workpapers/<uuid:APP_NAME>/<uuid:COMPANY_ID>/', WorkpapersViewSet.as_view({'get':'list'}), name='workpapers'),

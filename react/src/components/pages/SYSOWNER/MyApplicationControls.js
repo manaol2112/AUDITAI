@@ -2070,14 +2070,14 @@ const MyApplicationControls = () => {
             <ResponsiveContainer>
 
                 <mui.Breadcrumbs aria-label="breadcrumb">
-                    <mui.Link underline="hover" color="inherit" href="/Dashboard">
+                    <mui.Link underline="hover" color="inherit" href="/dashboard">
                         <i className="material-icons">home</i>
                     </mui.Link>
-                    <mui.Link underline="hover" color="inherit" href="/Dashboard">
+                    <mui.Link underline="hover" color="inherit" href="/dashboard">
                         My Dashboard
                     </mui.Link>
                     <Suspense fallback="Loading...">
-                    <mui.Link underline="hover" color="inherit" href="/Applications">
+                    <mui.Link underline="hover" color="inherit" href="/applications">
                         {selectedApps.COMPANY_NAME}
                     </mui.Link>
                     </Suspense>

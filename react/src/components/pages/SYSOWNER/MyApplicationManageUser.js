@@ -704,13 +704,13 @@ const MyApplicationManageUsers = () => {
             <ResponsiveContainer>
 
                 <mui.Breadcrumbs aria-label="breadcrumb">
-                    <mui.Link underline="hover" color="inherit" href="/Dashboard">
+                    <mui.Link underline="hover" color="inherit" href="/dashboard">
                         <i className="material-icons">home</i>
                     </mui.Link>
-                    <mui.Link underline="hover" color="inherit" href="/Dashboard">
+                    <mui.Link underline="hover" color="inherit" href="/dashboard">
                         My Dashboard
                     </mui.Link>
-                    <mui.Link underline="hover" color="inherit" href="/Applications">
+                    <mui.Link underline="hover" color="inherit" href="/applications">
                         {selectedapps.COMPANY_NAME}
                     </mui.Link>
                     <mui.Typography color="text.primary"> {selectedapps.APP_NAME}</mui.Typography>

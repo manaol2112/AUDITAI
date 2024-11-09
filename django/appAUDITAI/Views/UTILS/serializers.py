@@ -83,7 +83,6 @@ class UserSerializer(serializers.ModelSerializer):
 class USERROLESSerializer(serializers.ModelSerializer):
 
     COMPANY_NAME = serializers.SerializerMethodField()
-    USERNAME = serializers.SerializerMethodField()
 
     class Meta:
         model = USERROLES

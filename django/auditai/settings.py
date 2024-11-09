@@ -144,7 +144,7 @@ DATABASES = {
         'NAME': env('DB_NAME'),  # Your database name
         'USER': env('DB_USER'),  # Your database username
         'PASSWORD': env('DB_PW'),  # Your database password
-        'HOST': env('DB_HOST'),  # The host for your database
+        # 'HOST': env('DB_HOST'),  # The host for your database
         'PORT': env('DB_PORT', default='3306'), 
     }
 }

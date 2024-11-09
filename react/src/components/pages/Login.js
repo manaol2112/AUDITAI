@@ -26,7 +26,7 @@ const Login = () => {
         Cookies.set('groups', JSON.stringify(groups));
         
         setIsLoggedIn(true); // Update state to show logged-in UI
-        navigate('/dashboard'); // Redirect to the Dashboard page
+        navigate('/dashboard/'); // Redirect to the Dashboard page
       } else {
         setErrorMessage('Invalid username or password. Please try again.');
       }
@@ -35,7 +35,6 @@ const Login = () => {
       setErrorMessage('Login failed. Please try again.');
     }
   };
-  
 
   const handleLogout = async (e) => {
     e.preventDefault();
@@ -51,8 +50,6 @@ const Login = () => {
       setIsLoggedIn(true); // If token exists, mark the user as logged in
     }
   }, []);
-  
-  
 
   return (
     <div style={{ 

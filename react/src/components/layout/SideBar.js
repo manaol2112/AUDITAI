@@ -6,7 +6,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min';
 import logo from '../../assets/images/logo.jpeg';
 import * as mui from '@mui/material';
 import Cookies from 'js-cookie'
-
+import { withRouter } from 'react-router-dom';  
 
 class SideBar extends Component {
 
@@ -36,7 +36,20 @@ class SideBar extends Component {
         window.location.href = '/login';
     };
 
+    handleHome = () => {
+        window.location.href = '/Dashboard';
+    };
+
+    handleInterface = () => {
+        window.location.href = '/Interfaces';
+    };
+
+    handleSecurity = () => {
+        window.location.href = '/Security';
+    };
+
     render() {
+
         let drawerClass = [];
         let mainClass = [];
 
@@ -67,15 +80,15 @@ class SideBar extends Component {
                 </navbar>
                 <aside className={drawerClass.join(' ')}>
                     <ul>
-                        <li>
+                        <li onClick={this.handleHome}>
                             <i className="material-icons">dashboard</i>
                             <span>Dashboard</span>
                         </li>
-                        <li>
+                        <li onClick={this.handleSecurity}>
                             <i className="material-icons">settings</i>
                             <span>Manage System</span>
                         </li>
-                        <li>
+                        <li onClick={this.handleInterface}>
                             <i className="material-icons">monitor</i>
                             <span>Jobs</span>
                         </li>

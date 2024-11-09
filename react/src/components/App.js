@@ -64,56 +64,56 @@ const App = () => {
 
         {/* Private routes based on user groups */}
         {isGroupMember('Administrator') && (
-          <Route element={<PrivateRoute requiredGroup="Administrator" />}>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/Dashboard" element={<Dashboard />} />
-            <Route path="/Companies" element={<Companies />} />
-            <Route path="/Companies/:companyId" element={<CompanyDetails />} />
-            <Route path="/SystemRoles" element={<SystemRoles />} />
-            <Route path="/SystemRoles/:id" element={<SystemRoleDetails />} />
-            <Route path="/ManageUsers" element={<ManageUser />} />
-            <Route path="/ManageUsers/:username" element={<ManageUsersDetails />} />
-            <Route path="/Security" element={<Security />} />
-            <Route path="/Interfaces" element={<Interfaces />} />
-            <Route path="/Interfaces/HR" element={<InterfacesHR />} />
-            <Route path="/Interfaces/HR/Home" element={<InterfacesHRHome />} />
-            <Route path="/Interfaces/HR/Details" element={<InterfacesHRDetails />} />
-            <Route path="/Interfaces/Applications" element={<InterfacesApp />} />
-            <Route path="/Interfaces/Applications/Home" element={<InterfacesAppHome />} />
-            <Route path="/Security/PasswordConfiguration" element={<PasswordSettings />} />
-            <Route path="/Applications" element={<ManageApplications />} />
-            <Route path="/Applications/:id" element={<ManageApplicationsDetails />} />
+          <Route path="/" element={<PrivateRoute requiredGroup="Administrator" />}>
+            <Route index path="/" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/companies" element={<Companies />} />
+            <Route path="/companies/:companyId" element={<CompanyDetails />} />
+            <Route path="/systemRoles" element={<SystemRoles />} />
+            <Route path="/systemRoles/:id" element={<SystemRoleDetails />} />
+            <Route path="/manageUsers" element={<ManageUser />} />
+            <Route path="/manageUsers/:username" element={<ManageUsersDetails />} />
+            <Route path="/security" element={<Security />} />
+            <Route path="/interfaces" element={<Interfaces />} />
+            <Route path="/interfaces/HR" element={<InterfacesHR />} />
+            <Route path="/interfaces/HR/Home" element={<InterfacesHRHome />} />
+            <Route path="/interfaces/HR/Details" element={<InterfacesHRDetails />} />
+            <Route path="/interfaces/Applications" element={<InterfacesApp />} />
+            <Route path="/interfaces/Applications/Home" element={<InterfacesAppHome />} />
+            <Route path="/security/PasswordConfiguration" element={<PasswordSettings />} />
+            <Route path="/applications" element={<ManageApplications />} />
+            <Route path="/applications/:id" element={<ManageApplicationsDetails />} />
           </Route>
         )}
 
         {isGroupMember('Process Owner') && (
           <Route path="/" element={<PrivateRoute requiredGroup="Process Owner" />}>
             <Route index path="/" element={<SysOwnerDashboard />} />
-            <Route index path="/Dashboard" element={<SysOwnerDashboard />} />
-            <Route  path="/Applications" element={<SysOwnerApplications />} />
-            <Route  path="/Applications/Users/:id" element={<SysOwnerApplicationsUsers />} />
-            <Route  path="/Applications/SetupInfo/:id" element={<MyApplicationGeneralInfo />} />
-            <Route  path="/Applications/ManageUsers/:id" element={<MyApplicationManageUsers />} />
-            <Route  path="/Applications/Controls/:id" element={<MyApplicationControls />} />
-            <Route  path="/Compliance" element={<SysOwnerCompliance />} />
-            <Route  path="/ProcessNarrative" element={<ProcessNarrative />} />
-            <Route  path="/ProcessNarrative/:id" element={<ProcessNarrativeDetails />} />
+            <Route index path="/dashboard" element={<SysOwnerDashboard />} />
+            <Route  path="/applications" element={<SysOwnerApplications />} />
+            <Route  path="/applications/Users/:id" element={<SysOwnerApplicationsUsers />} />
+            <Route  path="/applications/SetupInfo/:id" element={<MyApplicationGeneralInfo />} />
+            <Route  path="/applications/ManageUsers/:id" element={<MyApplicationManageUsers />} />
+            <Route  path="/applications/Controls/:id" element={<MyApplicationControls />} />
+            <Route  path="/compliance" element={<SysOwnerCompliance />} />
+            <Route  path="/processNarrative" element={<ProcessNarrative />} />
+            <Route  path="/processNarrative/:id" element={<ProcessNarrativeDetails />} />
           </Route>
         )}
 
         {isGroupMember('Internal Auditor') && (
           <Route path="/" element={<PrivateRoute requiredGroup="Internal Auditor"/>}>
             <Route index path="/" element={<IAAuditDashboard />} />
-            <Route index path="/Dashboard" element={<IAAuditDashboard />} />
-            <Route  path="/Audit/RiskLibrary" element={<AuditRiskLibrary />} />
-            <Route  path="/Audit/ControlsLibrary" element={<ControlsLibrary />} />
-            <Route  path="/Audit/Projects" element={<AuditProjects />} />
-            <Route  path="/Audit/Projects/:id" element={<AuditProjectSettings />} />
-            <Route  path="/Audit/RiskandControlMapping/:id" element={<RiskandControlMapping />} />
-            <Route  path="/Audit/RiskandControlMapping/Application/:company_id/:id" element={<RiskMapping />} />
-            <Route  path="/Audit/Workpapers/:id" element={<Workpapers />} />
-            <Route  path="/Audit/Workpapers/Project/:id/Control/:controlref" element={<WorkpapersDetails />} />
-            <Route  path="/Audit/ProcedureLibrary" element={<ProcedureLibrary />} />
+            <Route index path="/dashboard" element={<IAAuditDashboard />} />
+            <Route  path="/audit/RiskLibrary" element={<AuditRiskLibrary />} />
+            <Route  path="/audit/ControlsLibrary" element={<ControlsLibrary />} />
+            <Route  path="/audit/Projects" element={<AuditProjects />} />
+            <Route  path="/audit/Projects/:id" element={<AuditProjectSettings />} />
+            <Route  path="/audit/RiskandControlMapping/:id" element={<RiskandControlMapping />} />
+            <Route  path="/audit/RiskandControlMapping/Application/:company_id/:id" element={<RiskMapping />} />
+            <Route  path="/audit/Workpapers/:id" element={<Workpapers />} />
+            <Route  path="/audit/Workpapers/Project/:id/Control/:controlref" element={<WorkpapersDetails />} />
+            <Route  path="/audit/ProcedureLibrary" element={<ProcedureLibrary />} />
           </Route>
         )}
 

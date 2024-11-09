@@ -8,7 +8,7 @@ const appPasswordService = {
   },
 
   fetchAppPasswordByApp: async (APP_NAME) => {
-    const response = await axiosInstance.get(`app-password/${APP_NAME}/`);
+    const response = await axiosInstance.get(`app-password/appid/${APP_NAME}/`);
     return response.data;
 },
 
@@ -18,7 +18,7 @@ const appPasswordService = {
   },
 
   updateAppPassword: async (appId, passwordData) => {
-    const response = await axiosInstance.put(`app-password/${appId}/`, passwordData);
+    const response = await axiosInstance.put(`app-password/appid/${appId}/`, passwordData);
     return response.data;
   },
 

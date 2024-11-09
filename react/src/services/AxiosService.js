@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const BASE_URL = 'https://audit-ai.net/api'
+const BASE_URL = 'http://localhost:8000/api'  //'https://audit-ai.net/api'
 const token = Cookies.get('token');
 const refresh_token = Cookies.get('refresh_token')
 

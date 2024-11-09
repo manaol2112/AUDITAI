@@ -142,16 +142,12 @@ class AppPasswordViewSet(viewsets.ModelViewSet):
 
         return Response(context)
 
-
 class AppPasswordViewSetbyApp(viewsets.ModelViewSet):
     queryset = APP_PASSWORD.objects.all()
     serializer_class = AppPasswordSerializer
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     lookup_field = 'APP_NAME'
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
-
 
 class AppRecordViewSet(viewsets.ModelViewSet):
     queryset = APP_RECORD.objects.all()

@@ -43,7 +43,6 @@ const ManageUsers = () => {
     };
 
     const [selectedCompany, setSelectedCompany] = useState({
-        USERNAME: '',
         COMPANY_ID:[],
     });
 
@@ -52,8 +51,8 @@ const ManageUsers = () => {
         first_name: '',
         last_name: '',
         email: '',
-        is_active:false,
-        groups:null
+        is_active:true,
+        groups:''
     });
 
     const handleChange = (e) => {
@@ -96,13 +95,21 @@ const ManageUsers = () => {
         
             const userResponse = await userService.createUser(userDataWithRoles);
 
-            const companyIdArray = selectedCompany.map(company => (company.value));
-            const userroleData = {
-                COMPANY_ID: companyIdArray,
-                USERNAME: userResponse.id
-            };
+            console.log(userResponse)
 
-            const userRolesResponse = await userrolesService.create(userroleData);
+            const companyIdArray = selectedCompany.map(company => (company.value));
+
+            if (userResponse) {
+                const userroleData = {
+                    COMPANY_ID: companyIdArray,
+                    USERNAME: userResponse.id
+                };
+                console.log(userroleData)
+
+                const userRolesResponse = await userrolesService.create(userroleData);
+
+                console.log(userRolesResponse)
+            }
 
             handleCloseCreateModal();
 
@@ -111,6 +118,12 @@ const ManageUsers = () => {
             setSnackbarOpen(true); 
 
             setUsers([...users, userResponse]); 
+
+            // Add a delay before refreshing the page
+            setTimeout(() => {
+                // Refresh the page
+                window.location.reload();
+            }, 2000); // 2-second delay
 
         } catch (error) {
             setSnackbarMessage('There was a problem creating a new user');
@@ -153,7 +166,6 @@ const ManageUsers = () => {
         value: role.id, 
         label: role.name 
       }));
-
     
     const [companies, setCompanies] = useState([]); 
 
@@ -281,7 +293,7 @@ const ManageUsers = () => {
                                 required={true}  
                             />
 
-                            <div style={{ width: '500px', marginTop: '18px'}}>
+                            <div style={{ marginTop: '18px'}}>
                                 <MultipleSelect
                                     isMultiSelect={true}
                                     placeholderText="Select Roles*"
@@ -293,7 +305,7 @@ const ManageUsers = () => {
                                 />
                             </div>
 
-                            <div style={{ width: '500px', marginTop: '18px'}}>
+                            <div style={{ marginTop: '18px'}}>
                                 <MultipleSelect
                                     isMultiSelect={true}
                                     placeholderText="Select Company*"

@@ -192,8 +192,7 @@ const ManageApplicationsDetails = () => {
                     rows="5"
                 />
 
-
-                <div style={{ width: '500px', marginTop: '10px', marginBottom: '10px' }}>
+                <div style={{ marginTop: '10px', marginBottom: '10px' }}>
                     <MultipleSelect
                         isMultiSelect={true}
                         placeholderText="Select Application Owner"

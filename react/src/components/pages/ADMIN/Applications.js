@@ -28,6 +28,7 @@ const ManageApplications = () => {
     const [apps, setApps] = useState([]);
     const [users, setUsers] = useState([]);
     const [selectedCompany, setSelectedCompany] = useState([]);
+    const [selectedType, setSelectedType] = useState([]);
     const [selectedUser, setSelectedUser] = useState([]);
 
     const handleSnackbarClose = () => {
@@ -57,6 +58,11 @@ const ManageApplications = () => {
             setSnackbarSeverity('success');
             setSnackbarOpen(true);
             handleCloseCreateModal()
+
+            // Reload the page after a 1-second delay
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000); // 1000 milliseconds = 1 second
         } catch (error) {
             setSnackbarMessage('There was a problem creating the company');
             setSnackbarSeverity('error');
@@ -110,44 +116,32 @@ const ManageApplications = () => {
         label: company.COMPANY_NAME
     }));
 
+    const systemType = [
+        { value: 'Operating System', label: 'Operating System' },
+        { value: 'Database', label: 'Database' },
+        { value: 'Application', label: 'Application' },
+        { value: 'Network', label: 'Network' },
+        { value: 'Tool', label: 'Tool' }
+    ];
+
     const [userList, setUserList] = useState([]);
 
     const handleCompanyChange = async (selectedCompany) => {
         setSelectedCompany(selectedCompany);
         
-        // Assuming setAppData is synchronous and doesn't require async/await
         setAppData(prevAppData => ({
             ...prevAppData,
             COMPANY_ID: selectedCompany.value
         }));
-    
-        try {
-            const response = await userrolesService.getUserbyCompanies(selectedCompany.value);
-            setUsers(response);
-            console.log('This has the list of users under the selected company', response)
+    }
 
-
-            // Initialize an empty array to collect mapped user data
-            const newUserList = [];
-
-            response.forEach(user => {
-                if (user.USERNAME && user.USERNAME.length > 0) {
-                    user.USERNAME.forEach(username => {
-                        // Assuming username.id and username.first_name are valid fields
-                        newUserList.push({
-                            value: username.id,
-                            label: `${username.first_name} ${username.last_name}` // Adjust label as needed
-                        });
-                    });
-                }
-            });
-
-            // Set the newUserList to state to update userList
-            setUserList(newUserList);
-
-        } catch (error) {
-            console.error('Error fetching users:', error);
-        }
+    const handleTypeChange = async (selectedType) => {
+        setSelectedType(selectedType);
+        
+        setAppData(prevAppData => ({
+            ...prevAppData,
+            APP_TYPE: selectedType.value
+        }));
     }
     
 
@@ -193,14 +187,17 @@ const ManageApplications = () => {
                                 title={
                                     <React.Fragment>
                                       
-                                        <mui.Typography variant="subtitle2" component="div" sx={{ color: 'text.secondary'}}>
-                                            [{app.COMPANY_NAME}]
-                                        </mui.Typography>
-                                        <AppRegistrationIcon sx={{ fontSize: '20px', marginRight: '3px' }} /> {/* Icon component */}
-                                        <mui.Typography variant="subtitle1" component="span">
+                                    
+                                        <AppRegistrationIcon sx={{ fontSize: '30px', marginRight: '3px' ,color: 'text.secondary' }} /> {/* Icon component */}
+                    
+                                        <mui.Typography variant="subtitle1" component="span" sx={{fontSize: '15px', color: 'text.secondary' }}>
                                             {app.APP_NAME}
                                         </mui.Typography>{" "}
                                         
+                                        <mui.Typography variant="subtitle2" component="div" sx={{ color: 'text.secondary', fontSize: '12px', marginTop: '5px'}}>
+                                            [{app.COMPANY_NAME}]
+                                        </mui.Typography>
+
                                     </React.Fragment>
                                 }
                                 to={`/applications/${app.id}`}
@@ -218,8 +215,7 @@ const ManageApplications = () => {
                     header="Setup New Application"
                     body={
                         <>
-
-                            <div style={{ width: '500px', marginTop: '10px', marginBottom: '10px' }}>
+                            <div style={{  marginTop: '10px', marginBottom: '10px' }}>
                                 <MultipleSelect
                                     isMultiSelect={false}
                                     placeholderText="Select Company"
@@ -245,13 +241,13 @@ const ManageApplications = () => {
                                 rows="5"
                             />
 
-                            <div style={{ width: '500px', marginTop: '10px', marginBottom: '10px' }}>
+                            <div style={{ marginTop: '10px', marginBottom: '10px' }}>
                                 <MultipleSelect
-                                    isMultiSelect={true}
-                                    placeholderText="Select Application Owner"
-                                    selectOptions={userList}
-                                    value={selectedUser}
-                                    handleChange={handleUserChange}
+                                    isMultiSelect={false}
+                                    placeholderText="Select Type"
+                                    selectOptions={systemType}
+                                    value={selectedType}
+                                    handleChange={handleTypeChange}
                                 />
                             </div>
 

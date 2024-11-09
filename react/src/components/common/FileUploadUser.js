@@ -318,6 +318,8 @@ const FileUploadUser = () => {
     const handleCloseCreateModal = (event, reason) => {
         if (reason == 'backdropClick') {
             setOpenCreateModal(true)
+        } else {
+            setOpenMappingModal(false)
         }
 
     };
@@ -325,6 +327,8 @@ const FileUploadUser = () => {
     const handleCloseMappingModal = (event, reason) => {
         if (reason == 'backdropClick') {
             setOpenMappingModal(true)
+        } else {
+            setOpenMappingModal(false)
         }
 
     }
@@ -412,7 +416,7 @@ const FileUploadUser = () => {
 
         } catch (error) {
 
-            setSnackbarMessage('There was a problem with the mapping the HR record');
+            setSnackbarMessage('There was a problem uploading user record');
             setSnackbarSeverity('error');
             setSnackbarOpen(true);
 
@@ -600,7 +604,7 @@ const FileUploadUser = () => {
                                 {/* Left column content */}
                                 <mui.Paper>
                                     <mui.Card>
-                                        <mui.Grid container spacing={0}>
+                                        <mui.Grid container spacing={0} sx={{ maxHeight: 'calc(100vh - 200px)', overflow: 'auto' }}>
 
                                             <mui.Grid item xs={3}>
                                                 <mui.CardHeader
@@ -840,6 +844,9 @@ const FileUploadUser = () => {
                 }
                 footer={
                     <>
+                        <mui.Button size="small" sx={{marginRight: '10px', marginBottom: '10px'}} onClick={handleCloseMappingModal} color="primary" variant="contained">
+                            Cancel Upload
+                        </mui.Button>
                         <mui.Button size="small" sx={{marginRight: '10px', marginBottom: '10px'}} onClick={mapFields} color="primary" variant="contained">
                             Map Fields
                         </mui.Button>

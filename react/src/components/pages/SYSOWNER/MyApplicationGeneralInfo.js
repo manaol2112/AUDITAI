@@ -33,6 +33,7 @@ const MyApplicationGeneralInfo = () => {
     const [selectedAuth, setSelectedAuth] = useState([]);
     const [selectedConfig, setSelectedConfig] = useState([]);
     const [dbList, setDBList] = useState([]);
+    const [toolList, setToolList] = useState([]);
     const [networkList, setNetworkList] = useState([]);
     const saveTimeout = useRef(null);
     const [pwExist, setPWExist] = useState([]);
@@ -168,6 +169,8 @@ const MyApplicationGeneralInfo = () => {
         saveChanges(updatedData);
     };
 
+
+    //AUTHENTICATION
     const handleAuthChange = (selectedType) => {
         const auth = selectedType.value
         setSelectedAuth(selectedType)
@@ -189,7 +192,6 @@ const MyApplicationGeneralInfo = () => {
             PW_CONFIGURABLE: authconfigurable
         };
         saveChanges(updatedData);
-
     };
 
     //TRIGGER THE CHECKMARK
@@ -197,6 +199,8 @@ const MyApplicationGeneralInfo = () => {
         visibleCheckMark();
     }, [selectedApps, passwordData]);
 
+
+    //SAVE CHANGES TO THE APPLICATION RECORD
     const saveChanges = async (updatedData) => {
         try {
             const response = await appService.updateApp(id, updatedData);
@@ -205,20 +209,35 @@ const MyApplicationGeneralInfo = () => {
         }
     };
 
+    //SAVE PASSWORD RECORD
     const savePWChanges = async (updatedData) => {
-        try {
-            if(pwExist) {
-              const updated_record =  await appPasswordService.updateAppPassword(id, updatedData);
-              setPasswordData(updated_record)
-              setPWExist(true)
-            }  else {
-                const newData = { ...updatedData, APP_NAME: id };
-                const newRecord = await appPasswordService.createAppPassword(newData);
-                setPasswordData(newRecord)
-                setPWExist(true)
+        if (updatedData) {
+            let passwordFound;
+            try {
+                passwordFound = await appPasswordService.fetchAppPasswordByApp(id);
+                console.log('Password found', passwordFound)
+            } catch (error) {
+                if (error.response && error.response.status === 404) {
+                    const newData = { ...updatedData, APP_NAME: id };
+                    const newRecord = await appPasswordService.createAppPassword(newData);
+                    setPasswordData(newRecord)
+                    setPWExist(true)
+                    console.log("New Password Data Created")
+                } else {
+                    // Handle other types of errors
+                    console.error('Error mapping record:', error);
+                }
             }
-        } catch (error) {
-            console.error('Error saving changes:', error);
+            if (passwordFound){
+                try {
+                    const updated_record =  await appPasswordService.updateAppPassword(id, updatedData);
+                    setPasswordData(updated_record)
+                    setPWExist(true)
+                    console.log("Updated Password")
+                } catch (error) {
+                    console.error('Error updating record:', error);
+                }
+            }
         }
         
     };
@@ -227,7 +246,8 @@ const MyApplicationGeneralInfo = () => {
         { value: 'Application', label: 'Application' },
         { value: 'Operating System', label: 'Operating System' },
         { value: 'Database', label: 'Database' },
-        { value: 'Network', label: 'Network' }
+        { value: 'Network', label: 'Network' },
+        { value: 'Tool', label: 'Tool' }
     ];
 
     const hostingOptions = [
@@ -253,137 +273,132 @@ const MyApplicationGeneralInfo = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            try {
-                const OS = 'Operating System';
-                const DB = 'Database';
-                const NETWORK = 'Network';
-
-                // Fetch data concurrently
-                const [appsByIdResponse, OSResponse, DBResponse, NetworkResponse, appPWResponse] = await Promise.all([
-                    appService.fetchAppsById(id).catch(() => null),
-                    appService.fetchAppsByType(OS).catch(() => null),
-                    appService.fetchAppsByType(DB).catch(() => null),
-                    appService.fetchAppsByType(NETWORK).catch(() => null),
-                    appPasswordService.fetchAppPasswordByApp(id).catch(() => null),
-                ]);
-
-                if (appsByIdResponse) {
-                    setSelectedApps(appsByIdResponse);
-
-                    const formatType = {
-                        value: appsByIdResponse.APP_TYPE,
-                        label: appsByIdResponse.APP_TYPE
-                    };
-                    setformattedType(formatType);
+            const OS = 'Operating System';
+            const DB = 'Database';
+            const NETWORK = 'Network';
+            const TOOL = 'Tool';
     
-                    const hostFormat = {
-                        value: appsByIdResponse.HOSTED,
-                        label: appsByIdResponse.HOSTED
-                    };
-                    setSelectedHosting(hostFormat);
-    
-                    const devFormat = {
-                        value: appsByIdResponse.DEVTYPE,
-                        label: appsByIdResponse.DEVTYPE
-                    };
-                    setSelectedDev(devFormat);
-    
-                    const authFormat = {
-                        value: appsByIdResponse.AUTHENTICATION_TYPE,
-                        label: appsByIdResponse.AUTHENTICATION_TYPE
-                    };
-                    setSelectedAuth(authFormat);
-    
-                    const configFormat = {
-                        value: appsByIdResponse.PW_CONFIGURABLE,
-                        label: appsByIdResponse.PW_CONFIGURABLE
-                    };
-                    setSelectedConfig(configFormat);
-
-
-                    const hosting = appsByIdResponse.HOSTED
-            
-                    const visibility = hosting === 'On-premise' ? 'block' : 'none';
-                    setHostingTypeVisibility(visibility);
-            
+            // Helper function to fetch data with error handling
+            const fetchWithErrorHandling = async (fetchFunction) => {
+                try {
+                    return await fetchFunction();
+                } catch (error) {
+                    console.error('Error fetching data:', error);
+                    return null;
                 }
+            };
+    
+            // Fetch apps by ID
+            const appsByIdResponse = await fetchWithErrorHandling(() => appService.fetchAppsById(id));
+            
+            // Fetch other categories concurrently
+            const [OSResponse, DBResponse, NetworkResponse, ToolResponse, appPWResponse] = await Promise.all([
+                fetchWithErrorHandling(() => appService.fetchAppsByType(OS)),
+                fetchWithErrorHandling(() => appService.fetchAppsByType(DB)),
+                fetchWithErrorHandling(() => appService.fetchAppsByType(NETWORK)),
+                fetchWithErrorHandling(() => appService.fetchAppsByType(TOOL)),
+                fetchWithErrorHandling(() => appPasswordService.fetchAppPasswordByApp(id))
+            ]);
+    
+            // Process appByIdResponse if available
+            if (appsByIdResponse) {
+                setSelectedApps(appsByIdResponse);
+    
+                const formatType = { value: appsByIdResponse.APP_TYPE, label: appsByIdResponse.APP_TYPE };
+                setformattedType(formatType);
+    
+                const hostFormat = { value: appsByIdResponse.HOSTED, label: appsByIdResponse.HOSTED };
+                setSelectedHosting(hostFormat);
+    
+                const devFormat = { value: appsByIdResponse.DEVTYPE, label: appsByIdResponse.DEVTYPE };
+                setSelectedDev(devFormat);
+    
+                const authFormat = { value: appsByIdResponse.AUTHENTICATION_TYPE, label: appsByIdResponse.AUTHENTICATION_TYPE };
+                setSelectedAuth(authFormat);
+    
+                const configFormat = { value: appsByIdResponse.PW_CONFIGURABLE, label: appsByIdResponse.PW_CONFIGURABLE };
+                setSelectedConfig(configFormat);
+    
+                const hosting = appsByIdResponse.HOSTED;
+                const visibility = hosting === 'On-premise' ? 'block' : 'none';
+                setHostingTypeVisibility(visibility);
+            }
 
-                if (appPWResponse) {
-                    setPasswordData(appPWResponse.data || []);
-                    setPWExist(true)
-                } else {
-                    setPasswordData([])
-                    setPWExist(false)
-                }
-
-                if (OSResponse) {
-                    const formatOSList = OSResponse.map(item => ({
-                        value: item.id,
-                        label: item.APP_NAME
-                    }));
-                    setOSList(formatOSList);
-
-                    const selectedOS = await appService.fetchAppsById(appsByIdResponse.OS);
-                    const formatOS = {
-                        value: selectedOS.id,
-                        label: selectedOS.APP_NAME
-                    };
+            // Process appPWResponse if available
+            if (appPWResponse) {
+                setPasswordData(appPWResponse);
+                setPWExist(true);
+            } else {
+                setPasswordData([]);
+                setPWExist(false);
+            }
+    
+            // Process OSResponse if available
+            if (OSResponse) {
+                const formatOSList = OSResponse.map(item => ({
+                    value: item.id,
+                    label: item.APP_NAME
+                }));
+                setOSList(formatOSList);
+    
+                const selectedOS = await fetchWithErrorHandling(() => appService.fetchAppsById(appsByIdResponse?.OS));
+                if (selectedOS) {
+                    const formatOS = { value: selectedOS.id, label: selectedOS.APP_NAME };
                     setSelectedOS(formatOS);
-
-                } else {
-                    setOSList([]);
-                    setSelectedOS(null);
                 }
-
-                if (DBResponse) {
-                    const formatDBList = DBResponse.map(item => ({
-                        value: item.id,
-                        label: item.APP_NAME
-                    }));
-                    setDBList(formatDBList);
-
-                    const selectedDB = await appService.fetchAppsById(appsByIdResponse.DATABASE);
-                    const formatDB = {
-                        value: selectedDB.id,
-                        label: selectedDB.APP_NAME
-                    };
-                    setSelectedDB(formatDB);
-                } else {
-                    setDBList([]);
-                    setSelectedDB(null);
-                }
-
-                if (NetworkResponse) {
-                    const formatNetworkList = NetworkResponse.map(item => ({
-                        value: item.id,
-                        label: item.APP_NAME
-                    }));
-                    setNetworkList(formatNetworkList);
-
-                    const selectedNetwork = await appService.fetchAppsById(appsByIdResponse.NETWORK);
-                    const formatNetwork = {
-                        value: selectedNetwork.id,
-                        label: selectedNetwork.APP_NAME
-                    };
-                    setSelectedNetwork(formatNetwork);
-                } else {
-                    setNetworkList([]);
-                    setSelectedNetwork(null);
-                }
-
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                setSelectedOS(null);
-                setSelectedDB(null);
-                setDBList([]);
+            } else {
                 setOSList([]);
+                setSelectedOS(null);
+            }
+    
+            // Process DBResponse if available
+            if (DBResponse) {
+                const formatDBList = DBResponse.map(item => ({
+                    value: item.id,
+                    label: item.APP_NAME
+                }));
+                setDBList(formatDBList);
+    
+                const selectedDB = await fetchWithErrorHandling(() => appService.fetchAppsById(appsByIdResponse?.DATABASE));
+                if (selectedDB) {
+                    const formatDB = { value: selectedDB.id, label: selectedDB.APP_NAME };
+                    setSelectedDB(formatDB);
+                }
+            } else {
+                setDBList([]);
+                setSelectedDB(null);
+            }
+    
+            // Process NetworkResponse if available
+            if (NetworkResponse) {
+                const formatNetworkList = NetworkResponse.map(item => ({
+                    value: item.id,
+                    label: item.APP_NAME
+                }));
+                setNetworkList(formatNetworkList);
+    
+                const selectedNetwork = await fetchWithErrorHandling(() => appService.fetchAppsById(appsByIdResponse?.NETWORK));
+                if (selectedNetwork) {
+                    const formatNetwork = { value: selectedNetwork.id, label: selectedNetwork.APP_NAME };
+                    setSelectedNetwork(formatNetwork);
+                }
+            } else {
                 setNetworkList([]);
+                setSelectedNetwork(null);
+            }
+    
+            // Process ToolResponse (you can add further handling if needed)
+            if (ToolResponse) {
+               
+                // Additional tool-related logic can go here if needed
+            } else {
+                setToolList([]);
             }
         };
-
+    
         fetchData();
-
     }, [id]);
+    
 
 
     const handleHostingTypeVisibility = () => {
@@ -502,6 +517,14 @@ const MyApplicationGeneralInfo = () => {
         
         //PASSWORD
         if (
+            selectedApps.AUTHENTICATION_TYPE === 'Single-Sign-On (SSO)' && 
+            selectedApps.PW_CONFIGURABLE === 'No'
+        ) {
+            setAuthentication(true)
+            authenticationValid = true;
+            
+        } else if (
+            selectedApps.PW_CONFIGURABLE === 'Yes' &&
             isValidInteger(passwordData.LENGTH) &&
             isValidInteger(passwordData.AGE) &&
             isValidInteger(passwordData.HISTORY) &&
@@ -509,8 +532,8 @@ const MyApplicationGeneralInfo = () => {
         ) {
             setAuthentication(true)
             authenticationValid = true;
-            
-        } else {
+        }
+        else {
             setAuthentication(false)
             authenticationValid = false;
            
@@ -567,7 +590,6 @@ const MyApplicationGeneralInfo = () => {
                             padding: '0px 5px'
                         }}>System Type:</label>
                         <div style={{
-                            width: '500px',
                             marginBottom: '18px',
                             position: 'relative',
                             zIndex: '99999'  // Lower z-index than the label
@@ -619,7 +641,6 @@ const MyApplicationGeneralInfo = () => {
                             padding: '0px 5px'
                         }}>Development Type:</label>
                         <div style={{
-                            width: '500px',
                             marginBottom: '18px',
                             position: 'relative',
                             zIndex: '9'  // Lower z-index than the label
@@ -648,7 +669,6 @@ const MyApplicationGeneralInfo = () => {
                             padding: '0px 5px'
                         }}>Hosting:</label>
                         <div style={{
-                            width: '500px',
                             marginBottom: '18px',
                             position: 'relative',
                             zIndex: '7'  // Lower z-index than the label
@@ -679,7 +699,6 @@ const MyApplicationGeneralInfo = () => {
                                 padding: '0px 5px'
                             }}>Operating System:</label>
                             <div style={{
-                                width: '500px',
                                 marginBottom: '18px',
                                 position: 'relative',
                                 zIndex: '5'  // Lower z-index than the label
@@ -716,7 +735,6 @@ const MyApplicationGeneralInfo = () => {
                                 padding: '0px 5px'
                             }}>Database:</label>
                             <div style={{
-                                width: '500px',
                                 marginBottom: '18px',
                                 position: 'relative',
                                 zIndex: '3'  // Lower z-index than the label
@@ -753,7 +771,6 @@ const MyApplicationGeneralInfo = () => {
                                 padding: '0px 5px'
                             }}>Network:</label>
                             <div style={{
-                                width: '500px',
                                 marginBottom: '18px',
                                 position: 'relative',
                                 zIndex: '2'  // Lower z-index than the label
@@ -806,7 +823,6 @@ const MyApplicationGeneralInfo = () => {
                             padding: '0px 5px'
                         }}>Authentication Mechanism:</label>
                         <div style={{
-                            width: '500px',
                             marginBottom: '18px',
                             position: 'relative',
                             zIndex: '99'  // Lower z-index than the label
@@ -835,7 +851,6 @@ const MyApplicationGeneralInfo = () => {
                             padding: '0px 5px'
                         }}>Password Settings Configured by Management?</label>
                         <div style={{
-                            width: '500px',
                             marginBottom: '18px',
                             position: 'relative',
                             zIndex: '97'  // Lower z-index than the label
@@ -920,13 +935,13 @@ const MyApplicationGeneralInfo = () => {
             <ResponsiveContainer>
 
                 <mui.Breadcrumbs aria-label="breadcrumb">
-                    <mui.Link underline="hover" color="inherit" href="/Dashboard">
+                    <mui.Link underline="hover" color="inherit" href="/dashboard">
                         <i className="material-icons">home</i>
                     </mui.Link>
-                    <mui.Link underline="hover" color="inherit" href="/Dashboard">
+                    <mui.Link underline="hover" color="inherit" href="/dashboard">
                         My Dashboard
                     </mui.Link>
-                    <mui.Link underline="hover" color="inherit" href="/Applications">
+                    <mui.Link underline="hover" color="inherit" href="/applications">
                         {selectedApps.COMPANY_NAME}
                     </mui.Link>
                     <mui.Typography color="text.primary"> {selectedApps.APP_NAME}</mui.Typography>

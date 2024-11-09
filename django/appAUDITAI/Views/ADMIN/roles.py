@@ -45,10 +45,6 @@ class UserViewSet(viewsets.ModelViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    # def get_queryset(self):
-    #     # Filter only active users
-    #     return User.objects.filter(is_active=True)
-
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
@@ -67,12 +63,14 @@ class UserViewSetbyID(viewsets.ModelViewSet):
 class USERROLESViewSet(viewsets.ModelViewSet):
     queryset = USERROLES.objects.all()
     serializer_class = USERROLESSerializer
-    lookup_field = 'USERNAME'
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated] 
+    lookup_field = 'USERNAME'
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
+
+        print(serializer)
         if serializer.is_valid():
             self.perform_create(serializer)
             headers = self.get_success_headers(serializer.data)
@@ -100,7 +98,7 @@ class USERROLESViewSetbyCompany(ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        company_id = self.kwargs['COMPANY_ID']  # Fetching company_id from URL parameter
+        company_id = self.kwargs['COMPANY_ID']
         return USERROLES.objects.filter(COMPANY_ID=company_id)
 
 class SystemSettingViewSet(viewsets.ModelViewSet):

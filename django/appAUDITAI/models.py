@@ -217,7 +217,7 @@ class MULTIPLE_COMPANY(models.Model):
 class USERROLES(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     COMPANY_ID = models.ManyToManyField(COMPANY,blank=True)
-    USERNAME = models.ForeignKey(User,on_delete=models.CASCADE)
+    USERNAME = models.ForeignKey(User,on_delete=models.CASCADE,blank=True, null=True)
 
     #LOG
     CREATED_BY =  models.CharField(max_length=150,blank=True,null=True)

@@ -238,7 +238,7 @@ const ManageUsersDetails = () => {
                     Company Assignment:
                 </mui.Typography>
 
-                <div style={{ width: '500px', marginTop: '18px' }}>
+                <div style={{ marginTop: '18px' }}>
                     <MultipleSelect
                         isMultiSelect={true}
                         selectedValue={formattedSelectedCompanies}
@@ -255,7 +255,7 @@ const ManageUsersDetails = () => {
                     Assiged Roles:
                 </mui.Typography>
 
-                <div style={{ width: '500px', marginTop: '18px' }}>
+                <div style={{ marginTop: '18px' }}>
                     <MultipleSelect
                         isMultiSelect={true}
                         defaultValue={formattedSelectedCompanies}
