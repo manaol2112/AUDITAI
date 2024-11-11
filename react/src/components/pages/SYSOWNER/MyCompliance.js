@@ -341,10 +341,10 @@ const SysOwnerCompliance = () => {
         <div>
             <ResponsiveContainer>
                 <mui.Breadcrumbs aria-label="breadcrumb">
-                    <mui.Link underline="hover" color="inherit" href="/Dashboard">
+                    <mui.Link underline="hover" color="inherit" href="/dashboard">
                         <i className="material-icons">home</i>
                     </mui.Link>
-                    <mui.Link underline="hover" color="inherit" href="/Dashboard">
+                    <mui.Link underline="hover" color="inherit" href="/dashboard">
                         My Dashboard
                     </mui.Link>
                     <mui.Typography color="text.primary">Compliance</mui.Typography>

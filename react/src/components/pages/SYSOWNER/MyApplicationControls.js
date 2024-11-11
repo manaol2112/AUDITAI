@@ -28,14 +28,18 @@ const MyApplicationControls = () => {
     const [selectedApprover, setSelectedApprover] = useState([]);
     const [selectedGrantor, setSelectedGrantor] = useState([]);
     const [selectedProcessDiff, setSelectedProcessDiff] = useState([]);
+    const [selectedProcessDiffOther, setSelectedProcessDiffOther] = useState([]);
 
     //TERMINATION
     const [termrecordExist, setTermRecordExist] = useState(false);
     const [terminationData, setTerminationData] = useState([]);
     const [selectedNetReliance, setSelectedNetReliance] = useState([]);
     const [selectedTermDoc, setSelecteTermDoc] = useState([]);
+    const [selectedTermNotifyer, setSelecteTermNotifyer] = useState([]);
     const [selectedTermProcess, setSelectedTermProcess] = useState([]);
     const [selectedDisableType, setSelectedDisableType] = useState([]);
+    const [selectedTermDiff, setSelectedTermDiff] = useState([]);
+    const [selectedTermDiffOther, setSelectedTermDiffOther] = useState([]);
 
     //UAR
     const [uarrecordExist, setUARRecordExist] = useState(false);
@@ -151,7 +155,9 @@ const MyApplicationControls = () => {
                     const netRelianceArray = safeSplit(terminationRecord.NETWORK_RELIANCE);
                     const documentationArray = safeSplit(terminationRecord.TERM_DOCUMENTATION);
                     const termprocessArray = safeSplit(terminationRecord.TERM_PROCESS);
+                    const termprocessdiffArray = safeSplit(terminationRecord.PROCESS_DIFFERENCE);
                     const disabletypeArray = safeSplit(terminationRecord.DISABLE_TYPE);
+                    const notifyertypeArray = safeSplit(terminationRecord.TERM_NOTIFYER);
                     
                     setTerminationData(terminationRecord)
 
@@ -160,6 +166,12 @@ const MyApplicationControls = () => {
                         label: item,
                     }));
                     setSelectedNetReliance(netreliance);
+
+                    const termnotifyer = notifyertypeArray.map(item => ({
+                        value: item,
+                        label: item,
+                    }));
+                    setSelecteTermNotifyer(termnotifyer);
 
                     const termdoc = documentationArray.map(item => ({
                         value: item,
@@ -172,6 +184,12 @@ const MyApplicationControls = () => {
                         label: item,
                     }));
                     setSelectedTermProcess(termprocess);
+
+                    const termprocessdiff = termprocessdiffArray.map(item => ({
+                        value: item,
+                        label: item,
+                    }));
+                    setSelectedTermDiff(termprocessdiff);
 
                     const disabletype = disabletypeArray.map(item => ({
                         value: item,
@@ -499,6 +517,7 @@ const MyApplicationControls = () => {
 
         //TERMINATION   
         if (
+            isNonEmptyString(terminationData.TERM_NOTIFYER) &&
             isNonEmptyString(terminationData.NETWORK_RELIANCE) &&
             isNonEmptyString(terminationData.TIMELINESS) &&
             isNonEmptyString(terminationData.TERM_DOCUMENTATION) &&
@@ -605,6 +624,11 @@ const MyApplicationControls = () => {
         { value: 'Verbal', label: 'Verbal' },
     ];
 
+    const termed_notifyer = [
+        { value: 'HR', label: 'HR' },
+        { value: 'Immediate Superior/Manager', label: 'Immediate Superior/Manager' },
+    ];
+
     const revokeMethodOptions = [
         { value: 'Manual', label: 'Manual' },
         { value: 'Automated', label: 'Automated' },
@@ -613,7 +637,7 @@ const MyApplicationControls = () => {
     const networkrelianceOptions = [
         { value: 'Yes - Full Reliance', label: 'Yes - Full Reliance' },
         { value: 'Yes - Partial Reliance', label: 'Yes - Partial Reliance' },
-        { value: 'No - Not Reyling', label: 'No - Not Relying' },
+        { value: 'No - Not Relying', label: 'No - Not Relying' },
     ];
 
     const revokeOptions = [
@@ -836,12 +860,26 @@ const MyApplicationControls = () => {
             saveTermChanges(updatedData)
     }
 
+    const handleTermNotifyerChange = (selectedOptions) => {
+        const formatted_termnotifyer = selectedOptions.map(option => option.value);
+        const termnotifyer = formatted_termnotifyer.join(',');
+
+        setSelecteTermNotifyer(selectedOptions)
+        
+            const updatedData = {
+                ...terminationData,
+                TERM_NOTIFYER: termnotifyer
+            };
+            // Save changes with the updated state
+            saveTermChanges(updatedData)
+    }
+
     const handleTermProcessChange = (selectedOptions) => {
         const formatted_termprocess = selectedOptions.map(option => option.value);
         const termprocess = formatted_termprocess.join(',');
 
         setSelectedTermProcess(selectedOptions)
-        
+
             const updatedData = {
                 ...terminationData,
                 TERM_PROCESS: termprocess
@@ -864,6 +902,20 @@ const MyApplicationControls = () => {
             saveTermChanges(updatedData)
     }
 
+
+    const handleTermedDiffChange = (selectedOptions) => {
+
+        const process = selectedOptions.value
+        setSelectedTermDiff(selectedOptions)
+        
+            const updatedData = {
+                ...terminationData,
+                PROCESS_DIFFERENCE: process
+            };
+            // Save changes with the updated state
+            saveTermChanges(updatedData)
+    };
+
     const handleTermChange = (e) => {
         const { name, value } = e.target;
 
@@ -883,7 +935,38 @@ const MyApplicationControls = () => {
 
     };
 
+    const handleTermDiffChange = (e) => {
+        const { name, value } = e.target;
+
+        if (saveTimeout.current) {
+            clearTimeout(saveTimeout.current);
+        }
+            const updatedData = {
+                ...terminationData,
+                [name]: value
+            };
+            // Save changes with the updated state
+            saveTimeout.current = setTimeout(() => {
+                saveTermChanges(updatedData);
+            }, 1000); 
+
+            setTerminationData(updatedData)
+    };
+
+
     const handleTermBlur = (e) => {
+        const { name, value } = e.target;
+
+            const updatedData = {
+                ...terminationData,
+                [name]: value
+            };
+            saveTermChanges(updatedData);
+
+            setTerminationData(updatedData)
+    };
+
+    const handleTermDiffBlur = (e) => {
         const { name, value } = e.target;
 
             const updatedData = {
@@ -1314,7 +1397,7 @@ const MyApplicationControls = () => {
                         </mui.Typography>
 
                         <mui.Typography variant="subtitle2" display="block">
-                            Are there any differences in granting access of non-employee (e.g., vendors, contractors)?
+                            Are there any differences in the provisioning process between regular employees and temporary/contract based employees?
                         </mui.Typography>
 
                         <div style={{ marginTop: '10px', marginBottom: '18px', position: 'relative' }}>
@@ -1419,6 +1502,22 @@ const MyApplicationControls = () => {
                         </mui.Typography>
 
                         <mui.Typography variant="subtitle2">
+                            Who is responsible in notifying the administrators of the termed users?
+                        </mui.Typography>
+
+                        <div style={{ marginTop: '10px', marginBottom: '18px', position: 'relative' }}>
+                            <MultipleSelect
+                                isMultiSelect={true}
+                                placeholderText="Select Documentation Form"
+                                selectedOptions={selectedTermNotifyer}
+                                selectOptions={termed_notifyer}
+                                value={selectedTermNotifyer}
+                                handleChange={handleTermNotifyerChange}
+                            />
+                        </div>
+
+
+                        <mui.Typography variant="subtitle2">
                             How are the system administrators notified of the termed users?
                         </mui.Typography>
 
@@ -1503,6 +1602,39 @@ const MyApplicationControls = () => {
                             value={terminationData.DISABLE_TYPE_OTHER}
                             onChange={handleTermChange}
                             onBlur={handleTermBlur}
+                        />
+                    </mui.Paper>
+
+                    <mui.Paper sx={{ padding: '20px', marginTop: '20px' }}>
+                        <mui.Typography variant="overline" style={{ marginBottom: '20px' }}>
+                            Process Confirmation:
+                        </mui.Typography>
+
+                        <mui.Typography variant="subtitle2">
+                            Does the termination process described above applies to temporary/contract based workers?
+                        </mui.Typography>
+
+                        <div style={{ marginTop: '10px', marginBottom: '18px', position: 'relative' }}>
+                            <MultipleSelect
+                                isMultiSelect={false}
+                                defaultValue={terminationData.PROCESS_DIFFERENCE ? terminationData.PROCESS_DIFFERENCE : 'Select Confirmation*'}
+                                placeholderText="Select Confirmation"
+                                selectOptions={YesNoOptions}
+                                selectedOptions={selectedTermDiff ? selectedTermDiff: ''}
+                                handleChange={handleTermedDiffChange}
+                            />
+                        </div>
+
+                        <mui.Typography variant="subtitle2" sx={{ marginRight: '20px' }}>
+                            If your answer on the question above is 'No', briefly describe the termination process for temporary/contract based workers in the section below. 
+                        </mui.Typography>
+                        <NormalTextField
+                            isMultiLine={true}
+                            rows="5"
+                            name="PROCESS_DIFFERENCE_OTHER"
+                            value={terminationData?.PROCESS_DIFFERENCE_OTHER}
+                            onChange={handleTermDiffChange}
+                            onBlur={handleTermDiffBlur}
                         />
                     </mui.Paper>
 
@@ -2064,7 +2196,6 @@ const MyApplicationControls = () => {
         },
     ];
 
-
     const customMainContent = (
         <div>
             <ResponsiveContainer>
@@ -2093,10 +2224,7 @@ const MyApplicationControls = () => {
 
                 <Separator />
 
-
                 <DynamicTabs tabs={tabs} />
-
-
 
             </ResponsiveContainer>
         </div>

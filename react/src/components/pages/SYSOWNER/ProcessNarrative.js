@@ -222,10 +222,10 @@ const ProcessNarrative = () => {
         <div>
             <ResponsiveContainer>
                 <mui.Breadcrumbs aria-label="breadcrumb">
-                    <mui.Link underline="hover" color="inherit" href="/Dashboard">
+                    <mui.Link underline="hover" color="inherit" href="/dashboard">
                         <i className="material-icons">home</i>
                     </mui.Link>
-                    <mui.Link underline="hover" color="inherit" href="/Dashboard">
+                    <mui.Link underline="hover" color="inherit" href="/dashboard">
                         My Dashboard
                     </mui.Link>
                     <mui.Typography color="text.primary"> Process Narrative</mui.Typography>
@@ -262,10 +262,9 @@ const ProcessNarrative = () => {
             >
                 {selectedApp && (
                     <>
-                        <MenuItem onClick={() => navigate(`/ProcessNarrative/${selectedApp.appID}`)} disableRipple>
+                        <MenuItem onClick={() => navigate(`/ProcessNarrative/${selectedApp.COMPANY_NAME}/${selectedApp.appID}`)} disableRipple>
                             <KeyIcon />
                             Access Security
-                           
                         </MenuItem>
 
                         <Divider sx={{ my: 0.5 }} />

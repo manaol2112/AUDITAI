@@ -167,10 +167,14 @@ class AppUserDataMappingView(APIView):
                 csv_data = io.TextIOWrapper(saved_file.file, encoding='utf-8')
                 csv_reader = csv.reader(csv_data)
                 header = next(csv_reader)
-                header = [field.strip('\ufeff') for field in header]
+                header = [field.strip('\ufeff').lower() for field in header]
                 row_count = sum(1 for _ in csv_reader)  # Count the number of rows
+               # Convert the expected fields to lowercase
                 expected_fields = ['USER_ID', 'EMAIL', 'FIRST_NAME', 'LAST_NAME', 'ROLE', 'STATUS', 'DATE_GRANTED', 'DATE_REVOKED', 'LAST_LOGIN']
-                missing_fields = [field for field in expected_fields if field not in header]
+                expected_fields_lower = [field.lower() for field in expected_fields]
+                
+                # Check for missing fields (case-insensitive comparison)
+                missing_fields = [field for field in expected_fields_lower if field not in header]
 
                 if missing_fields:
                     return JsonResponse({'error': 'Missing field(s) in the attached template: {}'.format(', '.join(missing_fields))}, status=status.HTTP_400_BAD_REQUEST)

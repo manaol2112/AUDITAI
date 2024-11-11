@@ -34,7 +34,7 @@ const Login = () => {
       console.error('Login error:', error);
       setErrorMessage('Login failed. Please try again.');
     }
-  };
+  };  
 
   const handleLogout = async (e) => {
     e.preventDefault();
@@ -45,11 +45,11 @@ const Login = () => {
   };
 
   useEffect(() => {
-    const token = Cookies.get('token');
-    if (token) {
-      setIsLoggedIn(true); // If token exists, mark the user as logged in
+    if (isLoggedIn) {
+      setIsLoggedIn=true
+      navigate('/dashboard');
     }
-  }, []);
+  }, [isLoggedIn, navigate]);
 
   return (
     <div style={{ 

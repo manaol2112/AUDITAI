@@ -1173,10 +1173,13 @@ class TERMINATION_PROCESS(models.Model):
     TIMELINESS = models.CharField(max_length=100,blank=True,null=True)
     TERM_DOCUMENTATION = models.CharField(max_length=100,blank=True,null=True)
     TERM_DOCUMENTATION_OTHER = models.CharField(max_length=500,blank=True,null=True)
+    TERM_NOTIFYER = models.CharField(max_length=50,blank=True,null=True)
     TERM_PROCESS = models.CharField(max_length=100,blank=True,null=True)
     TERM_AUTOMATED_DESC = models.CharField(max_length=500,blank=True,null=True)
     DISABLE_TYPE =  models.CharField(max_length=500,blank=True,null=True)
     DISABLE_TYPE_OTHER =  models.CharField(max_length=500,blank=True,null=True)
+    PROCESS_DIFFERENCE = models.CharField(max_length=100,blank=True,null=True)
+    PROCESS_DIFFERENCE_OTHER = models.CharField(max_length=500,blank=True,null=True)
     LAST_CERTIFIED = models.DateField(null=True)
     CERTIFIED_BY = models.CharField(max_length=50, blank=True, null=True)
 

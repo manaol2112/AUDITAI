@@ -66,7 +66,7 @@ const App = () => {
         {isGroupMember('Administrator') && (
           <Route path="/" element={<PrivateRoute requiredGroup="Administrator" />}>
             <Route index path="/" element={<Dashboard />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route index path="/dashboard" element={<Dashboard />} />
             <Route path="/companies" element={<Companies />} />
             <Route path="/companies/:companyId" element={<CompanyDetails />} />
             <Route path="/systemRoles" element={<SystemRoles />} />
@@ -97,7 +97,7 @@ const App = () => {
             <Route  path="/applications/Controls/:id" element={<MyApplicationControls />} />
             <Route  path="/compliance" element={<SysOwnerCompliance />} />
             <Route  path="/processNarrative" element={<ProcessNarrative />} />
-            <Route  path="/processNarrative/:id" element={<ProcessNarrativeDetails />} />
+            <Route  path="/processNarrative/:company/:id" element={<ProcessNarrativeDetails />} />
           </Route>
         )}
 

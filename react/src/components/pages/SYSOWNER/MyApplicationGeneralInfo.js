@@ -180,7 +180,6 @@ const MyApplicationGeneralInfo = () => {
             AUTHENTICATION_TYPE: auth
         };
         saveChanges(updatedData);
-
     };
 
     const handleConfigChange = (selectedType) => {
@@ -323,7 +322,7 @@ const MyApplicationGeneralInfo = () => {
                 const visibility = hosting === 'On-premise' ? 'block' : 'none';
                 setHostingTypeVisibility(visibility);
             }
-
+    
             // Process appPWResponse if available
             if (appPWResponse) {
                 setPasswordData(appPWResponse);
@@ -832,9 +831,10 @@ const MyApplicationGeneralInfo = () => {
                                 defaultValue={selectedApps.AUTHENTICATION_TYPE ? selectedApps.AUTHENTICATION_TYPE : 'Select Network*'}
                                 placeholderText="Select Login Method*"
                                 selectOptions={loginOptions}
-                                selectedOptions={selectedAuth ? selectedAuth : ''}
+                                selectedOptions={selectedAuth}
                                 handleChange={handleAuthChange}
                             />
+
                         </div>
                     </div>
 
@@ -860,7 +860,7 @@ const MyApplicationGeneralInfo = () => {
                                 defaultValue={selectedApps.PW_CONFIGURABLE ? selectedApps.PW_CONFIGURABLE : 'Select Choice*'}
                                 placeholderText="Select Choice*"
                                 selectOptions={configureOptions}
-                                selectedOptions={selectedConfig ? selectedConfig : ''}
+                                selectedOptions={selectedConfig}
                                 handleChange={handleConfigChange}
                             />
                         </div>

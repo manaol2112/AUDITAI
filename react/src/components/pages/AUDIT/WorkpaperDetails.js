@@ -265,7 +265,7 @@ const WorkpapersDetails = () => {
     const HeaderContainer = styled(mui.Box)(({ theme }) => ({
         backgroundColor: theme.palette.grey, // Light grey background
         padding: '10px 20px', // Adjust padding as needed
-        borderRadius: '4px 4px 0 0', // Rounded corners at the top
+        borderRadius: '\px 4px 0 0', // Rounded corners at the top
     }));
 
     const label = { inputProps: { 'aria-label': 'Switch demo' } };
@@ -915,10 +915,10 @@ const WorkpapersDetails = () => {
         <div>
             <ResponsiveContainer>
                 <mui.Breadcrumbs aria-label="breadcrumb">
-                    <mui.Link underline="hover" color="inherit" href="/Dashboard">
+                    <mui.Link underline="hover" color="inherit" href="/dashboard">
                         <i className="material-icons">home</i>
                     </mui.Link>
-                    <mui.Link underline="hover" color="inherit" href="/Dashboard">
+                    <mui.Link underline="hover" color="inherit" href="/dashboard">
                         My Dashboard
                     </mui.Link>
                     <mui.Link underline="hover" color="inherit" href={`/Audit/Projects/${selectedProject.id}`}>
