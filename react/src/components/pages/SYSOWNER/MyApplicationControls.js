@@ -36,7 +36,9 @@ const MyApplicationControls = () => {
     const [copyProvisioning, setCopyProvisioning] = useState({});
     const [copyTermination, setCopyTermination] = useState({});
     const [copyUAR, setCopyUAR] = useState({});
-  
+    const [copyAdmin, setCopyAdmin] = useState({});
+    const [copyAppName, setCopyAppName] = useState({});
+    
     //PROVISIONING
     const [recordExist, setRecordExist] = useState(false);
     const [provisioningData, setProvisioningData] = useState([]);
@@ -114,13 +116,318 @@ const MyApplicationControls = () => {
 
     const copyProcess = async (e) => {
         e.preventDefault();
+
         try {
 
-       
+        if(copyProvisioning === true) {
+
+            try {
+                //Provisioning
+                const provisioningCopy = await appService.getProvisioningProcessByID(copyAppName);
+
+                if(provisioningCopy) {
+
+                    setProvisioningData(provisioningCopy);
+
+                      // Safely split the strings
+                      const formArray = safeSplit(provisioningCopy.FORM);
+                      const approvalArray = safeSplit(provisioningCopy.APPROVERS);
+                      const grantorArray = safeSplit(provisioningCopy.GRANTOR);
+                      const processArray = provisioningCopy.PROCESS_DIFFERENCE
+                     
+                      const form = formArray.map(item => ({
+                          value: item,
+                          label: item,
+                      }));
+  
+                      setSelectedForm(form);
+      
+                      const approver = approvalArray.map(item => ({
+                          value: item,
+                          label: item,
+                      }));
+                      setSelectedApprover(approver);
+      
+                      const grantor = grantorArray.map(item => ({
+                          value: item,
+                          label: item,
+                      }));
+                      setSelectedGrantor(grantor);
+  
+                      const process = {
+                          value: provisioningCopy.PROCESS_DIFFERENCE,
+                          label: provisioningCopy.PROCESS_DIFFERENCE
+                      };
+                      setSelectedProcessDiff(process)
+
+                      const updatedData = {
+                        ...provisioningCopy,
+                        APP_NAME: id,
+                    };
+
+                    saveChanges(updatedData)
+
+                }
+                
+
+            } catch (fetchError) {
+                console.error('Error copying provisioning details:', fetchError);
+            }
+
+        }
+
+        if(copyTermination === true) {
+
+            try {
+                
+                //Termination Copy
+                const terminationCopy = await appService.getTerminationProcessByID(copyAppName);
+
+                if(terminationCopy) {
+
+                    const netRelianceArray = safeSplit(terminationCopy.NETWORK_RELIANCE);
+                    const documentationArray = safeSplit(terminationCopy.TERM_DOCUMENTATION);
+                    const termprocessArray = safeSplit(terminationCopy.TERM_PROCESS);
+                    const termprocessdiffArray = safeSplit(terminationCopy.PROCESS_DIFFERENCE);
+                    const disabletypeArray = safeSplit(terminationCopy.DISABLE_TYPE);
+                    const notifyertypeArray = safeSplit(terminationCopy.TERM_NOTIFYER);
+                    
+                    setTerminationData(terminationCopy)
+
+                    const netreliance = netRelianceArray.map(item => ({
+                        value: item,
+                        label: item,
+                    }));
+                    setSelectedNetReliance(netreliance);
+
+                    const termnotifyer = notifyertypeArray.map(item => ({
+                        value: item,
+                        label: item,
+                    }));
+                    setSelecteTermNotifyer(termnotifyer);
+
+                    const termdoc = documentationArray.map(item => ({
+                        value: item,
+                        label: item,
+                    }));
+                    setSelecteTermDoc(termdoc);
+
+                    const termprocess = termprocessArray.map(item => ({
+                        value: item,
+                        label: item,
+                    }));
+                    setSelectedTermProcess(termprocess);
+
+                    const termprocessdiff = termprocessdiffArray.map(item => ({
+                        value: item,
+                        label: item,
+                    }));
+                    setSelectedTermDiff(termprocessdiff);
+
+                    const disabletype = disabletypeArray.map(item => ({
+                        value: item,
+                        label: item,
+                    }));
+                    setSelectedDisableType(disabletype);
+
+                    const updatedData = {
+                        ...terminationCopy,
+                        APP_NAME: id,
+                    };
+
+                    saveTermChanges(updatedData)
+      
+                }
+
+               
+            } catch (fetchError) {
+                console.error('Error copying termination details:', fetchError);
+            }
+            
+        }
+
+        if(copyUAR === true) {
+
+            try {
+                
+                //UAR Copy
+                const UARCopy = await appService.getUARProcessByID(copyAppName);
+
+                if (UARCopy) {
+
+                    setUARData(UARCopy)
+
+                    setUARRecordExist(true)
+
+                    const frequencyArray = safeSplit(UARCopy.FREQUENCY)
+                    const scopeuserArray = safeSplit(UARCopy.SCOPE_USERS)
+                    const scoperolesArray = safeSplit(UARCopy.SCOPE_ROLES)
+                    const extractSendArray = safeSplit(UARCopy.EXTRACTION_SEND)
+                    const extractorArray = safeSplit(UARCopy.EXTRACTOR)
+                    const reviewerArray = safeSplit(UARCopy.REVIEWER)
+                    const cnaReviewerArray = safeSplit(UARCopy.CNA_REVIEWER)
+                    const changeDocArray = safeSplit(UARCopy.CHANGE_DOCUMENTATION)
+                    const changeDocSendArray = safeSplit(UARCopy.CHANGE_DOCUMENTATION_SEND)
+                    const changeDocReviewedArray = safeSplit(UARCopy.CHANGE_DOCUMENTATION_REVIEWED)
+
+                    const frequency = frequencyArray.map(item => ({
+                        value: item,
+                        label: item,
+                    }));
+                    setFrequency(frequency);
+
+                    const scopeusers = scopeuserArray.map(item => ({
+                        value: item,
+                        label: item,
+                    }));
+                    setScopeUsers(scopeusers);
+
+                    const scoperoles = scoperolesArray.map(item => ({
+                        value: item,
+                        label: item,
+                    }));
+                    setScopeRoles(scoperoles);
+
+                    const extractor = extractorArray.map(item => ({
+                        value: item,
+                        label: item,
+                    }));
+                    setExtractor(extractor);
+
+                    const istool = {
+                        value: UARCopy.IS_TOOL,
+                        label: UARCopy.IS_TOOL
+                    };
+                    setTool(istool)
+
+                    const SOD = {
+                        value: UARCopy.SOD_CHECK,
+                        label: UARCopy.SOD_CHECK
+                    };
+                    setSOD(SOD)
+
+                    const extractsend = extractSendArray.map(item => ({
+                        value: item,
+                        label: item,
+                    }));
+                    setExtractSend(extractsend);
+
+                    const reviewer = reviewerArray.map(item => ({
+                        value: item,
+                        label: item,
+                    }));
+                    setReviewer(reviewer);
+
+                    const cnareviewer = cnaReviewerArray.map(item => ({
+                        value: item,
+                        label: item,
+                    }));
+                    setCNAReviewer(cnareviewer);
+
+                    const changedoc = changeDocArray.map(item => ({
+                        value: item,
+                        label: item,
+                    }));
+                    setChangeDoc(changedoc);
+
+                    const changedocsend = changeDocSendArray.map(item => ({
+                        value: item,
+                        label: item,
+                    }));
+                    setChangeDocSend(changedocsend);
+
+                    const changedocreviewed = changeDocReviewedArray.map(item => ({
+                        value: item,
+                        label: item,
+                    }));
+                    setChangeDocReviewed(changedocreviewed);
+
+                    const updatedData = {
+                        ...UARCopy,
+                        APP_NAME: id,
+                    };
+
+                    saveUARChanges(updatedData)
+
+                }
+
+            } catch (fetchError) {
+                console.error('Error copying UAR details:', fetchError);
+            }
+            
+        }
+
+        if(copyAdmin === true) {
+
+            try {
+                
+                //Admin  Copy
+                const AdminCopy = await appService.getAdminProcessByID(copyAppName);
+
+                if (AdminCopy) { 
+
+
+                    const admincapabilitiesArray = safeSplit(AdminCopy.CAPABILITIES)
+                    const adminfrequencyArray = safeSplit(AdminCopy.ADMIN_REVIEW_FREQUENCY)
+                    const adminreviewdocArray = safeSplit(AdminCopy.ADMIN_REVIEW_DOCUMENT)
+                    const adminrolesArray = safeSplit(AdminCopy.ADMIN_ROLES)
+                 
+
+                    setAdminRecordExist(true)
+
+                    setAdminData(AdminCopy)
+
+                    const capabilities = admincapabilitiesArray.map(item => ({
+                        value: item,
+                        label: item,
+                    }));
+                    setAdminCapabilities(capabilities);
+
+
+                    const adminreview = {
+                        value: AdminCopy.ADMIN_REVIEW_PERFORMED,
+                        label: AdminCopy.ADMIN_REVIEW_PERFORMED
+                    };
+                    setAdminReview(adminreview)
+
+                    const frequency = adminfrequencyArray.map(item => ({
+                        value: item,
+                        label: item,
+                    }));
+                    setAdminFrequency(frequency);
+
+                    const adminreviewdoc = adminreviewdocArray.map(item => ({
+                        value: item,
+                        label: item,
+                    }));
+                    setAdminReviewDoc(adminreviewdoc);
+
+                    const adminroles = adminrolesArray.map(item => ({
+                        value: item,
+                        label: item,
+                    }));
+                    setAdminRoles(adminroles);
+
+                    const updatedData = {
+                        ...AdminCopy,
+                        APP_NAME: id,
+                    };
+
+                    saveAdminChanges(updatedData)
+
+                }
+
+            } catch (fetchError) {
+                console.error('Error copying Admin details:', fetchError);
+            }
+            
+        }
+
         setSnackbarMessage('Process successfully copied');
         setSnackbarSeverity('success');
         setSnackbarOpen(true); 
         handleCloseCopyModal()
+
         } catch (error) {
         setSnackbarMessage('There was a problem copying existing process]');
         setSnackbarSeverity('error');
@@ -130,7 +437,7 @@ const MyApplicationControls = () => {
     };
 
    
-    // Fetch the selected app++
+    // Fetch the selected app
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -1355,32 +1662,8 @@ const MyApplicationControls = () => {
     const handleCopyAppChange = (selectedOptions) => {
         const appName = selectedOptions.value
         setSelectedApptoCopy(selectedOptions)
-
-        const fetchProcesses = async () => {
-            try {
-                
-                //Provisioning
-                const provisioningCopy = await appService.getProvisioningProcessByID(appName);
-                setCopyProvisioning = provisioningCopy
-
-                console.log(provisioningCopy)
-               
-                const filteredList = provisioningCopy.map(item => ({
-                    value: item.id,
-                    label: item.APP_NAME,
-                }));
-                
-                setSelectedAppsbyCompany(filteredList);
-                
-
-            } catch (fetchError) {
-                console.error('Error fetching apps details:', fetchError);
-            }
-        };
-
-        fetchProcesses();
+        setCopyAppName(selectedOptions.value)
     }
-
 
     const tabs = [
 
@@ -1541,7 +1824,7 @@ const MyApplicationControls = () => {
             content: (
                 <div>
                     <mui.Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', textAlign: 'center' }}>
-                        <mui.Tooltip title="Copy Process">
+                        <mui.Tooltip title="Copy Process" onClick={handleOpenCopyModal}>
                             <mui.IconButton>
                                 <CopyAllRoundedIcon sx={{ width: 25, height: 25, color: '#046FB2' }} />
                             </mui.IconButton>
@@ -1755,7 +2038,7 @@ const MyApplicationControls = () => {
             content: (
                 <div>
                     <mui.Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', textAlign: 'center' }}>
-                        <mui.Tooltip title="Copy Process">
+                        <mui.Tooltip title="Copy Process" onClick={handleOpenCopyModal}>
                             <mui.IconButton>
                                 <CopyAllRoundedIcon sx={{ width: 25, height: 25, color: '#046FB2' }} />
                             </mui.IconButton>
@@ -2128,7 +2411,7 @@ const MyApplicationControls = () => {
             content: (
                 <div>
                     <mui.Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', textAlign: 'center' }}>
-                        <mui.Tooltip title="Copy Process">
+                        <mui.Tooltip title="Copy Process" onClick={handleOpenCopyModal}>
                             <mui.IconButton>
                                 <CopyAllRoundedIcon sx={{ width: 25, height: 25, color: '#046FB2' }} />
                             </mui.IconButton>
@@ -2262,44 +2545,42 @@ const MyApplicationControls = () => {
         },
         {
             value: '5',
-            label: 'Job Monitoring',
+            label: 'Change Management',
             content: (
                 <div>
-                    <mui.Paper sx={{ padding: '20px' }}>
-                        <mui.Typography variant="overline">
-                            BATCH JOB ACCESS
+                        <mui.Typography variant="h6">
+                        We’re building something great here—check back soon.
                         </mui.Typography>
-                        <mui.Typography variant="subtitle2">
-                            What roles/entitlements have access to create, delete and modify configured batch jobs within the application?
-                        </mui.Typography>
-                        <div style={{ marginTop: '10px', marginBottom: '18px', position: 'relative' }}>
-                            <MultipleSelect
-                                isMultiSelect={true}
-                                placeholderText="Select Documentation Form"
-                                selectedOptions={selectedForm}
-                                selectOptions={documentationOptions}
-                                value={selectedForm}
-                                handleChange={handleFormChange}
-                            />
-                        </div>
-
-                 </mui.Paper>
 
                 </div>
             ),
         },
         {
             value: '6',
-            label: 'Back-up and Restoration',
+            label: 'Job Monitoring',
             content: (
                 <div>
-                        <mui.Typography variant="subtitle2">
-                        Coming soon...
+                    <div>
+                        <mui.Typography variant="h6">
+                            We’re building something great here—check back soon.
                         </mui.Typography>
+                </div>
 
                 </div>
             ),
         },
+        {
+            value: '7',
+            label: 'Back-up and Restoration',
+            content: (
+                <div>
+                        <mui.Typography variant="h6">
+                            We’re building something great here—check back soon.
+                        </mui.Typography>
+                </div>
+            ),
+        },
+
     ];
 
     const customMainContent = (
@@ -2331,7 +2612,6 @@ const MyApplicationControls = () => {
                 <Separator />
 
                 <DynamicTabs tabs={tabs} />
-
 
                 <Modal
                     size="lg"
@@ -2372,11 +2652,25 @@ const MyApplicationControls = () => {
                                 <AccordionDetails>
                                         <mui.Box sx={{ marginLeft: '20px' }}>
                                             <FormGroup>
-                                                <FormControlLabel control={<Checkbox />} label="Access Provisioning" />
-                                                <FormControlLabel control={<Checkbox />} label="Access Termination" />
-                                                <FormControlLabel control={<Checkbox />} label="User Access Review" />
-                                                <FormControlLabel control={<Checkbox />} label="Password/Authentication" />
-                                                <FormControlLabel control={<Checkbox />} label="Privileged Accounts" />
+                                                <FormControlLabel
+                                                    control={<Checkbox onChange={(e) => setCopyProvisioning(e.target.checked)} />}
+                                                    label="Access Provisioning"
+                                                />
+                                                 <FormControlLabel
+                                                    control={<Checkbox onChange={(e) => setCopyTermination(e.target.checked)} />}
+                                                    label="Access Termination"
+                                                />
+
+                                                <FormControlLabel
+                                                    control={<Checkbox onChange={(e) => setCopyUAR(e.target.checked)} />}
+                                                    label="User Access Review"
+                                                />
+
+                                                <FormControlLabel
+                                                    control={<Checkbox onChange={(e) => setCopyAdmin(e.target.checked)} />}
+                                                    label="Privileged Accounts"
+                                                />
+                                
                                             </FormGroup>
                                         </mui.Box>
                                 </AccordionDetails>
@@ -2412,7 +2706,6 @@ const MyApplicationControls = () => {
                                             <FormGroup>
                                                 <FormControlLabel control={<Checkbox />} label="Back-up and Restoration" />
                                                 <FormControlLabel control={<Checkbox />} label="Job Monitoring" />
-                                                <FormControlLabel control={<Checkbox />} label="Job Access Monitoring" />
                                             </FormGroup>
                                         </mui.Box>
                                 </AccordionDetails>

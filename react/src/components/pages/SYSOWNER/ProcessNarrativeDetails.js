@@ -352,8 +352,9 @@ const ProcessNarrativeDetails = () => {
                                         <>
                                             <mui.Typography sx={{ marginTop: '10px' }} variant="body2">
                                                 {terminationData.NETWORK_RELIANCE === 'Yes - Full Reliance' && (
-                                                    `${apps.COMPANY_NAME} is fully relying on the effectiveness of the network termination process. When a user's network access is terminated, the user will no longer be able to access ${apps.APP_NAME}. Refer to ${network.APP_NAME} documentation for more details on the network termination process.`
+                                                    `${apps.COMPANY_NAME} is fully relying on the effectiveness of the network termination process. When a user's network access is terminated, the user will no longer be able to access ${apps.APP_NAME}. ${network?.APP_NAME ? `Refer to ${network?.APP_NAME} documentation for more details on the network termination process.` : ''}`
                                                 )}
+
                                                 {terminationData.NETWORK_RELIANCE === 'Yes - Partial Reliance' && (
                                                     `${apps.COMPANY_NAME} is relying on the effectiveness of the network termination process. When a user's network access is terminated, the user will no longer be able to access ${apps.APP_NAME}. However, there are also users logging in directly into the system. As such, access for those users is revoked on the system layer by the administrator during the termination process.`
                                                 )}
