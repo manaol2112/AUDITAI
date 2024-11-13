@@ -15,11 +15,27 @@ import FileDownloadRoundedIcon from '@mui/icons-material/FileDownloadRounded';
 import HistoryEduRoundedIcon from '@mui/icons-material/HistoryEduRounded';
 import CopyAllRoundedIcon from '@mui/icons-material/CopyAllRounded';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
+import Modal from '../../common/Modal';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import Typography from '@mui/material/Typography';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 
 const MyApplicationControls = () => {
 
     const [selectedApps, setSelectedApps] = useState({});
+    const [selectedAppsbyCompany, setSelectedAppsbyCompany] = useState({});
+    const [selectedApptoCopy, setSelectedApptoCopy] = useState({});
+    const [copyProvisioning, setCopyProvisioning] = useState({});
+    const [copyTermination, setCopyTermination] = useState({});
+    const [copyUAR, setCopyUAR] = useState({});
   
     //PROVISIONING
     const [recordExist, setRecordExist] = useState(false);
@@ -67,8 +83,51 @@ const MyApplicationControls = () => {
     const [adminreview, setAdminReview] = useState([]);
     const [adminreviewdoc, setAdminReviewDoc] = useState([]);
 
+
+
     const { id } = useParams();
     const saveTimeout = useRef(null);
+
+    const [openCopyModal, setOpenCopyModal] = useState(false);
+
+    const handleOpenCopyModal = () => {
+        setOpenCopyModal(true);
+    };
+
+    const handleCloseCopyModal = (event, reason) => {
+        if (reason == 'backdropClick') {
+            setOpenCopyModal(true)
+        }
+        else {
+            setOpenCopyModal(false);
+        }
+    };
+
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
+    const handleSnackbarClose = () => {
+        setSnackbarOpen(false);
+    };
+
+
+    const copyProcess = async (e) => {
+        e.preventDefault();
+        try {
+
+       
+        setSnackbarMessage('Process successfully copied');
+        setSnackbarSeverity('success');
+        setSnackbarOpen(true); 
+        handleCloseCopyModal()
+        } catch (error) {
+        setSnackbarMessage('There was a problem copying existing process]');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+        }
+
+    };
 
    
     // Fetch the selected app++
@@ -78,13 +137,30 @@ const MyApplicationControls = () => {
                 // Fetch apps by ID
                 const appsByIdResponse = await appService.fetchAppsById(id);
                 setSelectedApps(appsByIdResponse);
+
+                const appList = await appService.fetchAppsByCompany(appsByIdResponse?.COMPANY_ID);
+
+                // Filter the appList to exclude the item with the given `id`
+                const filteredAppList = appList.filter(app => app.id !== id);
+                
+                // Map the filtered list to create a new array with `value` and `label` properties
+                const filteredList = filteredAppList.map(item => ({
+                    value: item.id,
+                    label: item.APP_NAME,
+                }));
+                
+                setSelectedAppsbyCompany(filteredList);
+                
+
             } catch (fetchError) {
-                console.error('Error fetching apps:', fetchError);
+                console.error('Error fetching apps details:', fetchError);
                 setSelectedApps([]); 
+                setSelectedAppsbyCompany([]);
             }
         };
 
         fetchData();
+
     }, [id]); 
 
     const safeSplit = (value, delimiter = ',') => {
@@ -720,7 +796,7 @@ const MyApplicationControls = () => {
 
     //ADMIN PROCESS
     const capabilitiesOptions = [
-        { value: 'Manage User Access (create, update, and delete)', label: 'Manage User Access (create, update, and delete)'},
+        { value: 'Manage User Access (create;  update; and delete)', label: 'Manage User Access (create, update, and delete)'},
         { value: 'Manage System Configuration', label: 'Manage System Configuration' },
         { value: 'Develop Changes in Production', label: 'Develop Changes in Production' },
         { value: 'Implement Changes in Production', label: 'Implement Changes in Production' },
@@ -1276,6 +1352,36 @@ const MyApplicationControls = () => {
             saveAdminChanges(updatedData)
     }
 
+    const handleCopyAppChange = (selectedOptions) => {
+        const appName = selectedOptions.value
+        setSelectedApptoCopy(selectedOptions)
+
+        const fetchProcesses = async () => {
+            try {
+                
+                //Provisioning
+                const provisioningCopy = await appService.getProvisioningProcessByID(appName);
+                setCopyProvisioning = provisioningCopy
+
+                console.log(provisioningCopy)
+               
+                const filteredList = provisioningCopy.map(item => ({
+                    value: item.id,
+                    label: item.APP_NAME,
+                }));
+                
+                setSelectedAppsbyCompany(filteredList);
+                
+
+            } catch (fetchError) {
+                console.error('Error fetching apps details:', fetchError);
+            }
+        };
+
+        fetchProcesses();
+    }
+
+
     const tabs = [
 
         {
@@ -1287,7 +1393,7 @@ const MyApplicationControls = () => {
                 <div>
 
                     <mui.Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', textAlign: 'center' }}>
-                        <mui.Tooltip title="Import Existing Process">
+                        <mui.Tooltip title="Copy Process" onClick={handleOpenCopyModal}>
                             <mui.IconButton>
                                 <CopyAllRoundedIcon sx={{ width: 25, height: 25, color: '#046FB2' }} />
                             </mui.IconButton>
@@ -1435,7 +1541,7 @@ const MyApplicationControls = () => {
             content: (
                 <div>
                     <mui.Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', textAlign: 'center' }}>
-                        <mui.Tooltip title="Process Inventory">
+                        <mui.Tooltip title="Copy Process">
                             <mui.IconButton>
                                 <CopyAllRoundedIcon sx={{ width: 25, height: 25, color: '#046FB2' }} />
                             </mui.IconButton>
@@ -1649,7 +1755,7 @@ const MyApplicationControls = () => {
             content: (
                 <div>
                     <mui.Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', textAlign: 'center' }}>
-                        <mui.Tooltip title="Process Inventory">
+                        <mui.Tooltip title="Copy Process">
                             <mui.IconButton>
                                 <CopyAllRoundedIcon sx={{ width: 25, height: 25, color: '#046FB2' }} />
                             </mui.IconButton>
@@ -2022,7 +2128,7 @@ const MyApplicationControls = () => {
             content: (
                 <div>
                     <mui.Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', textAlign: 'center' }}>
-                        <mui.Tooltip title="Process Inventory">
+                        <mui.Tooltip title="Copy Process">
                             <mui.IconButton>
                                 <CopyAllRoundedIcon sx={{ width: 25, height: 25, color: '#046FB2' }} />
                             </mui.IconButton>
@@ -2225,6 +2331,109 @@ const MyApplicationControls = () => {
                 <Separator />
 
                 <DynamicTabs tabs={tabs} />
+
+
+                <Modal
+                    size="lg"
+                    open={openCopyModal}
+                    onClose={handleCloseCopyModal}
+                    header="Process Import Module"
+                    body={
+                        <>
+
+                            <mui.Paper sx={{ padding: '20px', marginTop: '20px' }}>
+                                <mui.Typography variant="body2" style={{ marginBottom: '20px' }}>
+                                    Source Application:
+                                </mui.Typography>
+
+                                <div style={{ marginTop: '10px', marginBottom: '18px', position: 'relative' }}>
+                                    <MultipleSelect
+                                        isMultiSelect={false}
+                                        placeholderText="Select Documentation Form"
+                                        selectedOptions={selectedApptoCopy}
+                                        selectOptions={selectedAppsbyCompany}
+                                        value={selectedApptoCopy}
+                                        handleChange={handleCopyAppChange}
+                                    />
+                                </div>
+
+                                <mui.Typography variant="body2" style={{ marginBottom: '20px' }}>
+                                    Select Process:
+                                </mui.Typography>
+
+                            <Accordion sx={{marginTop: '20px'}}>
+                                <AccordionSummary
+                                    expandIcon={<ArrowDropDownIcon />}
+                                    aria-controls="panel1-content"
+                                    id="panel1-header"
+                                >
+                                    <Typography>Access Security</Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                        <mui.Box sx={{ marginLeft: '20px' }}>
+                                            <FormGroup>
+                                                <FormControlLabel control={<Checkbox />} label="Access Provisioning" />
+                                                <FormControlLabel control={<Checkbox />} label="Access Termination" />
+                                                <FormControlLabel control={<Checkbox />} label="User Access Review" />
+                                                <FormControlLabel control={<Checkbox />} label="Password/Authentication" />
+                                                <FormControlLabel control={<Checkbox />} label="Privileged Accounts" />
+                                            </FormGroup>
+                                        </mui.Box>
+                                </AccordionDetails>
+                            </Accordion>
+                            <Accordion>
+                                <AccordionSummary
+                                    expandIcon={<ArrowDropDownIcon />}
+                                    aria-controls="panel2-content"
+                                    id="panel2-header"
+                                >
+                                    <Typography>Change Management</Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                        <mui.Box sx={{ marginLeft: '20px' }}>
+                                            <FormGroup>
+                                                <FormControlLabel control={<Checkbox />} label="Change Documentation and Approval" />
+                                                <FormControlLabel control={<Checkbox />} label="UAT" />
+                                                <FormControlLabel control={<Checkbox />} label="Change SOD" />
+                                            </FormGroup>
+                                        </mui.Box>
+                                </AccordionDetails>
+                            </Accordion>
+                            <Accordion>
+                                <AccordionSummary
+                                    expandIcon={<ArrowDropDownIcon />}
+                                    aria-controls="panel2-content"
+                                    id="panel2-header"
+                                >
+                                    <Typography>IT Operations</Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                        <mui.Box sx={{ marginLeft: '20px' }}>
+                                            <FormGroup>
+                                                <FormControlLabel control={<Checkbox />} label="Back-up and Restoration" />
+                                                <FormControlLabel control={<Checkbox />} label="Job Monitoring" />
+                                                <FormControlLabel control={<Checkbox />} label="Job Access Monitoring" />
+                                            </FormGroup>
+                                        </mui.Box>
+                                </AccordionDetails>
+                            </Accordion>
+
+                            </mui.Paper>
+
+                        </>
+                    }
+                    footer={
+                        <>
+                            <mui.Button onClick={handleCloseCopyModal} color="primary" sx={{marginBottom: '20px'}} >
+                                Cancel
+                            </mui.Button>
+                            <mui.Button onClick={copyProcess} color="primary" variant="contained" sx={{marginRight: '20px', marginBottom: '20px' }}>
+                                Confirm Copy
+                            </mui.Button>
+                        </>
+                    }
+                />
+
 
             </ResponsiveContainer>
         </div>

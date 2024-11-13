@@ -88,8 +88,8 @@ const App = () => {
 
         {isGroupMember('Process Owner') && (
           <Route path="/" element={<PrivateRoute requiredGroup="Process Owner" />}>
-            <Route index path="/" element={<SysOwnerDashboard />} />
-            <Route index path="/dashboard" element={<SysOwnerDashboard />} />
+            <Route  index path="/" element={<SysOwnerDashboard />} />
+            <Route  index path="/dashboard" element={<SysOwnerDashboard />} />
             <Route  path="/applications" element={<SysOwnerApplications />} />
             <Route  path="/applications/Users/:id" element={<SysOwnerApplicationsUsers />} />
             <Route  path="/applications/SetupInfo/:id" element={<MyApplicationGeneralInfo />} />

@@ -26,7 +26,10 @@ const Login = () => {
         Cookies.set('groups', JSON.stringify(groups));
         
         setIsLoggedIn(true); // Update state to show logged-in UI
-        navigate('/dashboard/'); // Redirect to the Dashboard page
+
+        window.location.href = '/dashboard';
+        // window.location.reload();
+
       } else {
         setErrorMessage('Invalid username or password. Please try again.');
       }
@@ -44,13 +47,6 @@ const Login = () => {
     navigate('/login'); // Navigate to the login page instead
   };
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      setIsLoggedIn=true
-      navigate('/dashboard');
-    }
-  }, [isLoggedIn, navigate]);
-
   return (
     <div style={{ 
       backgroundImage: `url(${backgroundImg})`, 
@@ -60,12 +56,6 @@ const Login = () => {
       justifyContent: 'center',
       alignItems: 'center'
     }}>
-      {isLoggedIn ? (
-        <div>
-          <p>You are logged in.</p>
-          <button onClick={handleLogout}>Logout</button>
-        </div>
-      ) : (
         <form onSubmit={handleLogin}>
           <div className="card text-center mx-auto my-auto"
             style={{ width: '80%', maxWidth: '30rem', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
@@ -103,7 +93,6 @@ const Login = () => {
             </div>
           </div>
         </form>
-      )}
     </div>
   );
 };
