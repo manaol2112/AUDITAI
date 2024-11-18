@@ -10,6 +10,7 @@ from appAUDITAI.Views.ADMIN.sftp import *
 from appAUDITAI.Views.ADMIN.applications import *
 from appAUDITAI.Views.ADMIN.policies import *
 from appAUDITAI.Views.ADMIN.audit import *
+from appAUDITAI.Views.ADMIN.hr import *
 
 
 router = DefaultRouter()
@@ -19,6 +20,7 @@ router.register(r'permission', PermissionViewSet)
 router.register(r'users', UserViewSet)
 router.register(r'userroles', USERROLESViewSet)
 router.register(r'systemsettings', SystemSettingViewSet)
+router.register(r'hr/data',HRViewSetbyEmail)
 router.register(r'hr-sftp', HRSFTPViewSet)
 router.register(r'hr-job-schedule', HRJobViewSet)
 router.register(r'applications', AppViewSet)

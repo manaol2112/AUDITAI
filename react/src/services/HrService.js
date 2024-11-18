@@ -1,4 +1,11 @@
-import axios from 'axios';
+import axiosInstance from './AxiosService';
 
-const API_URL = 'http://localhost:8000/api'; 
+const HRService = {
 
+    fetchHRRecordByEmail: async (email) => {
+        const response = await axiosInstance.get(`hr/data/`);
+        return response.data;
+    }
+}
+
+export default HRService;

@@ -43,6 +43,7 @@ import WorkpapersDetails from './pages/AUDIT/WorkpaperDetails';
 import ProcedureLibrary from './pages/AUDIT/ProcedureLibrary';
 import ProcessNarrative from './pages/SYSOWNER/ProcessNarrative';
 import ProcessNarrativeDetails from './pages/SYSOWNER/ProcessNarrativeDetails';
+import AccessRequestDashboard from './pages/SYSOWNER/AccessRequestDashboard';
 
 
 const App = () => {
@@ -98,6 +99,7 @@ const App = () => {
             <Route  path="/compliance" element={<SysOwnerCompliance />} />
             <Route  path="/processNarrative" element={<ProcessNarrative />} />
             <Route  path="/processNarrative/:company/:id" element={<ProcessNarrativeDetails />} />
+            <Route  path="/accessrequest/dashboard" element={<AccessRequestDashboard />} />
           </Route>
         )}
 

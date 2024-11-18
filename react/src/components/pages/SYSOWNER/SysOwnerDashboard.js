@@ -90,7 +90,7 @@ const SysOwnerDashboard = () => {
                         <OutlinedCard icon="account_tree" title="Process Narrative" to="/ProcessNarrative" buttonlabel="View" />
                     </mui.Grid>
                     <mui.Grid item>
-                        <OutlinedCard icon="mark_email_unread" title="Access Requests" to="/SystemRoles" buttonlabel="View" />
+                        <OutlinedCard icon="mark_email_unread" title="Access Requests" to="/accessrequest/dashboard" buttonlabel="View" />
                     </mui.Grid>
                     <mui.Grid item>
                         <OutlinedCard icon="rate_review" title="User Access Review" to="/SystemRoles" buttonlabel="View" />

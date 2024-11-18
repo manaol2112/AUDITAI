@@ -3,6 +3,12 @@ from appAUDITAI.models import *
 from django.contrib.auth.models import Group, Permission, User
 from datetime import datetime
 
+
+class HRSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HR_RECORD
+        fields = '__all__'
+
 class CompanySerializer(serializers.ModelSerializer):
     class Meta:
         model = COMPANY
