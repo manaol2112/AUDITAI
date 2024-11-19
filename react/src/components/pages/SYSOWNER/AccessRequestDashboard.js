@@ -23,6 +23,7 @@ import RequestService from '../../../services/RequestService';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
+import { useNavigate } from 'react-router-dom';
 
 const AccessRequestDashboard = () => {
 
@@ -49,8 +50,7 @@ const AccessRequestDashboard = () => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-    
-
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchAppList = async () => {
@@ -243,58 +243,89 @@ const AccessRequestDashboard = () => {
     };
 
     const submitRequest = async (e) => {
-        
         e.preventDefault();
         try {
+
             const response = await RequestService.fetchRequestID();
             const now = new Date().toISOString();  
-        
-            if (response && response.request_id_counter) {
 
-                const updatedData = {
-                    ...accessRequestData,
-                    REQUEST_ID: 'REQ_ID#' + response.request_id_counter,
-                    DATE_REQUESTED: now,
-                    STATUS: 'Pending Approval',
-                    LAST_MODIFIED: now
-                };
+            if (response) {
 
-                const request = await RequestService.createRequest(updatedData)
+                if (requesttype.value === 'Pending Approval') {
 
-                const approvers = approver; // This should be an array of approvers, e.g., [{ name: 'Approver1', ... }, { name: 'Approver2', ... }]
-
-                for (const approver of approvers) {
-                    const approverData = {
-                        ...approver,
-                        APPROVER: accessApproverData.APPROVER,
-                        REQUEST_ID: request?.id,
+                    const updatedData = {
+                        ...accessRequestData,
+                        REQUEST_ID: 'REQ_ID#' + response.request_id_counter,
                         DATE_REQUESTED: now,
-                        STATUS: 'Pending Approval', // Or adjust the status as needed
+                        STATUS: 'Pending Approval',
                         LAST_MODIFIED: now
                     };
 
-                    const approval = await RequestService.createApproval(approverData);
-                    
-                    if (approval) {
-                       
-                        const sendmail = await RequestService.sendEmailApproval(approverData)
-                        
-                        console.log(sendmail)
+                    const request = await RequestService.createRequest(updatedData)
+
+                    const approvers = approver;
+
+                    for (const approver of approvers) {
+                        const approverData = {
+                            ...approver,
+                            APPROVER: accessApproverData.APPROVER,
+                            REQUEST_ID: request?.id,
+                            DATE_REQUESTED: now,
+                            STATUS: 'Pending Approval', // Or adjust the status as needed
+                            LAST_MODIFIED: now
+                        };
+
+                        const approval = await RequestService.createApproval(approverData);
+
+                        if (approval) {
+                            const sendmail = await RequestService.sendEmailApproval(approverData) 
+                        }
+
+                        window.location.href = `/accessrequest/success/${request.id}`;
+                    }
+
+                } else if (requesttype.value === 'Pre-Approval') {
+
+                    const updatedData = {
+                        ...accessRequestData,
+                        REQUEST_ID: 'REQ_ID#' + response.request_id_counter,
+                        DATE_REQUESTED: now,
+                        STATUS: 'Approved',
+                        LAST_MODIFIED: now
+                    };
+
+                    const request = await RequestService.createRequest(updatedData)
+
+                    const approvers = approver;
+
+                    for (const approver of approvers) {
+                        const approverData = {
+                            ...approver,
+                            APPROVER: accessApproverData.APPROVER,
+                            REQUEST_ID: request?.id,
+                            DATE_REQUESTED: now,
+                            STATUS: 'Pending Approval', // Or adjust the status as needed
+                            LAST_MODIFIED: now,
+                            DATE_APPROVED: now
+
+                        };
+
+                        const approval = await RequestService.createApproval(approverData);
+
+                        if (approval) {
+                            const sendmail = await RequestService.sendEmailApproval(approverData)
+                        }
+
+                        window.location.href = `/accessrequest/success/${request.id}`;
+
                     }
                 }
-
-            } else {
-                console.error('No request ID returned from API');
+                else {
+                    console.error('No request ID returned from API');
+                }
             }
             
-        setSnackbarMessage('Submitted access request successfully!');
-        setSnackbarSeverity('success');
-        setSnackbarOpen(true); 
-       
         } catch (error) {
-        setSnackbarMessage('There was a problem submitting access request');
-        setSnackbarSeverity('error');
-        setSnackbarOpen(true);
         console.error('Error generating request ID:', error);
         }
     };

@@ -44,6 +44,7 @@ import ProcedureLibrary from './pages/AUDIT/ProcedureLibrary';
 import ProcessNarrative from './pages/SYSOWNER/ProcessNarrative';
 import ProcessNarrativeDetails from './pages/SYSOWNER/ProcessNarrativeDetails';
 import AccessRequestDashboard from './pages/SYSOWNER/AccessRequestDashboard';
+import AccessRequestSuccess from './pages/SYSOWNER/AccessRequestSuccess';
 
 
 const App = () => {
@@ -100,6 +101,7 @@ const App = () => {
             <Route  path="/processNarrative" element={<ProcessNarrative />} />
             <Route  path="/processNarrative/:company/:id" element={<ProcessNarrativeDetails />} />
             <Route  path="/accessrequest/dashboard" element={<AccessRequestDashboard />} />
+            <Route  path="/accessrequest/success/:id" element={<AccessRequestSuccess />} />
           </Route>
         )}
 

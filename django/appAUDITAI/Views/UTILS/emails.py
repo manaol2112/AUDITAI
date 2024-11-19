@@ -22,8 +22,13 @@ class SubmitRequestView(APIView):
        
         try:
             # Create the SendGrid client
+            print(SENDGRID_API_KEY)
+           
             sg = SendGridAPIClient(api_key=SENDGRID_API_KEY)
+
+            # sg = SendGridAPIClient(api_key='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')
             
+
             # Define from and to email addresses
             from_email = Email('manaol2112@gmail.com')  # Replace with your verified SendGrid sender email
             to_email_obj = To(to_email)  # SendGrid To object, which encapsulates the email address
@@ -70,87 +75,179 @@ class SubmitRequestView(APIView):
 
         request_details = ACCESSREQUEST.objects.get(id = request_id)
 
-        formatted_roles = request_details.ROLES.replace(",", ", ")
+        if request_details.STATUS == 'Approved':
 
-        requestor_uuids = request_details.REQUESTOR.split(',')
+            if request_details: 
+                formatted_roles = request_details.ROLES.replace(",", ", ")
+                requestor_uuids = request_details.REQUESTOR.split(',')
 
-        # Convert the string representations of UUID to UUID objects
-        uuids = [UUID(uuid_str) for uuid_str in requestor_uuids]
+            system_name = APP_LIST.objects.get(id=request_details.APP_NAME)
 
-        # Query the HR_RECORD model for matching UUIDs
-        role_assignees = HR_RECORD.objects.filter(id__in=uuids)
+            uuids = [UUID(uuid_str) for uuid_str in requestor_uuids]
 
-        # Extract the names of the role assignees
-        role_assignee_names = [f"{assignee.FIRST_NAME} {assignee.LAST_NAME}" for assignee in role_assignees]
+            role_assignees = HR_RECORD.objects.filter(id__in=uuids)
 
-        role_assignee_names_str = ", ".join(role_assignee_names)
+            role_assignee_names = [f"{assignee.FIRST_NAME} {assignee.LAST_NAME}" for assignee in role_assignees]
 
-        for approver in approvers_emails:
+            role_assignee_names_str = ", ".join(role_assignee_names)
 
-            subject = f"ACTION NEEDED: APPROVE OR REJECT ACCESS REQUEST {request_details.REQUEST_ID}"
-            
-            body = f"""
-           <html>
-                <body style="font-family: Arial, sans-serif; color: #333333;">
-                    <p>Dear {approver.FIRST_NAME} {approver.LAST_NAME},</p>
+            for approver in approvers_emails:
 
-                    <p>We would like to inform you that there is a new access request pending your approval. Please find the details of the request below:</p>
-                    
-                    <table style="width: 100%; margin-top: 20px; border-collapse: collapse;">
-                        <tr>
-                            <td style="padding: 8px; border: 1px solid #ddd; width: 30%; font-weight: bold;">Request ID</td>
-                            <td style="padding: 8px; border: 1px solid #ddd;">{request_details.REQUEST_ID}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Role Assignee</td>
-                            <td style="padding: 8px; border: 1px solid #ddd;">{role_assignee_names_str} </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Role Requested</td>
-                            <td style="padding: 8px; border: 1px solid #ddd;">{formatted_roles}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Date Requested</td>
-                            <td style="padding: 8px; border: 1px solid #ddd;">{request_details.DATE_REQUESTED}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Comments</td>
-                            <td style="padding: 8px; border: 1px solid #ddd;">{request_details.COMMENTS}</td>
-                        </tr>
-                    </table>
+                subject = f"ACTION NEEDED: APPROVE OR REJECT ACCESS REQUEST {request_details.REQUEST_ID}"
+                
+                body = f"""
+                <html>
+                        <body style="font-family: Arial, sans-serif; color: #333333;">
+                            <p>Dear {approver.FIRST_NAME} {approver.LAST_NAME},</p>
 
-                    <p style="margin-top: 20px;">To proceed with the request, please select one of the following options:</p>
+                            <p>We would like to inform you that the access request you have submitted has been processed by the system and your corresponding approval has been recorded. Please find the details of the access request approval for your reference:</p>
+                            
+                            <table style="width: 100%; margin-top: 20px; border-collapse: collapse;">
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; width: 30%; font-weight: bold;">Request ID</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">{request_details.REQUEST_ID}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; width: 30%; font-weight: bold;">Entity:</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">{system_name.COMPANY_ID}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; width: 30%; font-weight: bold;">System Name:</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">{system_name}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Role Assignee</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">{role_assignee_names_str} </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Role Requested</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">{formatted_roles}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Date Approved</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">{request_details.DATE_REQUESTED}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Status</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">{request_details.STATUS}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Comments</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">{request_details.COMMENTS}</td>
+                                </tr>
+                            </table>
 
-                    <table style="margin-top: 20px;">
-                        <tr>
-                            <td style="padding-right: 10px;">
-                                <a href="http://yourdomain.com/approve/{request_details.REQUEST_ID}" 
-                                style="background-color: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-size: 16px; display: inline-block;">
-                                    Approve
-                                </a>
-                            </td>
-                            <td>
-                                <a href="http://yourdomain.com/reject/{request_details.REQUEST_ID}" 
-                                style="background-color: #dc3545; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-size: 16px; display: inline-block;">
-                                    Reject
-                                </a>
-                            </td>
-                        </tr>
-                    </table>
+                            <p>If you have have not authorized the approval of this access request, please do not hesitate to contact the admin team at your convenience.</p>
 
-                    <p>If you have any questions or require further assistance, please do not hesitate to contact the admin team at your convenience.</p>
+                            <p>Thank you for your attention to this request.</p>
 
-                    <p>Thank you for your attention to this request.</p>
+                            <br><br>
+                            <p>Best regards,</p>
+                            <p><strong>Audit-AI</strong></p>
+                        </body>
+                    </html>
 
-                    <br><br>
-                    <p>Best regards,</p>
-                    <p><strong>Audit-AI</strong></p>
-                </body>
-            </html>
+                """
+                
+                # Send email to the approver
+                self.send_email(approver.EMAIL_ADDRESS, subject, body)
 
-            """
-            
-            # Send email to the approver
-            self.send_email(approver.EMAIL_ADDRESS, subject, body)
+            return Response({'message': 'Request submitted successfully and emails sent to approvers.'}, status=status.HTTP_200_OK)
 
-        return Response({'message': 'Request submitted successfully and emails sent to approvers.'}, status=status.HTTP_200_OK)
+        elif request_details.STATUS == 'Pending Approval':
+
+            if request_details: 
+                formatted_roles = request_details.ROLES.replace(",", ", ")
+                requestor_uuids = request_details.REQUESTOR.split(',')
+
+            system_name = APP_LIST.objects.get(id=request_details.APP_NAME)
+
+            uuids = [UUID(uuid_str) for uuid_str in requestor_uuids]
+
+            role_assignees = HR_RECORD.objects.filter(id__in=uuids)
+
+            role_assignee_names = [f"{assignee.FIRST_NAME} {assignee.LAST_NAME}" for assignee in role_assignees]
+
+            role_assignee_names_str = ", ".join(role_assignee_names)
+
+            for approver in approvers_emails:
+
+                subject = f"ACTION NEEDED: APPROVE OR REJECT ACCESS REQUEST {request_details.REQUEST_ID}"
+                
+                body = f"""
+                <html>
+                        <body style="font-family: Arial, sans-serif; color: #333333;">
+                            <p>Dear {approver.FIRST_NAME} {approver.LAST_NAME},</p>
+
+                            <p>We would like to inform you that there is a new access request pending your approval. Please find the details of the request below:</p>
+                            
+                            <table style="width: 100%; margin-top: 20px; border-collapse: collapse;">
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; width: 30%; font-weight: bold;">Request ID</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">{request_details.REQUEST_ID}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; width: 30%; font-weight: bold;">Entity:</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">{system_name.COMPANY_ID}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; width: 30%; font-weight: bold;">System Name:</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">{system_name}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Role Assignee</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">{role_assignee_names_str} </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Role Requested</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">{formatted_roles}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Date Requested</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">{request_details.DATE_REQUESTED}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Status</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">{request_details.STATUS}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Comments</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">{request_details.COMMENTS}</td>
+                                </tr>
+                            </table>
+
+                            <p style="margin-top: 20px;">To proceed with the request, please select one of the following options:</p>
+
+                            <table style="margin-top: 20px;">
+                                <tr>
+                                    <td style="padding-right: 10px;">
+                                        <a href="http://yourdomain.com/approve/{request_details.REQUEST_ID}" 
+                                        style="background-color: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-size: 16px; display: inline-block;">
+                                            Approve
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="http://yourdomain.com/reject/{request_details.REQUEST_ID}" 
+                                        style="background-color: #dc3545; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-size: 16px; display: inline-block;">
+                                            Reject
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p>If you have any questions or require further assistance, please do not hesitate to contact the admin team at your convenience.</p>
+
+                            <p>Thank you for your attention to this request.</p>
+
+                            <br><br>
+                            <p>Best regards,</p>
+                            <p><strong>Audit-AI</strong></p>
+                        </body>
+                    </html>
+
+                """
+                
+                # Send email to the approver
+                self.send_email(approver.EMAIL_ADDRESS, subject, body)
+
+            return Response({'message': 'Request submitted successfully and emails sent to approvers.'}, status=status.HTTP_200_OK)
