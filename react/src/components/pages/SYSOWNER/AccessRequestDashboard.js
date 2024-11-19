@@ -19,6 +19,10 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import NormalTextField from '../../common/NormalTextField';
 import HRService from '../../../services/HrService';
+import RequestService from '../../../services/RequestService';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 
 const AccessRequestDashboard = () => {
 
@@ -29,12 +33,14 @@ const AccessRequestDashboard = () => {
     const [selectedRoles, setSelectedRoles] = useState([]);
     const [requestor, setRequestor] = useState([]);
     const [approver, setApprover] = useState([]);
+    const [requesttype, setRequestType] = useState([]);
     const [approverList, setApproverList] = useState([]);
     const [companies, setCompanies] = useState([]);
     const [currentUser, setCurrentUser] = useState(null);
     const [error, setError] = useState(null);
 
     const [accessRequestData, setAccessRequestData] = useState([]);
+    const [accessApproverData, setAccessApproverData] = useState([]);
 
     const [systemSelection, setSystemSelection] = useState([]);
     const [selectedSystem, setSelectedSystem] = useState([]);
@@ -101,12 +107,15 @@ const AccessRequestDashboard = () => {
 
     const handleRoleChange = (selectedOptions) => {
 
-        const selectedRole = selectedOptions.value;
+        const selectedRoles = selectedOptions.map(option => option.value);
+
+        const rolesString = selectedRoles.join(',');
+
         setSelectedRoles(selectedOptions)
 
         const updatedData = {
             ...accessRequestData,
-            ROLES: selectedRole
+            ROLES: rolesString
         };
 
         setAccessRequestData(updatedData);
@@ -115,12 +124,15 @@ const AccessRequestDashboard = () => {
 
     const handleRequestor = (selectedOptions) => {
 
-        const requestor = selectedOptions.value;
+        const requestor = selectedOptions.map(option => option.value);
+
+        const requestorString = requestor.join(',');
+
         setRequestor(selectedOptions)
 
         const updatedData = {
             ...accessRequestData,
-            REQUESTOR: requestor
+            REQUESTOR: requestorString
         };
 
         setAccessRequestData(updatedData);
@@ -128,19 +140,36 @@ const AccessRequestDashboard = () => {
         setApproverList([])
         setApprover([])
 
-        const approverList = emailSelection.filter(item => item.value !== requestor);
+        // Filter the emailSelection to remove any items whose value is in the requestor array
+        const approverList = emailSelection.filter(item => !requestor.includes(item.value));
         setApproverList(approverList);
 
     };
 
     const handleApprover = (selectedOptions) => {
 
-        const approver = selectedOptions.value;
+        const approver = selectedOptions.map(option => option.value);
+        const approverString = requestor.join(',');
+
         setApprover(selectedOptions)
 
         const updatedData = {
+            ...accessApproverData,
+            APPROVER: approver
+        };
+
+        setAccessApproverData(updatedData);
+
+    };
+
+    const handleRequestType = (selectedOptions) => {
+        const requesttype = selectedOptions.value;
+
+        setRequestType(selectedOptions)
+
+        const updatedData = {
             ...accessRequestData,
-            BUSINESS_APPROVER: approver
+            REQUEST_TYPE: requesttype
         };
 
         setAccessRequestData(updatedData);
@@ -214,9 +243,51 @@ const AccessRequestDashboard = () => {
     };
 
     const submitRequest = async (e) => {
+        
         e.preventDefault();
         try {
-        setSnackbarMessage('Company successfully created');
+            const response = await RequestService.fetchRequestID();
+            const now = new Date().toISOString();  
+        
+            if (response && response.request_id_counter) {
+
+                const updatedData = {
+                    ...accessRequestData,
+                    REQUEST_ID: 'REQ_ID#' + response.request_id_counter,
+                    DATE_REQUESTED: now,
+                    STATUS: 'Pending Approval',
+                    LAST_MODIFIED: now
+                };
+
+                const request = await RequestService.createRequest(updatedData)
+
+                const approvers = approver; // This should be an array of approvers, e.g., [{ name: 'Approver1', ... }, { name: 'Approver2', ... }]
+
+                for (const approver of approvers) {
+                    const approverData = {
+                        ...approver,
+                        APPROVER: accessApproverData.APPROVER,
+                        REQUEST_ID: request?.id,
+                        DATE_REQUESTED: now,
+                        STATUS: 'Pending Approval', // Or adjust the status as needed
+                        LAST_MODIFIED: now
+                    };
+
+                    const approval = await RequestService.createApproval(approverData);
+                    
+                    if (approval) {
+                       
+                        const sendmail = await RequestService.sendEmailApproval(approverData)
+                        
+                        console.log(sendmail)
+                    }
+                }
+
+            } else {
+                console.error('No request ID returned from API');
+            }
+            
+        setSnackbarMessage('Submitted access request successfully!');
         setSnackbarSeverity('success');
         setSnackbarOpen(true); 
        
@@ -224,8 +295,14 @@ const AccessRequestDashboard = () => {
         setSnackbarMessage('There was a problem submitting access request');
         setSnackbarSeverity('error');
         setSnackbarOpen(true);
+        console.error('Error generating request ID:', error);
         }
     };
+
+    const requestTypeSelection = [
+        { value: 'Pre-Approval', label: 'Pre-Approved Request' },
+        { value: 'Pending Approval', label: 'Requires Approval' },
+    ];
     
 
     const tabs = [
@@ -240,6 +317,22 @@ const AccessRequestDashboard = () => {
                     <mui.Paper sx={{ padding: '20px' }}>
 
                         <mui.Box sx={{margin: '20px'}}>
+
+                        <mui.Typography variant="subtitle2">
+                                Request Type:
+                            </mui.Typography>
+
+                            <div style={{ marginTop: '10px', marginBottom: '18px', position: 'relative' }}>
+                                <MultipleSelect
+                                    isMultiSelect={false}
+                                    placeholderText="Select System"
+                                    selectedOptions={requesttype}
+                                    selectOptions={requestTypeSelection}
+                                    value={requesttype}
+                                    handleChange={handleRequestType}
+                                />
+
+                            </div>
 
                             <mui.Typography variant="subtitle2">
                                 System Name:
@@ -273,12 +366,12 @@ const AccessRequestDashboard = () => {
                             </div>
 
                             <mui.Typography variant="subtitle2">
-                                Requestor:
+                                Role Assignee:
                             </mui.Typography>
 
                             <div style={{ marginTop: '10px', marginBottom: '18px', position: 'relative' }}>
                                 <MultipleSelect
-                                    isMultiSelect={false}
+                                    isMultiSelect={true}
                                     placeholderText="Select Requestor"
                                     selectedOptions={requestor}
                                     selectOptions={emailSelection}

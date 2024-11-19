@@ -11,6 +11,8 @@ from appAUDITAI.Views.ADMIN.applications import *
 from appAUDITAI.Views.ADMIN.policies import *
 from appAUDITAI.Views.ADMIN.audit import *
 from appAUDITAI.Views.ADMIN.hr import *
+from appAUDITAI.Views.ADMIN.requests import *
+from appAUDITAI.Views.UTILS.emails import *
 
 
 router = DefaultRouter()
@@ -21,6 +23,8 @@ router.register(r'users', UserViewSet)
 router.register(r'userroles', USERROLESViewSet)
 router.register(r'systemsettings', SystemSettingViewSet)
 router.register(r'hr/data',HRViewSetbyEmail)
+router.register(r'access/request',AccessRequestViewSet)
+router.register(r'access/approval',AccessRequestApprovalViewSet)
 router.register(r'hr-sftp', HRSFTPViewSet)
 router.register(r'hr-job-schedule', HRJobViewSet)
 router.register(r'applications', AppViewSet)
@@ -73,4 +77,6 @@ urlpatterns = [
     path('api/user-data-mapping/', AppUserDataMappingView.as_view(), name = 'user-data-mapping' ),
     path('api/sftp/hrtest/', hr_sftp_connection, name = 'hr-sftp-test' ),
     path('api/current_user/', current_user, name='current_user'),
+    path('api/request-id/', GenerateRequestIDView.as_view(), name='generate_request_id'),
+   path('api/send-approval-request/', SubmitRequestView.as_view(), name='submit_request'),
 ]

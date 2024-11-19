@@ -85,7 +85,7 @@ const ManageApplicationsDetails = () => {
 
     const userList = users.map(user => ({
         value: user.id,
-        label: `${user.first_name} ${user.last_name}`
+        label: `${user.first_name} ${user.last_name} (${user.email})`
     }))
 
     const handleOpenCreateModal = () => {

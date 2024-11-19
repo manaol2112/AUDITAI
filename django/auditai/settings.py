@@ -18,6 +18,7 @@ import environ
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -97,8 +98,6 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',  # Add Access-Control-Allow-Credentials header
 ]
 
-CORS_ALLOW_CREDENTIALS = True
-
 CSRF_COOKIE_NAME = 'csrftoken'
 
 CORS_ALLOW_CREDENTIALS = True
@@ -135,6 +134,7 @@ env = environ.Env()
 # Reading the .env file
 environ.Env.read_env()
 
+SENDGRID_API_KEY = env('SENDGRID_API_KEY')
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases

@@ -140,15 +140,12 @@ class AUDIT_ACCESS(models.Model):
         db_table = 'AUDIT_ACCESS'
 
 class RequestIDCounter(models.Model):
-    counter = models.IntegerField(default=0)
+    counter = models.IntegerField(default=1)
 
-    @classmethod
-    def get_next_id(cls):
-        counter_obj, created = cls.objects.get_or_create(pk=1)
-        if not created:
-            counter_obj.counter += 1
-            counter_obj.save()
-        return counter_obj.counter
+    class Meta:
+        managed = True
+        db_table = 'REQUESTID_COUNTER'
+        
     
 class AUDITUSERS(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -157,39 +154,43 @@ class AUDITUSERS(models.Model):
     
 
 class ACCESSREQUEST(models.Model):
-  
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     REQUEST_ID = models.CharField(max_length=100, null=True, blank=False)
     COMPANY_ID = models.ForeignKey(COMPANY, on_delete=models.DO_NOTHING, null=True)
     APP_NAME = models.CharField(max_length=100, null=True, blank=False)
-    REQUESTOR = models.CharField(max_length=100, null=True, blank=False)
-    ROLES = models.CharField(max_length=1000, null=True, blank=False)
-    BUSINESS_APPROVER = models.CharField(max_length=100, null=True, blank=False)
-    IT_APPROVER = models.CharField(max_length=100, null=True, blank=False)
+    REQUESTOR = models.TextField(null=True, blank=False)  # Changed to TextField
+    ROLES = models.TextField(null=True, blank=False)  # Changed to TextField
     DATE_REQUESTED = models.DateTimeField(null=True)
-    DATE_APPROVED = models.DateTimeField(null=True)
-    DATE_REJECTED = models.DateTimeField(null=True)
     STATUS = models.CharField(max_length=100, null=True, blank=False)
     ASSIGNED_TO = models.CharField(max_length=100, null=True, blank=False)
     COMMENTS = models.CharField(max_length=1000, null=True, blank=False)
-    REJECTION_REASON = models.CharField(max_length=1000, null=True, blank=False)
     REQUEST_TYPE = models.CharField(max_length=100, null=True, blank=False)
     PRIORITY = models.CharField(max_length=100, null=True, blank=False)
     CREATOR = models.CharField(max_length=100, null=True, blank=False)
     APPROVAL_TOKEN = models.UUIDField(default=uuid.uuid4, editable=False)
     DATE_GRANTED = models.DateTimeField(null=True)
     GRANTED_BY = models.CharField(max_length=100, null=True, blank=False)
-
-    APPROVED_BY = models.CharField(max_length=100, null=True, blank=False)
     LAST_MODIFIED = models.DateTimeField(null=True)
 
     class Meta:
         managed = True
         db_table = 'ACCESS_REQUEST'
 
-    def save(self, *args, **kwargs):
-        if not self.REQUEST_ID:
-            self.REQUEST_ID = f'REQ#000{RequestIDCounter.get_next_id()}'
-        super().save(*args, **kwargs)
+
+class ACCESSREQUESTAPPROVER(models.Model):
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    REQUEST_ID = models.ForeignKey(ACCESSREQUEST, on_delete=models.CASCADE)
+    APPROVER = models.UUIDField(editable=False, blank=True, null=True)
+    DATE_APPROVED = models.DateTimeField(null=True)
+    COMMENTS = models.CharField(max_length=1000, null=True, blank=False)
+    DATE_REJECTED = models.DateTimeField(null=True)
+    REJECTION_REASON = models.CharField(max_length=1000, null=True, blank=False)
+    COMMENTS = models.CharField(max_length=1000, null=True, blank=False)
+
+    class Meta:
+        managed = True
+        db_table = 'ACCESS_APPROVAL'
 
 
 class ACCESSREQUESTCOMMENTS(models.Model):

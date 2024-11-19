@@ -4,10 +4,26 @@ from django.contrib.auth.models import Group, Permission, User
 from datetime import datetime
 
 
+class CounterSerializer(serializers.ModelSerializer):
+  class Meta:
+        model = RequestIDCounter
+        fields = '__all__'
+
 class HRSerializer(serializers.ModelSerializer):
     class Meta:
         model = HR_RECORD
         fields = '__all__'
+
+class AccessRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ACCESSREQUEST
+        fields = '__all__'
+
+class AccessRequestApproverSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ACCESSREQUESTAPPROVER
+        fields = '__all__'
+
 
 class CompanySerializer(serializers.ModelSerializer):
     class Meta:
