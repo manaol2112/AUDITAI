@@ -25,8 +25,6 @@ class SubmitRequestView(APIView):
             print(SENDGRID_API_KEY)
            
             sg = SendGridAPIClient(api_key=SENDGRID_API_KEY)
-
-            # sg = SendGridAPIClient(api_key='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')
             
 
             # Define from and to email addresses
