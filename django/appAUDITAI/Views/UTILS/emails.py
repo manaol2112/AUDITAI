@@ -22,8 +22,7 @@ class SubmitRequestView(APIView):
        
         try:
             # Create the SendGrid client
-            print(SENDGRID_API_KEY)
-           
+        
             sg = SendGridAPIClient(api_key=SENDGRID_API_KEY)
             
 
