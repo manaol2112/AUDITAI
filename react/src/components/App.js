@@ -45,6 +45,7 @@ import ProcessNarrative from './pages/SYSOWNER/ProcessNarrative';
 import ProcessNarrativeDetails from './pages/SYSOWNER/ProcessNarrativeDetails';
 import AccessRequestDashboard from './pages/SYSOWNER/AccessRequestDashboard';
 import AccessRequestSuccess from './pages/SYSOWNER/AccessRequestSuccess';
+import AccessRequestApproval from './pages/SYSOWNER/AccessRequestApproval';
 
 
 const App = () => {
@@ -102,6 +103,7 @@ const App = () => {
             <Route  path="/processNarrative/:company/:id" element={<ProcessNarrativeDetails />} />
             <Route  path="/accessrequest/dashboard" element={<AccessRequestDashboard />} />
             <Route  path="/accessrequest/success/:id" element={<AccessRequestSuccess />} />
+            <Route  path="/accessrequest/approval/:id" element={<AccessRequestApproval />} />
           </Route>
         )}
 

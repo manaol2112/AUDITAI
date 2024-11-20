@@ -78,5 +78,7 @@ urlpatterns = [
     path('api/sftp/hrtest/', hr_sftp_connection, name = 'hr-sftp-test' ),
     path('api/current_user/', current_user, name='current_user'),
     path('api/request-id/', GenerateRequestIDView.as_view(), name='generate_request_id'),
-   path('api/send-approval-request/', SubmitRequestView.as_view(), name='submit_request'),
+    path('api/send-approval-request/', SubmitRequestView.as_view(), name='submit_request'),
+    path('api/accessrequest/approval/<uuid:id>/', ApproveAccessRequestView.as_view(), name='approve_request'),
+    path('api/accessrequest/reject/<uuid:id>/', SubmitRequestView.as_view(), name='reject_request')
 ]

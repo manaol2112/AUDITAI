@@ -4,12 +4,15 @@ from django.contrib.auth.hashers import make_password, check_password
 import uuid
 import os #this is to update the os_updated now
 from django.conf import settings
+from django.utils import timezone
+from datetime import timedelta
 
 
 class EmailVerification(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     code = models.CharField(max_length=10)  # Or adjust the length as needed
     expires_at = models.DateTimeField()
+
 
 class UserToken(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -153,56 +156,7 @@ class AUDITUSERS(models.Model):
     ROLE = models.CharField(max_length=100, null=True, blank=False)
     
 
-class ACCESSREQUEST(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    REQUEST_ID = models.CharField(max_length=100, null=True, blank=False)
-    COMPANY_ID = models.ForeignKey(COMPANY, on_delete=models.DO_NOTHING, null=True)
-    APP_NAME = models.CharField(max_length=100, null=True, blank=False)
-    REQUESTOR = models.TextField(null=True, blank=False)  # Changed to TextField
-    ROLES = models.TextField(null=True, blank=False)  # Changed to TextField
-    DATE_REQUESTED = models.DateTimeField(null=True)
-    STATUS = models.CharField(max_length=100, null=True, blank=False)
-    ASSIGNED_TO = models.CharField(max_length=100, null=True, blank=False)
-    COMMENTS = models.CharField(max_length=1000, null=True, blank=False)
-    REQUEST_TYPE = models.CharField(max_length=100, null=True, blank=False)
-    PRIORITY = models.CharField(max_length=100, null=True, blank=False)
-    CREATOR = models.CharField(max_length=100, null=True, blank=False)
-    APPROVAL_TOKEN = models.UUIDField(default=uuid.uuid4, editable=False)
-    DATE_GRANTED = models.DateTimeField(null=True)
-    GRANTED_BY = models.CharField(max_length=100, null=True, blank=False)
-    LAST_MODIFIED = models.DateTimeField(null=True)
 
-    class Meta:
-        managed = True
-        db_table = 'ACCESS_REQUEST'
-
-
-class ACCESSREQUESTAPPROVER(models.Model):
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    REQUEST_ID = models.ForeignKey(ACCESSREQUEST, on_delete=models.CASCADE)
-    APPROVER = models.UUIDField(editable=False, blank=True, null=True)
-    DATE_APPROVED = models.DateTimeField(null=True)
-    COMMENTS = models.CharField(max_length=1000, null=True, blank=False)
-    DATE_REJECTED = models.DateTimeField(null=True)
-    REJECTION_REASON = models.CharField(max_length=1000, null=True, blank=False)
-    COMMENTS = models.CharField(max_length=1000, null=True, blank=False)
-
-    class Meta:
-        managed = True
-        db_table = 'ACCESS_APPROVAL'
-
-
-class ACCESSREQUESTCOMMENTS(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    REQUEST_ID = models.ForeignKey(ACCESSREQUEST, on_delete=models.CASCADE)
-    CREATOR = models.CharField(max_length=100, null=True, blank=False)
-    COMMENT_DETAILS = models.CharField(max_length=100, null=True, blank=False)
-    DATE_ADDED = models.DateTimeField(null=True)
-
-    class Meta:
-            managed = True
-            db_table = 'ACCESS_REQUEST_COMMENTS'
 
 class MULTIPLE_COMPANY(models.Model):
     MULTIPLE = models.BooleanField(blank=True,null=True)
@@ -263,6 +217,68 @@ class HR_RECORD(models.Model):
     class Meta:
         managed = True
         db_table = 'HR_RECORD'
+
+class ACCESSREQUEST(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    REQUEST_ID = models.CharField(max_length=100, null=True, blank=False)
+    COMPANY_ID = models.ForeignKey(COMPANY, on_delete=models.DO_NOTHING, null=True)
+    APP_NAME = models.CharField(max_length=100, null=True, blank=False)
+    REQUESTOR = models.TextField(null=True, blank=False)  # Changed to TextField
+    ROLES = models.TextField(null=True, blank=False)  # Changed to TextField
+    DATE_REQUESTED = models.DateTimeField(null=True)
+    STATUS = models.CharField(max_length=100, null=True, blank=False)
+    ASSIGNED_TO = models.CharField(max_length=100, null=True, blank=False)
+    COMMENTS = models.CharField(max_length=1000, null=True, blank=False)
+    REQUEST_TYPE = models.CharField(max_length=100, null=True, blank=False)
+    PRIORITY = models.CharField(max_length=100, null=True, blank=False)
+    CREATOR = models.CharField(max_length=100, null=True, blank=False)
+    APPROVAL_TOKEN = models.UUIDField(default=uuid.uuid4, editable=False)
+    DATE_GRANTED = models.DateTimeField(null=True)
+    GRANTED_BY = models.CharField(max_length=100, null=True, blank=False)
+    LAST_MODIFIED = models.DateTimeField(null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'ACCESS_REQUEST'
+
+
+class ACCESSREQUESTAPPROVER(models.Model):
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    REQUEST_ID = models.ForeignKey(ACCESSREQUEST, on_delete=models.CASCADE)
+    APPROVER = models.UUIDField(editable=False, blank=True, null=True)
+    DATE_APPROVED = models.DateTimeField(null=True)
+    COMMENTS = models.CharField(max_length=1000, null=True, blank=False)
+    DATE_REJECTED = models.DateTimeField(null=True)
+    REJECTION_REASON = models.CharField(max_length=1000, null=True, blank=False)
+    COMMENTS = models.CharField(max_length=1000, null=True, blank=False)
+
+    class Meta:
+        managed = True
+        db_table = 'ACCESS_APPROVAL'
+        
+class ApprovalToken(models.Model):
+    request = models.ForeignKey(ACCESSREQUEST, on_delete=models.CASCADE)
+    approver = models.ForeignKey(HR_RECORD, on_delete=models.CASCADE)
+    token = models.CharField(max_length=255, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    is_used = models.BooleanField(default=False)
+
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+
+
+class ACCESSREQUESTCOMMENTS(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    REQUEST_ID = models.ForeignKey(ACCESSREQUEST, on_delete=models.CASCADE)
+    CREATOR = models.CharField(max_length=100, null=True, blank=False)
+    COMMENT_DETAILS = models.CharField(max_length=100, null=True, blank=False)
+    DATE_ADDED = models.DateTimeField(null=True)
+
+    class Meta:
+            managed = True
+            db_table = 'ACCESS_REQUEST_COMMENTS'
 
 class APP_USERS(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

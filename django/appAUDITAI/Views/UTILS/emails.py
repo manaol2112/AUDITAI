@@ -11,6 +11,9 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.core.exceptions import ObjectDoesNotExist
 from appAUDITAI.models import *
 from uuid import UUID
+import secrets
+from datetime import timedelta
+from django.utils import timezone
 
 SENDGRID_API_KEY = settings.SENDGRID_API_KEY
 
@@ -18,7 +21,22 @@ class SubmitRequestView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
+    def generate_approval_token(self, request_id, approver):
+        token = secrets.token_urlsafe(64)  # Create a random token
+        expiration_time = timezone.now() + timedelta(hours=24)  # Token expires in 24 hours
+        
+        approval_token = ApprovalToken(
+            request_id=request_id,
+            approver=approver,
+            token=token,
+            expires_at=expiration_time
+        )
+        approval_token.save()
+        return token
+
     def send_email(self, to_email, subject, body):
+
+        
        
         try:
             # Create the SendGrid client
@@ -167,7 +185,11 @@ class SubmitRequestView(APIView):
 
             role_assignee_names_str = ", ".join(role_assignee_names)
 
+            
+
             for approver in approvers_emails:
+
+                token = self.generate_approval_token(request_id, approver)
 
                 subject = f"ACTION NEEDED: APPROVE OR REJECT ACCESS REQUEST {request_details.REQUEST_ID}"
                 
@@ -218,14 +240,14 @@ class SubmitRequestView(APIView):
                             <table style="margin-top: 20px;">
                                 <tr>
                                     <td style="padding-right: 10px;">
-                                        <a href="http://yourdomain.com/approve/{request_details.REQUEST_ID}" 
-                                        style="background-color: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-size: 16px; display: inline-block;">
+                                        <a href="http://localhost:3000/accessrequest/approval/{request_id}/?token={token}" 
+                                        style="background-color: #28a745; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-size: 14px; display: inline-block;">
                                             Approve
                                         </a>
                                     </td>
                                     <td>
                                         <a href="http://yourdomain.com/reject/{request_details.REQUEST_ID}" 
-                                        style="background-color: #dc3545; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-size: 16px; display: inline-block;">
+                                        style="background-color: #dc3545; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-size: 14px; display: inline-block;">
                                             Reject
                                         </a>
                                     </td>

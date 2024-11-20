@@ -23,8 +23,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-3pna*w=(iii=nanf_($k^#fbrth!@n=dgomh245l&i(d#wgz$#'
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -133,6 +132,9 @@ WSGI_APPLICATION = 'auditai.wsgi.application'
 env = environ.Env()
 # Reading the .env file
 environ.Env.read_env()
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = env('SECRET_KEY')
 
 SENDGRID_API_KEY = env('SENDGRID_API_KEY')
 

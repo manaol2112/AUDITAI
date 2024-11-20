@@ -45,9 +45,7 @@ const AccessRequestSuccess = () => {
                 const ticket = await RequestService.fetchRequestById(id)
 
                 if (ticket) {
-
                     setSelectedTicket(ticket.REQUEST_ID)
-
                 }
 
             } catch (error) {
@@ -83,14 +81,7 @@ const AccessRequestSuccess = () => {
             alignItems="center" 
             justifyContent="center" 
         >
-            {/* Celebration Icon */}
-            <mui.Box mb={3} display="flex" alignItems="center" justifyContent="center">
-                <CelebrationIcon 
-                    style={{ fontSize: 80, color: '#208de1' }} 
-                />
-            </mui.Box>
-
-            {/* Success Message */}
+            
             <mui.Paper elevation={3} sx={{ p: 4, textAlign: 'center', maxWidth: 800, boxShadow: 6, backgroundColor: "#f0f8ff" }}>
                 <mui.Typography variant="h5" component="div" sx={{ fontWeight: 'bold', mb: 2 }}>
                     Success!

@@ -24,18 +24,22 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import CelebrationIcon from '@mui/icons-material/Celebration';
-import { useParams } from 'react-router-dom';
+import { useParams,useLocation } from 'react-router-dom';
 import { Typography, IconButton, Button, Snackbar, Tooltip} from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 
 const AccessRequestApproval = () => {
 
-
     const [apps, setApps] = useState([]);
     const [error, setError] = useState(null);
     const [selectedticket, setSelectedTicket] = useState([]);
     const { id } = useParams();
+
+    // Extract the query parameters from the URL (such as token)
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const token = queryParams.get('token');
     
     useEffect(() => {
 
@@ -45,10 +49,16 @@ const AccessRequestApproval = () => {
                 const ticket = await RequestService.fetchRequestById(id)
 
                 if (ticket) {
-
                     setSelectedTicket(ticket.REQUEST_ID)
-
                 }
+
+                const updatedData = {
+                    id: id,
+                    STATUS: 'Approved',
+                    TOKEN: token
+                };
+
+                const approve = await RequestService.confirmApproval(id, updatedData)
 
             } catch (error) {
                 console.error(`Error fetching application data: ${error.message}`);
@@ -83,21 +93,14 @@ const AccessRequestApproval = () => {
             alignItems="center" 
             justifyContent="center" 
         >
-            {/* Celebration Icon */}
-            <mui.Box mb={3} display="flex" alignItems="center" justifyContent="center">
-                <CelebrationIcon 
-                    style={{ fontSize: 80, color: '#208de1' }} 
-                />
-            </mui.Box>
-
-            {/* Success Message */}
+            
             <mui.Paper elevation={3} sx={{ p: 4, textAlign: 'center', maxWidth: 800, boxShadow: 6, backgroundColor: "#f0f8ff" }}>
                 <mui.Typography variant="h5" component="div" sx={{ fontWeight: 'bold', mb: 2 }}>
                     Success!
                 </mui.Typography>
 
                         <Typography variant="body1" color="textSecondary" sx={{ mb: 3 }}>
-                            Your access request has been successfully processed with a reference number
+                            Your have successfully approved an access request with a reference number
                             <br />
                             <strong>{selectedticket}</strong>
                             <Tooltip title="Copy Reference" arrow>
@@ -106,7 +109,7 @@ const AccessRequestApproval = () => {
                                 </IconButton>
                             </Tooltip>
                             <br />
-                            Save this reference, in case you need to loop back later.
+                            If this is a mistake, please reach out to the system administrator to stop the creation of the account.
                         </Typography>
 
                         <Snackbar
@@ -121,9 +124,9 @@ const AccessRequestApproval = () => {
                     variant="contained" 
                     color="success" 
                     size="large" 
-                    onClick={() => window.location.href = `/accessrequest/dashboard`}
+                    onClick={() => window.close()}
                 >
-                    Go back to form
+                    Close this Window
                 </mui.Button>
             </mui.Paper>
         </mui.Box>

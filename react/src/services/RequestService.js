@@ -52,6 +52,11 @@ const RequestService = {
         const response = await axiosInstance.post(`access/approval/`,approvalData);
         return response.data;
       },
+
+    confirmApproval: async (requestID, approvalData) => {
+        const response = await axiosInstance.post(`accessrequest/approval/${requestID}/`,approvalData);
+        return response.data;
+      },
     
     updateApproval: async (approvalID, approvalData) => {
         const response = await axiosInstance.put(`access/approval/${approvalID}/`, approvalData);
@@ -64,11 +69,12 @@ const RequestService = {
       },
 
     //EMAIL
-
     sendEmailApproval: async (approvalData) => {
         const response = await axiosInstance.post('send-approval-request/',approvalData);
         return response.data;
       },
+
+    
     
 };
 
