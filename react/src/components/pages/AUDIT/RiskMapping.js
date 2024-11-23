@@ -150,7 +150,9 @@ const RiskMapping = () => {
     const entity_risk = risks.filter(risk => risk.RISK_TYPE === 'Entity Level');
 
     useEffect(() => {
+        
         const fetchAppByID = async () => {
+
             try {
 
                 const appRecord = await appService.fetchAppsById(id)
@@ -158,23 +160,21 @@ const RiskMapping = () => {
                 if (appRecord) {
                     setSelectedApp(appRecord);
 
-                    const os = await appService.fetchAppsById(appRecord.OS)
-                    if (os) {
-                        setOperatingSystem(os.APP_NAME)
-                    }
+                    // const os = await appService.fetchAppsById(appRecord.OS)
+                    // if (os) {
+                    //     setOperatingSystem(os.APP_NAME)
+                    // }
 
-                    const db = await appService.fetchAppsById(appRecord.DATABASE)
-                    if (db) {
-                        setDatabase(db.APP_NAME)
-                    }
+                    // const db = await appService.fetchAppsById(appRecord.DATABASE)
+                    // if (db) {
+                    //     setDatabase(db.APP_NAME)
+                    // }
 
-                    const network = await appService.fetchAppsById(appRecord.NETWORK)
-                    if (network) {
-                        setNetwork(network.APP_NAME)
-                    }
+                    // const network = await appService.fetchAppsById(appRecord.NETWORK)
+                    // if (network) {
+                    //     setNetwork(network.APP_NAME)
+                    // }
 
-                } else {
-                    
                 }
 
             } catch (fetchError) {
@@ -240,17 +240,20 @@ const RiskMapping = () => {
         let riskList;
         try {
             riskList = await auditService.fetchRiskMappingbyApp(id, company_id)
+            console.log('This is the risk list', riskList)
 
         } catch (fetchError) {
             console.error('Error fetching risk record by app:', fetchError);
         }
 
         let riskData;
+
         if (riskList) {
             riskData = riskList.risklist_data;
         }
 
         if (riskData) {
+            console.log('This is the riskData', riskData)
             setMappedRisk(riskData);
 
             const sortedRiskMapping = riskData.sort((a, b) => {
@@ -267,9 +270,8 @@ const RiskMapping = () => {
 
             if (bp_risk_filtered) {
                 setSelectedRisk(bp_risk_filtered);
-                fetchMappedControls(bp_risk_filtered[0].id)
+                fetchMappedControls(bp_risk_filtered[0]?.id)
             }
-
 
             //BUSINESS
 
