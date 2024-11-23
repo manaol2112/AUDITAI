@@ -35,9 +35,6 @@ class SubmitRequestView(APIView):
         return token
 
     def send_email(self, to_email, subject, body):
-
-        
-       
         try:
             # Create the SendGrid client
         
@@ -87,7 +84,6 @@ class SubmitRequestView(APIView):
         except ObjectDoesNotExist:
             return Response({'error': 'Error fetching approvers from the database.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
         request_details = ACCESSREQUEST.objects.get(id = request_id)
 
         if request_details.STATUS == 'Approved':
@@ -96,7 +92,7 @@ class SubmitRequestView(APIView):
                 formatted_roles = request_details.ROLES.replace(",", ", ")
                 requestor_uuids = request_details.REQUESTOR.split(',')
 
-            system_name = APP_LIST.objects.get(id=request_details.APP_NAME)
+            system_name = APP_LIST.objects.get(id=request_details.APP_NAME.id)
 
             uuids = [UUID(uuid_str) for uuid_str in requestor_uuids]
 
@@ -175,7 +171,7 @@ class SubmitRequestView(APIView):
                 formatted_roles = request_details.ROLES.replace(",", ", ")
                 requestor_uuids = request_details.REQUESTOR.split(',')
 
-            system_name = APP_LIST.objects.get(id=request_details.APP_NAME)
+            system_name = APP_LIST.objects.get(id=request_details.APP_NAME.id)
 
             uuids = [UUID(uuid_str) for uuid_str in requestor_uuids]
 

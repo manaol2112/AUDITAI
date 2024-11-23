@@ -23,12 +23,13 @@ router.register(r'users', UserViewSet)
 router.register(r'userroles', USERROLESViewSet)
 router.register(r'systemsettings', SystemSettingViewSet)
 router.register(r'hr/data',HRViewSetbyEmail)
-router.register(r'access/request',AccessRequestViewSet)
-router.register(r'access/approval',AccessRequestApprovalViewSet)
+router.register(r'access/request',AccessRequestViewSet, basename='requests')
+router.register(r'access/approval',AccessRequestApprovalViewSet, basename='approval')
+# router.register(r'access/myrequests',AccessRequestByAppViewSet, basename='requestbyapp')
 router.register(r'hr-sftp', HRSFTPViewSet)
 router.register(r'hr-job-schedule', HRJobViewSet)
 router.register(r'applications', AppViewSet)
-router.register(r'app-password', AppPasswordViewSet)
+router.register(r'app-password/>', AppPasswordViewSetbyApp)
 router.register(r'process/provisioning', ProvisioningProcessViewSetByID, basename='provisioning')
 router.register(r'process/termination', TerminationProcessViewSetByID, basename='termination')
 router.register(r'process/uar', UARProcessViewSetByID, basename='uar')
@@ -54,7 +55,8 @@ urlpatterns = [
     path('api/', include(router.urls)),  
     path('api/companies/<uuid:companyId>/', CompanyViewSetByID.as_view, name = 'company-details' ),
     path('api/applications/<uuid:appId>/', AppViewSetByID.as_view, name = 'app-details' ),
-    path('api/app-password/appid/<uuid:APP_NAME>/', AppPasswordViewSetbyApp.as_view({'get': 'retrieve','post': 'create', 'put': 'update','delete': 'destroy'}), name='app-password-by-app'),
+    path('api/fetch-app-password/<uuid:APP_NAME>/', AppPasswordViewSetbyID.as_view({'get': 'retrieve','post': 'create', 'put': 'update','delete': 'destroy'}), name='app-password-by-app'),
+    path('api/app-password/appid/<uuid:APP_NAME>/', AppPasswordViewSet.as_view({'get': 'retrieve','post': 'create', 'put': 'update','delete': 'destroy'}), name='app-password-by-app'),
     path('api/app-users/<str:APP_NAME>/', AppRecordViewSetbyApp.as_view(), name='app-user-by-app'),
     path('api/audit/mapping/app/<uuid:APP_NAME>/<uuid:COMPANY_ID>/', RiskMappingViewSetbyAPP.as_view({'get':'list'}), name='riskmapping-by-app'),
     path('api/audit/workpapers/<uuid:APP_NAME>/<uuid:COMPANY_ID>/', WorkpapersViewSet.as_view({'get':'list'}), name='workpapers'),
@@ -80,5 +82,6 @@ urlpatterns = [
     path('api/request-id/', GenerateRequestIDView.as_view(), name='generate_request_id'),
     path('api/send-approval-request/', SubmitRequestView.as_view(), name='submit_request'),
     path('api/accessrequest/approval/<uuid:id>/', ApproveAccessRequestView.as_view(), name='approve_request'),
-    path('api/accessrequest/reject/<uuid:id>/', SubmitRequestView.as_view(), name='reject_request')
+    path('api/accessrequest/reject/<uuid:id>/', SubmitRequestView.as_view(), name='reject_request'),
+    path('api/access/myrequests/<uuid:app_id>/', AccessRequestByAppViewSet.as_view({'get': 'list'}), name='my_requests'),
 ]

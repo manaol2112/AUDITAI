@@ -33,6 +33,7 @@
     "recharts": "^2.12.7",
     "shortid": "^2.2.16",
     "styled-components": "^6.1.11",
+    "uuid": "^11.0.3",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

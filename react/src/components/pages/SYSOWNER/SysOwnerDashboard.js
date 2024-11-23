@@ -10,6 +10,16 @@ import Separator from '../../layout/Separator';
 import companyService from '../../../services/CompanyService';
 import ErrorBoundary from '../../common/ErrorBoundery';
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
+import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
+import GridViewIcon from '@mui/icons-material/GridView';
+import AssuredWorkloadIcon from '@mui/icons-material/AssuredWorkload';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import BadgeIcon from '@mui/icons-material/Badge';
+import MarkEmailUnreadIcon from '@mui/icons-material/MarkEmailUnread';
+import RateReviewIcon from '@mui/icons-material/RateReview';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import SummarizeIcon from '@mui/icons-material/Summarize';
+
 
 const SysOwnerDashboard = () => {
 
@@ -48,6 +58,18 @@ const SysOwnerDashboard = () => {
         // Empty dependency array ensures this effect runs only once on mount
     }, []);
 
+    const iconMapping = {
+        grid_view: <GridViewIcon fontSize="large" />,
+        assured_workload: <AssuredWorkloadIcon fontSize="large" />,
+        account_tree: <AccountTreeIcon fontSize="large" />,
+        badge: <BadgeIcon fontSize="large" />,
+        mark_email_unread: <MarkEmailUnreadIcon fontSize="large" />,
+        rate_review: <RateReviewIcon fontSize="large" />,
+        inventory: <InventoryIcon fontSize="large" />,
+        summarize: <SummarizeIcon fontSize="large" />
+      };
+      
+
     const customMainContent = (
         <div>
             <ResponsiveContainer>
@@ -74,36 +96,35 @@ const SysOwnerDashboard = () => {
                 </mui.Typography>
                 <Separator />
 
-                <mui.Grid
-                    container spacing={3}
-                    direction="row"
-                    justifyContent="flex-start"
-                    alignItems="center"
-                >
-                    <mui.Grid item>
-                        <OutlinedCard icon="grid_view" title="My Applications" to="/Applications" buttonlabel="View" />
-                    </mui.Grid>
-                    <mui.Grid item>
-                        <OutlinedCard icon="assured_workload" title="Compliance Status" to="/Compliance" buttonlabel="View" />
-                    </mui.Grid>
-                    <mui.Grid item>
-                        <OutlinedCard icon="account_tree" title="Process Narrative" to="/ProcessNarrative" buttonlabel="View" />
-                    </mui.Grid>
-                    <mui.Grid item>
-                        <OutlinedCard icon="mark_email_unread" title="Access Requests" to="/accessrequest/dashboard" buttonlabel="View" />
-                    </mui.Grid>
-                    <mui.Grid item>
-                        <OutlinedCard icon="rate_review" title="User Access Review" to="/SystemRoles" buttonlabel="View" />
-                    </mui.Grid>
-                 
-                    <mui.Grid item>
-                        <OutlinedCard icon="inventory" title="Audit Requests" to="/Security" buttonlabel="View" />
-                    </mui.Grid>
-                    <mui.Grid item>
-                        <OutlinedCard icon="summarize" title="Reports" to="/Interfaces" buttonlabel="View" />
-                    </mui.Grid>
+                
 
+                <mui.Grid container spacing={3} direction="row" justifyContent="flex-start" alignItems="center">
+                    <mui.Grid item>
+                        <OutlinedCard icon={iconMapping['grid_view']} title="My Applications" to="/Applications" buttonlabel="View" />
+                    </mui.Grid>
+                    <mui.Grid item>
+                        <OutlinedCard icon={iconMapping['assured_workload']} title="Compliance Status" to="/Compliance" buttonlabel="View" />
+                    </mui.Grid>
+                    <mui.Grid item>
+                        <OutlinedCard icon={iconMapping['account_tree']} title="Process Narrative" to="/ProcessNarrative" buttonlabel="View" />
+                    </mui.Grid>
+                    <mui.Grid item>
+                        <OutlinedCard icon={iconMapping['badge']} title="New Access Requests" to="/accessrequest/dashboard" buttonlabel="View" />
+                    </mui.Grid>
+                    <mui.Grid item>
+                        <OutlinedCard icon={iconMapping['mark_email_unread']} title="Process Requests" to="/accessrequest/granting" buttonlabel="View" />
+                    </mui.Grid>
+                    <mui.Grid item>
+                        <OutlinedCard icon={iconMapping['rate_review']} title="User Access Review" to="/SystemRoles" buttonlabel="View" />
+                    </mui.Grid>
+                    <mui.Grid item>
+                        <OutlinedCard icon={iconMapping['inventory']} title="Audit Requests" to="/Security" buttonlabel="View" />
+                    </mui.Grid>
+                    <mui.Grid item>
+                        <OutlinedCard icon={iconMapping['summarize']} title="Reports" to="/Interfaces" buttonlabel="View" />
+                    </mui.Grid>
                 </mui.Grid>
+
 
             </ResponsiveContainer>
         </div>

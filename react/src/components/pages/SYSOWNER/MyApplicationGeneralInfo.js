@@ -214,7 +214,6 @@ const MyApplicationGeneralInfo = () => {
             let passwordFound;
             try {
                 passwordFound = await appPasswordService.fetchAppPasswordByApp(id);
-                console.log('Password found', passwordFound)
             } catch (error) {
                 if (error.response && error.response.status === 404) {
                     const newData = { ...updatedData, APP_NAME: id };
@@ -296,7 +295,7 @@ const MyApplicationGeneralInfo = () => {
                 fetchWithErrorHandling(() => appService.fetchAppsByType(DB)),
                 fetchWithErrorHandling(() => appService.fetchAppsByType(NETWORK)),
                 fetchWithErrorHandling(() => appService.fetchAppsByType(TOOL)),
-                fetchWithErrorHandling(() => appPasswordService.fetchAppPasswordByApp(id))
+                fetchWithErrorHandling(() => appPasswordService.fetchAppPasswordbyID(id))
             ]);
     
             // Process appByIdResponse if available
@@ -646,10 +645,10 @@ const MyApplicationGeneralInfo = () => {
                         }}>
                             <MultipleSelect
                                 isMultiSelect={false}
-                                defaultValue={selectedApps.DEVTYPE ? selectedApps.DEVTYPE : 'Select Development Type*'}
+                                defaultValue={selectedApps?.DEVTYPE}
                                 placeholderText="Select Devevelopment Type*"
                                 selectOptions={developOptions}
-                                selectedOptions={selectedDev ? selectedDev : ''}
+                                selectedOptions={selectedDev}
                                 handleChange={handleDevChange}
                             />
                         </div>
@@ -674,10 +673,10 @@ const MyApplicationGeneralInfo = () => {
                         }}>
                             <MultipleSelect
                                 isMultiSelect={false}
-                                defaultValue={selectedApps.HOSTED ? selectedApps.HOSTED : 'Select Hosting Type*'}
+                                defaultValue={selectedApps?.HOSTED}
                                 placeholderText="Select Hosting Type*"
                                 selectOptions={hostingOptions}
-                                selectedOptions={selectedHosting ? selectedHosting : ''}
+                                selectedOptions={selectedHosting}
                                 handleChange={handleHostingChange}
                             />
                         </div>
@@ -704,7 +703,7 @@ const MyApplicationGeneralInfo = () => {
                             }}>
                                 <MultipleSelect
                                     isMultiSelect={false}
-                                    defaultValue={selectedApps.OS ? selectedApps.OS : 'Select Operating System*'}
+                                    defaultValue={selectedApps?.OS}
                                     placeholderText="Select Operating System*"
                                     selectOptions={osList}
                                     selectedOptions={selectedOS}
@@ -740,10 +739,10 @@ const MyApplicationGeneralInfo = () => {
                             }}>
                                 <MultipleSelect
                                     isMultiSelect={false}
-                                    defaultValue={selectedApps.DATABASE ? selectedApps.DATABASE : 'Select Database*'}
+                                    defaultValue={selectedApps?.DATABASE}
                                     placeholderText="Select Database*"
                                     selectOptions={dbList}
-                                    selectedOptions={selectedDB ? selectedDB : ''}
+                                    selectedOptions={selectedDB }
                                     handleChange={handleDBChange}
                                 />
                             </div>
@@ -776,10 +775,10 @@ const MyApplicationGeneralInfo = () => {
                             }}>
                                 <MultipleSelect
                                     isMultiSelect={false}
-                                    defaultValue={selectedApps.NETWORK ? selectedApps.NETWORK : 'Select Network*'}
+                                    defaultValue={selectedApps?.NETWORK}
                                     placeholderText="Select Network*"
                                     selectOptions={networkList}
-                                    selectedOptions={selectedNetwork ? selectedNetwork : ''}
+                                    selectedOptions={selectedNetwork}
                                     handleChange={handleNetworkChange}
                                 />
                             </div>
@@ -788,7 +787,7 @@ const MyApplicationGeneralInfo = () => {
                         <NormalTextField
                             label="Network Version"
                             name="NETWORK_VERSION"
-                            value={selectedApps.NETWORK_VERSION}
+                            value={selectedApps?.NETWORK_VERSION}
                             onChange={handleChange}
                             onBlur={handleBlur}
                         />
@@ -828,7 +827,7 @@ const MyApplicationGeneralInfo = () => {
                         }}>
                             <MultipleSelect
                                 isMultiSelect={false}
-                                defaultValue={selectedApps.AUTHENTICATION_TYPE ? selectedApps.AUTHENTICATION_TYPE : 'Select Network*'}
+                                defaultValue={selectedApps?.AUTHENTICATION_TYPE}
                                 placeholderText="Select Login Method*"
                                 selectOptions={loginOptions}
                                 selectedOptions={selectedAuth}
@@ -857,7 +856,7 @@ const MyApplicationGeneralInfo = () => {
                         }}>
                             <MultipleSelect
                                 isMultiSelect={false}
-                                defaultValue={selectedApps.PW_CONFIGURABLE ? selectedApps.PW_CONFIGURABLE : 'Select Choice*'}
+                                defaultValue={selectedApps?.PW_CONFIGURABLE}
                                 placeholderText="Select Choice*"
                                 selectOptions={configureOptions}
                                 selectedOptions={selectedConfig}
@@ -881,7 +880,7 @@ const MyApplicationGeneralInfo = () => {
                                 label="Password Length"
                                 name="LENGTH"
                                 type="number"
-                                value={passwordData.LENGTH}
+                                value={passwordData?.LENGTH}
                                 onChange={handleChangePWChange}
                                 onBlur={handlePWBlur}
                                 required
@@ -891,7 +890,7 @@ const MyApplicationGeneralInfo = () => {
                                 label="Password Age"
                                 name="AGE"
                                 type="number"
-                                value={passwordData.AGE}
+                                value={passwordData?.AGE}
                                 onChange={handleChangePWChange}
                                 onBlur={handlePWBlur}
                                 required
@@ -901,7 +900,7 @@ const MyApplicationGeneralInfo = () => {
                                 label="Password History"
                                 name="HISTORY"
                                 type="number"
-                                value={passwordData.HISTORY}
+                                value={passwordData?.HISTORY}
                                 onChange={handleChangePWChange}
                                 onBlur={handlePWBlur}
                                 required
@@ -911,7 +910,7 @@ const MyApplicationGeneralInfo = () => {
                                 label="Account Lockout"
                                 name="LOCKOUT_ATTEMPT"
                                 type="number"
-                                value={passwordData.LOCKOUT_ATTEMPT}
+                                value={passwordData?.LOCKOUT_ATTEMPT}
                                 onChange={handleChangePWChange}
                                 onBlur={handlePWBlur}
                                 required

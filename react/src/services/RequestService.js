@@ -74,6 +74,13 @@ const RequestService = {
         return response.data;
       },
 
+    //My Requests
+
+    fetchRequestsByApp: async (requestID) => {
+      const response = await axiosInstance.get(`access/myrequests/${requestID}/`);
+      return response.data;
+  },
+
     
     
 };

@@ -53,10 +53,12 @@ const SysOwnerCompliance = () => {
                 const currentUser = await userService.fetchCurrentUser()
                 if (currentUser) {
                     const assignedApps = await appService.fetchAppsByOwner(currentUser.id)
+
+                    console.log('Getting assigned apps', assignedApps)
+
                     if (assignedApps) {
                         setApps(assignedApps);
                 
-                        // Collect promises to fetch password policies for each app's company
                         const passwordPolicyPromises = assignedApps.map(async (app) => {
                             if (app.id) {
                                 try {
@@ -69,52 +71,60 @@ const SysOwnerCompliance = () => {
                                 return { id: app.id, policy: null };
                             }
                         });
-                
-                       
+                        
                         const passwordPolicies = await Promise.all(passwordPolicyPromises);
-                        
-                      // Combine all data into a single map
-                        const combinedDataMap = passwordPolicies.reduce((acc, { id, policy }) => {
-                            acc[id] = {
-                                passwordPolicy: policy ? policy.pw_policy : null,
-                                passwordConfigured: policy ? policy.data : null,
-                                complianceStatus: policy ? policy.compliance_status : null,
-                            };
-                            return acc;
-                        }, {});
 
-                        // Enhance assignedApps with combined data
-                        const appsWithCombinedData = assignedApps.map((app) => ({
-                            ...app,
-                            passwordPolicy: combinedDataMap[app.id]?.passwordPolicy || null,
-                            passwordConfigured: combinedDataMap[app.id]?.passwordConfigured || null,
-                            complianceStatus: combinedDataMap[app.id]?.complianceStatus || null
-                        }));
+                        console.log('This is the password policy per app', passwordPolicies)
 
-                        // Set the combined data in state
-                        setApps(appsWithCombinedData);
+                        if (passwordPolicies) {
 
-                        const statusValues = appsWithCombinedData.map(app => app.complianceStatus?.status).map(status => status === undefined ? 'undefined' : status);
+                      
+                            const combinedDataMap = passwordPolicies.reduce((acc, { id, policy }) => {
+                                acc[id] = {
+                                    passwordPolicy: policy ? policy.pw_policy : null,
+                                    passwordConfigured: policy ? policy.data : null,
+                                    complianceStatus: policy ? policy.compliance_status : null,
+                                };
+                                return acc;
+                            }, {});
+    
+                            // Enhance assignedApps with combined data
+                            const appsWithCombinedData = assignedApps.map((app) => ({
+                                ...app,
+                                passwordPolicy: combinedDataMap[app.id]?.passwordPolicy || null,
+                                passwordConfigured: combinedDataMap[app.id]?.passwordConfigured || null,
+                                complianceStatus: combinedDataMap[app.id]?.complianceStatus || null
+                            }));
+    
+                            // Set the combined data in state
+                            setApps(appsWithCombinedData);
 
-                        const statusCounts = statusValues.reduce((counts, status) => {
-                            counts[status] = (counts[status] || 0) + 1;
-                            return counts;
-                        }, {});
+                            console.log('Combined Data', appsWithCombinedData)
 
-                        
-                        const formattedStatusCounts = Object.keys(statusCounts).map(status => ({
-                            label: status === 'undefined' ? 'Incomplete Setup' : status,
-                            value: statusCounts[status]
-                        }));
+                            const statusValues = appsWithCombinedData.map(app => app.complianceStatus?.status).map(status => status === undefined ? 'undefined' : status);
 
-                        setWithExceptions(formattedStatusCounts)
-
-                        const statusesToCount = ['Needs Review', 'Incomplete Setup'];
-                        const authcount = formattedStatusCounts
-                            .filter(item => statusesToCount.includes(item.label))
-                            .reduce((total, item) => total + item.value, 0);
-
-                        setAuthCount(authcount)
+                            const statusCounts = statusValues.reduce((counts, status) => {
+                                counts[status] = (counts[status] || 0) + 1;
+                                return counts;
+                            }, {});
+    
+                            
+                            const formattedStatusCounts = Object.keys(statusCounts).map(status => ({
+                                label: status === 'undefined' ? 'Incomplete Setup' : status,
+                                value: statusCounts[status]
+                            }));
+    
+                            setWithExceptions(formattedStatusCounts)
+    
+                            const statusesToCount = ['Needs Review', 'Incomplete Setup'];
+                            const authcount = formattedStatusCounts
+                                .filter(item => statusesToCount.includes(item.label))
+                                .reduce((total, item) => total + item.value, 0);
+    
+                            setAuthCount(authcount)
+                        }
+                       
+                      
 
                     } else {
                         setApps([]);
@@ -201,18 +211,15 @@ const SysOwnerCompliance = () => {
         const matchingPolicy = app.passwordPolicy
         const matchingConfiguration = app.passwordConfigured
 
-       // Check if both matchingPolicy and matchingConfiguration exist
     if (matchingPolicy || matchingConfiguration) {
-        // Ensure that both are available, otherwise use empty objects
+
         const policyData = matchingPolicy || {};
         const configData = matchingConfiguration || {};
-
-        // Map both policy and configuration to table rows
         const passwordRows = mapPasswordPolicyToRows(configData, policyData);
         setPasswordRows(passwordRows);
     } else {
-        // Handle the case where neither policy nor configuration is found
-        setPasswordRows([]); // or show an error message if needed
+    
+        setPasswordRows([]);
     }
 
         setOpenPasswordModal(true) 

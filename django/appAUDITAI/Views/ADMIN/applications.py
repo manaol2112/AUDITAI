@@ -140,6 +140,8 @@ class AppPasswordViewSet(viewsets.ModelViewSet):
             'compliance_status': compliance_status
         }
 
+        print(context)
+
         return Response(context)
 
 class AppPasswordViewSetbyApp(viewsets.ModelViewSet):
@@ -148,6 +150,14 @@ class AppPasswordViewSetbyApp(viewsets.ModelViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     lookup_field = 'APP_NAME'
+
+class AppPasswordViewSetbyID(viewsets.ModelViewSet):
+    queryset = APP_PASSWORD.objects.all()
+    serializer_class = AppPasswordSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'APP_NAME'
+
 
 class AppRecordViewSet(viewsets.ModelViewSet):
     queryset = APP_RECORD.objects.all()

@@ -19,6 +19,7 @@ class AccessRequestSerializer(serializers.ModelSerializer):
         model = ACCESSREQUEST
         fields = '__all__'
 
+
 class AccessRequestApproverSerializer(serializers.ModelSerializer):
     class Meta:
         model = ACCESSREQUESTAPPROVER

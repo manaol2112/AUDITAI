@@ -47,17 +47,44 @@ class AccessRequestViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
 
 
+class AccessRequestByAppViewSet(viewsets.ModelViewSet):
+    queryset = ACCESSREQUEST.objects.all()
+    serializer_class = AccessRequestSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self, *args, **kwargs):
+        # Get the app_id from the URL parameter
+        app_id = self.kwargs.get('app_id')
+
+        app_name = APP_LIST.objects.get(id = app_id)
+
+        tickets = ACCESSREQUEST.objects.filter(APP_NAME=app_id).select_related('APP_NAME')
+
+        for tick in tickets:
+            tick.APP_NAME
+        
+        return tickets
+
+
 class AccessRequestApprovalViewSet(viewsets.ModelViewSet):
     queryset = ACCESSREQUESTAPPROVER.objects.all()
     serializer_class = AccessRequestApproverSerializer
     authentication_classes = [JWTAuthentication]
     permission_classes = [AllowAny]
+    lookup_field = "REQUEST_ID"
+
+    # def get_queryset(self):
+    #     request_id = self.kwargs.get('REQUEST_ID')
+    #     return ACCESSREQUESTAPPROVER.objects.filter(REQUEST_ID=request_id)
+        
 
 class ApproveAccessRequestView(APIView):
     
     def post(self, request, *args, **kwargs):
 
         request_id = request.data.get('id')  # Extract 'id'
+        print(request_id)
         status = request.data.get('STATUS')  # Extract 'STATUS'
         token = request.data.get('TOKEN')  # Extract 'TOKEN'
         
@@ -92,10 +119,11 @@ class ApproveAccessRequestView(APIView):
                 status.save()
                 
             # Update the approver's approval date
-            approval = ACCESSREQUESTAPPROVER.objects.get(REQUEST_ID_id=request_id)
-            if approval:
-                approval.DATE_APPROVED = timezone.now()
-                approval.save()
+            approval = ACCESSREQUESTAPPROVER.objects.filter(REQUEST_ID_id=request_id)
+            for approver in approval:
+                if approver:
+                    approver.DATE_APPROVED = timezone.now()
+                    approver.save()
 
             # Mark the token as used
             approval_token.is_used = True

@@ -16,19 +16,11 @@ import Tooltip from '@mui/material/Tooltip';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Divider from '@mui/material/Divider';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import StorageIcon from '@mui/icons-material/Storage';
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
-import GppGoodIcon from '@mui/icons-material/GppGood';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import WarningIcon from '@mui/icons-material/Warning';
-import LaunchIcon from '@mui/icons-material/Launch';
-import GroupIcon from '@mui/icons-material/Group';
-import MemoryRoundedIcon from '@mui/icons-material/MemoryRounded';
-import SystemUpdateAltRoundedIcon from '@mui/icons-material/SystemUpdateAltRounded';
 import DownloadIcon from '@mui/icons-material/Download';
 import KeyIcon from '@mui/icons-material/Key';
 import SettingsIcon from '@mui/icons-material/Settings';
+import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 
 const DataTable = React.lazy(() => import('../../common/DataGrid'));
 
@@ -188,19 +180,18 @@ const ProcessNarrative = () => {
 
         return (
             <ThemeProvider theme={theme}>
-                <Tooltip title="View" arrow>
+                <Tooltip title="Open Narrative" arrow>
                     <mui.IconButton
-                        sx={{ color: theme.palette.primary.main }}
+                        sx={{
+                            color: theme.palette.primary.main,
+                            borderRadius: '50%',  // Explicitly set this if needed
+                        }}
                         size="small"
                         onClick={(event) => handleClick(event, app)}
                     >
-                      
-                            <span style={{ fontSize: '14px', color: 'grey' }}>
-                            View
-                           <DownloadIcon sx={{ marginLeft: '10px', fontSize: '18px', color: theme.palette.secondary.main }} />
-                            </span>
-                      
+                        <AutoStoriesIcon sx={{ fontSize: '18px', color: theme.palette.secondary.main }} />
                     </mui.IconButton>
+
                 </Tooltip>
             </ThemeProvider>
         );

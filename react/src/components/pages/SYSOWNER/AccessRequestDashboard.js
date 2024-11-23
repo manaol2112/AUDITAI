@@ -24,6 +24,10 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import { useNavigate } from 'react-router-dom';
+import { validate as isValidUUID } from 'uuid';
+
+// Now you can use isValidUUID to validate UUIDs
+
 
 const AccessRequestDashboard = () => {
 
@@ -77,27 +81,27 @@ const AccessRequestDashboard = () => {
         const fetchHRList = async () => {
             try {
                 const hrList = await HRService.fetchHRRecordByEmail();
-        
+
                 if (hrList) {
                     // Use a Set to store unique emails
                     const uniqueEmailList = Array.from(
                         new Map(
-                            hrList.map(item => [item.EMAIL_ADDRESS, item]) // Create a map using the email as the key
+                            hrList.map(item => [item.EMAIL_ADDRESS, item]) 
                         ).values()
                     );
-        
+
                     const email = uniqueEmailList.map(item => ({
                         value: item.id,
                         label: `${item.FIRST_NAME} ${item.LAST_NAME}  (${item.EMAIL_ADDRESS})`
                     }));
-        
+
                     setEmailSelection(email);
                 }
             } catch (error) {
                 console.error(`Error fetching HR data: ${error.message}`);
             }
         };
-        
+
         fetchAppList();
 
         fetchHRList();
@@ -182,29 +186,31 @@ const AccessRequestDashboard = () => {
         if (saveTimeout.current) {
             clearTimeout(saveTimeout.current);
         }
-            const updatedData = {
-                ...accessRequestData,
-                [name]: value
-            };
+        const updatedData = {
+            ...accessRequestData,
+            [name]: value
+        };
 
-            setAccessRequestData(updatedData);
+        setAccessRequestData(updatedData);
 
     };
 
     const handleCommentsBlur = (e) => {
         const { name, value } = e.target;
 
-            const updatedData = {
-                ...accessRequestData,
-                [name]: value
-            };
+        const updatedData = {
+            ...accessRequestData,
+            [name]: value
+        };
 
-            setAccessRequestData(updatedData)
+        setAccessRequestData(updatedData)
     };
 
 
     const handleSystemSelectionChange = async (selectedOptions) => {
         const selectedSystem = selectedOptions.value;
+
+        console.log(selectedSystem)
 
         // Update the selected system state
         setSelectedSystem(selectedOptions);
@@ -213,8 +219,7 @@ const AccessRequestDashboard = () => {
             ...accessRequestData,
             APP_NAME: selectedSystem,
         };
- 
-        // Fetch the roles based on the selected system
+
         try {
 
             const roles = await appService.fetchAppsRecordById(selectedSystem);
@@ -222,7 +227,7 @@ const AccessRequestDashboard = () => {
 
                 if (roles && Array.isArray(roles)) {
                     const roleNames = [...new Set(roles.map(item => item.ROLE_NAME))];
-            
+
                     const formattedRoleName = roleNames.map(item => ({
                         value: item,
                         label: item,
@@ -247,7 +252,7 @@ const AccessRequestDashboard = () => {
         try {
 
             const response = await RequestService.fetchRequestID();
-            const now = new Date().toISOString();  
+            const now = new Date().toISOString();
 
             if (response) {
 
@@ -255,6 +260,7 @@ const AccessRequestDashboard = () => {
 
                     const updatedData = {
                         ...accessRequestData,
+                        
                         REQUEST_ID: 'REQ_ID#' + response.request_id_counter,
                         DATE_REQUESTED: now,
                         STATUS: 'Pending Approval',
@@ -263,31 +269,47 @@ const AccessRequestDashboard = () => {
 
                     const request = await RequestService.createRequest(updatedData)
 
-                    const approvers = approver;
+                    const approvers = approver; // This is your array of approvers, each having a 'value' field with the UUID
 
-                    for (const approver of approvers) {
-                        const approverData = {
-                            ...approver,
-                            APPROVER: accessApproverData.APPROVER,
-                            REQUEST_ID: request?.id,
-                            DATE_REQUESTED: now,
-                            STATUS: 'Pending Approval', // Or adjust the status as needed
-                            LAST_MODIFIED: now
-                        };
+                // Iterate through the approvers and create a separate approval record for each one
+                for (const approver of approvers) {
+                    const approverUUID = approver?.value; // Extract the UUID from the 'value' field
 
-                        const approval = await RequestService.createApproval(approverData);
-
-                        if (approval) {
-                            const sendmail = await RequestService.sendEmailApproval(approverData) 
-                        }
-
-                        window.location.href = `/accessrequest/success/${request.id}`;
+                    // Validate if the approver's UUID is valid
+                    if (!isValidUUID(approverUUID)) {
+                        console.error(`Invalid UUID for approver: ${approverUUID}`);
+                        continue; // Skip if the UUID is invalid
                     }
+
+                    // Define approverData for each approver separately
+                    const approverData = {
+                        ...approver,
+                        APPROVER: accessApproverData.APPROVER, // Assuming this is the global access approver
+                        APPROVED_BY: approverUUID, // Store the UUID in the APPROVED_BY field
+                        REQUEST_ID: request?.id,
+                        DATE_REQUESTED: now,
+                        STATUS: 'Pending Approval',
+                        LAST_MODIFIED: now
+                    };
+
+                    // Create approval record for the current approver
+                    const approval = await RequestService.createApproval(approverData);
+
+                    // Send email after creating approval record
+                    if (approval) {
+                        const sendmail = await RequestService.sendEmailApproval(approverData);
+                    }
+
+                  
+                }
+                
+                  window.location.href = `/accessrequest/success/${request.id}`;
 
                 } else if (requesttype.value === 'Pre-Approval') {
 
                     const updatedData = {
                         ...accessRequestData,
+             
                         REQUEST_ID: 'REQ_ID#' + response.request_id_counter,
                         DATE_REQUESTED: now,
                         STATUS: 'Approved',
@@ -297,14 +319,24 @@ const AccessRequestDashboard = () => {
                     const request = await RequestService.createRequest(updatedData)
 
                     const approvers = approver;
-
+                    
                     for (const approver of approvers) {
+
+                        const approverUUID = approver?.value; // Extract the UUID from the 'value' field
+
+                        // Validate if the approver's UUID is valid
+                        if (!isValidUUID(approverUUID)) {
+                            console.error(`Invalid UUID for approver: ${approverUUID}`);
+                            continue; // Skip if the UUID is invalid
+                        }
+
                         const approverData = {
                             ...approver,
-                            APPROVER: accessApproverData.APPROVER,
+                            APPROVER: accessApproverData.APPROVER, // Assuming this is the global access approver
+                            APPROVED_BY: approverUUID, // Store the UUID in the APPROVED_BY field
                             REQUEST_ID: request?.id,
                             DATE_REQUESTED: now,
-                            STATUS: 'Pending Approval', // Or adjust the status as needed
+                            STATUS: 'Approved', // Or adjust the status as needed
                             LAST_MODIFIED: now,
                             DATE_APPROVED: now
 
@@ -316,17 +348,17 @@ const AccessRequestDashboard = () => {
                             const sendmail = await RequestService.sendEmailApproval(approverData)
                         }
 
-                        window.location.href = `/accessrequest/success/${request.id}`;
-
                     }
+
+                    window.location.href = `/accessrequest/success/${request.id}`;
                 }
                 else {
                     console.error('No request ID returned from API');
                 }
             }
-            
+
         } catch (error) {
-        console.error('Error generating request ID:', error);
+            console.error('Error generating request ID:', error);
         }
     };
 
@@ -334,183 +366,119 @@ const AccessRequestDashboard = () => {
         { value: 'Pre-Approval', label: 'Pre-Approved Request' },
         { value: 'Pending Approval', label: 'Requires Approval' },
     ];
-    
 
-    const tabs = [
-
-        {
-            value: '1',
-            label: (<div>
-               New Access Request
-            </div>),
-            content: (
-                <div>
-                    <mui.Paper sx={{ padding: '20px' }}>
-
-                        <mui.Box sx={{margin: '20px'}}>
-
-                        <mui.Typography variant="subtitle2">
-                                Request Type:
-                            </mui.Typography>
-
-                            <div style={{ marginTop: '10px', marginBottom: '18px', position: 'relative' }}>
-                                <MultipleSelect
-                                    isMultiSelect={false}
-                                    placeholderText="Select System"
-                                    selectedOptions={requesttype}
-                                    selectOptions={requestTypeSelection}
-                                    value={requesttype}
-                                    handleChange={handleRequestType}
-                                />
-
-                            </div>
-
-                            <mui.Typography variant="subtitle2">
-                                System Name:
-                            </mui.Typography>
-
-                            <div style={{ marginTop: '10px', marginBottom: '18px', position: 'relative' }}>
-                                <MultipleSelect
-                                    isMultiSelect={false}
-                                    placeholderText="Select System"
-                                    selectedOptions={selectedSystem}
-                                    selectOptions={systemSelection}
-                                    value={selectedSystem}
-                                    handleChange={handleSystemSelectionChange}
-                                />
-
-                            </div>
-
-                            <mui.Typography variant="subtitle2">
-                                Role Name:
-                            </mui.Typography>
-
-                            <div style={{ marginTop: '10px', marginBottom: '18px', position: 'relative' }}>
-                                <MultipleSelect
-                                    isMultiSelect={true}
-                                    placeholderText="Select Role"
-                                    selectedOptions={selectedRoles}
-                                    selectOptions={rolesSelection}
-                                    value={selectedRoles}
-                                    handleChange={handleRoleChange}
-                                />
-                            </div>
-
-                            <mui.Typography variant="subtitle2">
-                                Role Assignee:
-                            </mui.Typography>
-
-                            <div style={{ marginTop: '10px', marginBottom: '18px', position: 'relative' }}>
-                                <MultipleSelect
-                                    isMultiSelect={true}
-                                    placeholderText="Select Requestor"
-                                    selectedOptions={requestor}
-                                    selectOptions={emailSelection}
-                                    value={requestor}
-                                    handleChange={handleRequestor}
-                                />
-                            </div>
-
-                            <mui.Typography variant="subtitle2">
-                                Approver:
-                            </mui.Typography>
-
-                            <div style={{ marginTop: '10px', marginBottom: '18px', position: 'relative' }}>
-                                <MultipleSelect
-                                    isMultiSelect={true}
-                                    placeholderText="Select Approver"
-                                    selectedOptions={approver}
-                                    selectOptions={approverList}
-                                    value={approver}
-                                    handleChange={handleApprover}
-                                />
-                            </div>
-
-                            <mui.Typography variant="subtitle2">
-                                Comments:
-                            </mui.Typography>
-
-                            <NormalTextField
-                                name="COMMENTS"
-                                value={accessRequestData.COMMENTS}
-                                onChange={handleComments}
-                                onBlur={handleCommentsBlur}
-                                isMultiLine={true}
-                                rows={5}
-                            />
-
-                            <mui.Button sx={{ marginLeft: 'auto', display: 'block', marginTop: '20px' }}  onClick={submitRequest} color="primary" variant="contained">
-                                Submit Request
-                            </mui.Button>
-
-                            {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                <DemoContainer components={['DatePicker']}>
-                                    <DatePicker
-                                        zIndex="100"
-                                        label="Approval Date"
-                                        value={''}
-                                        sx={{ width: '100%', fontSize: '12px' }}
-                                        onChange={handleDateChange}
-                                        renderInput={(params) => (
-                                            <NormalTextField
-                                                {...params}
-                                                name="PERIOD_END_DATE"
-                                                sx={{
-                                                    width: '100%',
-                                                    '& input': { fontSize: '12px' },  // Ensure font size of input text
-                                                    fontSize: '12px' // Apply font size to the outer container
-                                                }}
-                                                onChange={''}
-                                                onBlur={''}
-                                            />
-                                        )}
-                                    />
-                                </DemoContainer>
-                            </LocalizationProvider> */}
-
-
-                        </mui.Box>
-
-                    </mui.Paper>
-
-                   
-
-             
-                </div>),
-        },
-        {
-            value: '2',
-            label: (<div>
-                Access Request History
-            </div>),
-            content: (
-
-                <div>
-
-                </div>
-                ),
-        }
-    ]
 
     const customMainContent = (
         <div>
             <ResponsiveContainer>
-                <mui.Breadcrumbs aria-label="breadcrumb">
-                    <mui.Link underline="hover" color="inherit" href="/dashboard">
-                        <i className="material-icons">home</i>
-                    </mui.Link>
-
-                    <mui.Link underline="hover" color="inherit" href="/dashboard">
-                        My Dashboard
-                    </mui.Link>
-                    <mui.Typography color="text.primary">Access Request</mui.Typography>
-                </mui.Breadcrumbs>
-
+              
                 <SearchAppBar title="Access Request Form" icon={<DashboardIcon />} />
 
                 <Separator />
 
-                <DynamicTabs tabs={tabs} />
+                <mui.Paper sx={{ padding: '20px' }}>
+
+                    <mui.Box sx={{ margin: '20px' }}>
+
+                        <mui.Typography variant="subtitle2">
+                            Request Type:
+                        </mui.Typography>
+
+                        <div style={{ marginTop: '10px', marginBottom: '18px', position: 'relative' }}>
+                            <MultipleSelect
+                                isMultiSelect={false}
+                                placeholderText="Select System"
+                                selectedOptions={requesttype}
+                                selectOptions={requestTypeSelection}
+                                value={requesttype}
+                                handleChange={handleRequestType}
+                            />
+
+                        </div>
+
+                        <mui.Typography variant="subtitle2">
+                            System Name:
+                        </mui.Typography>
+
+                        <div style={{ marginTop: '10px', marginBottom: '18px', position: 'relative' }}>
+                            <MultipleSelect
+                                isMultiSelect={false}
+                                placeholderText="Select System"
+                                selectedOptions={selectedSystem}
+                                selectOptions={systemSelection}
+                                value={selectedSystem}
+                                handleChange={handleSystemSelectionChange}
+                            />
+
+                        </div>
+
+                        <mui.Typography variant="subtitle2">
+                            Role Name:
+                        </mui.Typography>
+
+                        <div style={{ marginTop: '10px', marginBottom: '18px', position: 'relative' }}>
+                            <MultipleSelect
+                                isMultiSelect={true}
+                                placeholderText="Select Role"
+                                selectedOptions={selectedRoles}
+                                selectOptions={rolesSelection}
+                                value={selectedRoles}
+                                handleChange={handleRoleChange}
+                            />
+                        </div>
+
+                        <mui.Typography variant="subtitle2">
+                            Role Assignee:
+                        </mui.Typography>
+
+                        <div style={{ marginTop: '10px', marginBottom: '18px', position: 'relative' }}>
+                            <MultipleSelect
+                                isMultiSelect={true}
+                                placeholderText="Select Requestor"
+                                selectedOptions={requestor}
+                                selectOptions={emailSelection}
+                                value={requestor}
+                                handleChange={handleRequestor}
+                            />
+                        </div>
+
+                        <mui.Typography variant="subtitle2">
+                            Approver:
+                        </mui.Typography>
+
+                        <div style={{ marginTop: '10px', marginBottom: '18px', position: 'relative' }}>
+                            <MultipleSelect
+                                isMultiSelect={true}
+                                placeholderText="Select Approver"
+                                selectedOptions={approver}
+                                selectOptions={approverList}
+                                value={approver}
+                                handleChange={handleApprover}
+                            />
+                        </div>
+
+                        <mui.Typography variant="subtitle2">
+                            Comments:
+                        </mui.Typography>
+
+                        <NormalTextField
+                            name="COMMENTS"
+                            value={accessRequestData.COMMENTS}
+                            onChange={handleComments}
+                            onBlur={handleCommentsBlur}
+                            isMultiLine={true}
+                            rows={5}
+                        />
+
+                        <mui.Button sx={{ marginLeft: 'auto', display: 'block', marginTop: '20px' }} onClick={submitRequest} color="primary" variant="contained">
+                            Submit Request
+                        </mui.Button>
+
+
+                    </mui.Box>
+
+                </mui.Paper>
+
 
             </ResponsiveContainer>
         </div>

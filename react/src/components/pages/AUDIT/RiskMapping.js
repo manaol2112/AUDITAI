@@ -58,21 +58,12 @@ import FolderSpecialRoundedIcon from '@mui/icons-material/FolderSpecialRounded';
 import AnnouncementRoundedIcon from '@mui/icons-material/AnnouncementRounded';
 import InfoIcon from '@mui/icons-material/Info';
 import SecurityIcon from '@mui/icons-material/Security';
-import Accordion from '@mui/material/Accordion';
-import AccordionActions from '@mui/material/AccordionActions';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import Button from '@mui/material/Button';
-import Modal from '../../common/Modal';
 import AddCircleRounded from '@mui/icons-material/AddCircleRounded';
 import DeleteIcon from '@mui/icons-material/Delete';
 import companyService from '../../../services/CompanyService';
 import GppBadIcon from '@mui/icons-material/GppBad';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
-import ShieldIcon from '@mui/icons-material/Shield';
-import EnhancedEncryptionIcon from '@mui/icons-material/EnhancedEncryption';
-import CheckCircleRounded from '@mui/icons-material/CheckCircleRounded';
+
 
 
 const RiskMapping = () => {
@@ -98,8 +89,6 @@ const RiskMapping = () => {
     const [ratingRationale, setRatingRationale] = useState(null);
     const saveTimeout = useRef(null);
 
-
-
     const [openModal, setOpenModal] = useState(false);
     const [selectedRisk, setSelectedRisk] = useState([])
     const [selectedITRisk, setSelectedITRisk] = useState([])
@@ -107,7 +96,7 @@ const RiskMapping = () => {
     const [selectedCompany, setSelectedCompany] = useState([])
     const [selectedControls, setSelectedControls] = useState([])
     const [mappedControls, setMappedControls] = useState([])
-    const { company_id,id } = useParams();
+    const { company_id, id } = useParams();
 
     const [openBPRiskList, setOpenBPRiskList] = useState(true);
     const [openITRiskList, setOpenITRiskList] = useState(true);
@@ -185,12 +174,12 @@ const RiskMapping = () => {
                     }
 
                 } else {
-                    setSelectedApp([]);
+                    
                 }
 
             } catch (fetchError) {
                 console.error('Error fetching app record:', fetchError);
-                setSelectedApp([])
+                
             }
         }
 
@@ -254,7 +243,6 @@ const RiskMapping = () => {
 
         } catch (fetchError) {
             console.error('Error fetching risk record by app:', fetchError);
-            setMappedRisk([])
         }
 
         let riskData;

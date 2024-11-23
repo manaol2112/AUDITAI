@@ -7,6 +7,12 @@ const appPasswordService = {
     return response.data;
   },
 
+  fetchAppPasswordbyID: async (APP_NAME) => {
+    const response = await axiosInstance.get(`fetch-app-password/${APP_NAME}/`);
+    return response.data;
+  },
+
+
   fetchAppPasswordByApp: async (APP_NAME) => {
     const response = await axiosInstance.get(`app-password/appid/${APP_NAME}/`);
     return response.data;
