@@ -76,7 +76,8 @@ const ProcessNarrativeDetails = () => {
 
         const fetchPwData = async () => {
             try {
-                const pwDataresponse = await appPasswordService.fetchAppPasswordByApp(id)
+                const pwDataresponse = await appPasswordService.fetchAppPasswordbyID(id)
+                
                 if (pwDataresponse) {
                     setPWData(pwDataresponse);
                 }
@@ -100,7 +101,7 @@ const ProcessNarrativeDetails = () => {
         const fetchTerminationData = async () => {
             try {
                 const terminationDataresponse = await appService.getTerminationProcessByID(id)
-                console.log(terminationDataresponse)
+               
                 if (terminationDataresponse) {
                     setTerminationData(terminationDataresponse);
                 }

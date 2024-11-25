@@ -78,7 +78,6 @@ class AccessRequestApprovalViewSet(viewsets.ModelViewSet):
     #     request_id = self.kwargs.get('REQUEST_ID')
     #     return ACCESSREQUESTAPPROVER.objects.filter(REQUEST_ID=request_id)
         
-
 class ApproveAccessRequestView(APIView):
     
     def post(self, request, *args, **kwargs):

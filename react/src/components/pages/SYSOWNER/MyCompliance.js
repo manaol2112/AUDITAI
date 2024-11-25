@@ -36,12 +36,16 @@ import Modal from '../../common/Modal';
 import NormalTextField from '../../common/NormalTextField';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
+import { gridColumnVisibilityModelSelector } from '@mui/x-data-grid';
 
 const DataTable = React.lazy(() => import('../../common/DataGrid'));
 
 const SysOwnerCompliance = () => {
 
     const [apps, setApps] = useState([]);
+
+    const [appsProvisioning, setAppsProvisioning] = useState([]);
+
     const [withExceptions, setWithExceptions] = useState([]);
     const [authCount, setAuthCount] = useState([]); 
     const [openPasswordModal, setOpenPasswordModal] = useState(false);
@@ -54,11 +58,13 @@ const SysOwnerCompliance = () => {
                 if (currentUser) {
                     const assignedApps = await appService.fetchAppsByOwner(currentUser.id)
 
-                    console.log('Getting assigned apps', assignedApps)
+                 
 
                     if (assignedApps) {
+
                         setApps(assignedApps);
-                
+
+                        //GET ALL THE PASSWORD DATA
                         const passwordPolicyPromises = assignedApps.map(async (app) => {
                             if (app.id) {
                                 try {
@@ -74,11 +80,8 @@ const SysOwnerCompliance = () => {
                         
                         const passwordPolicies = await Promise.all(passwordPolicyPromises);
 
-                        console.log('This is the password policy per app', passwordPolicies)
-
                         if (passwordPolicies) {
 
-                      
                             const combinedDataMap = passwordPolicies.reduce((acc, { id, policy }) => {
                                 acc[id] = {
                                     passwordPolicy: policy ? policy.pw_policy : null,
@@ -98,8 +101,6 @@ const SysOwnerCompliance = () => {
     
                             // Set the combined data in state
                             setApps(appsWithCombinedData);
-
-                            console.log('Combined Data', appsWithCombinedData)
 
                             const statusValues = appsWithCombinedData.map(app => app.complianceStatus?.status).map(status => status === undefined ? 'undefined' : status);
 
@@ -123,18 +124,61 @@ const SysOwnerCompliance = () => {
     
                             setAuthCount(authcount)
                         }
-                       
-                      
 
-                    } else {
-                        setApps([]);
-                    }
+                        //GET ALL PROVISIONING DATA
+
+                        const provisioningDataPromises = assignedApps
+                            .filter(app => app.id)  // Filter out apps without valid `id`
+                            .map(async (app) => {
+                                try {
+                                    return { id: app.id, data: await appService.fetchAppsRecordByIdAndGrantDate(app.id) };
+                                } catch (err) {
+                                    console.error('Error fetching application record for', app.COMPANY_NAME, ':', err);
+                                    return { id: app.id, data: null };
+                                }
+                            });
+
+                        const provisioningData = await Promise.all(provisioningDataPromises);
+
+                        if (provisioningData.length > 0) {
+
+                            const combinedProvisioningDataMap = provisioningData.reduce((acc, { id, data }) => {
+                                acc[id] = {
+                                    data: data ? data : null,  
+                                };
+                                return acc;
+                            }, {});
+
+                             // Enhance assignedApps with combined data
+                             const appsWithCombinedProvisioningData = assignedApps.map((app) => ({
+                                ...app,
+                                data: combinedProvisioningDataMap[app.id]?.data || null,
+                            }));
+
+                            // Set the combined data in state
+                            setAppsProvisioning(appsWithCombinedProvisioningData);
+
+                            console.log('Provisioning Data', appsWithCombinedProvisioningData)
+
+
+                        } else {
+                            console.error('No provisioning data fetched');
+                        }
+
+
+                    } 
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
         }
         fetchData();
+
+        const fetchProvisioning = async () => {
+
+        }
+
+        fetchProvisioning()
     }, []);
 
 
@@ -142,6 +186,8 @@ const SysOwnerCompliance = () => {
         label: status.complianceStatus,
         value:  0
     }));
+
+    //DATA FOR AUTHENTICATION TABLE
 
     const columns = [
         { field: 'id', headerName: '#', width: 50 },
@@ -173,6 +219,28 @@ const SysOwnerCompliance = () => {
             passwordPolicy:app.passwordPolicy ? app.passwordPolicy: '',
             passwordConfigured:app.passwordConfigured ? app.passwordConfigured: ''
 
+        };
+    });
+
+
+    //DATA FOR PROVISIONING TABLE
+
+    const provisioningcolumns = [
+        { field: 'id', headerName: '#', width: 50 },
+        { field: 'APP_NAME', headerName: 'Application Name', flex: 1 },
+        { field: 'COMPANY_NAME', headerName: 'Company', flex: 1 },
+        { field: 'WITHSUPPORT', headerName: 'Late Approval', sortable: false, flex: 1},
+        { field: 'nonCompliantCount', headerName: 'No Documentation', sortable: false, width: 1 },
+    ];
+
+    const provisioningrows = appsProvisioning.map((app, index) => {
+        
+        return {
+            id: index + 1,
+            APP_NAME: app.APP_NAME || '-',
+            COMPANY_NAME: app.COMPANY_NAME || '-',
+            AUTHENTICATION_TYPE: app.AUTHENTICATION_TYPE || '-',
+            appID: app.id,
         };
     });
 
@@ -292,6 +360,22 @@ const SysOwnerCompliance = () => {
             </div>),
             content: (
                 <div>
+
+                    <mui.Grid container spacing={2} sx={{ marginBottom: '20px' }}>
+                        <mui.Grid item xs={2}>
+                            <Paper sx={{ height: '200px', padding: '20px' }}>
+                                <DonutChart data={withExceptions} desc="Needs Review" title={authCount} />
+                            </Paper>
+                        </mui.Grid>
+                    </mui.Grid>
+
+                <Suspense fallback={<div>Loading...</div>}>
+                    <DataTable
+                        rows={provisioningrows}
+                        columns={provisioningcolumns}
+                        columnsWithActions={columnsWithActions}
+                    />
+                </Suspense>
 
                 </div>
             ),

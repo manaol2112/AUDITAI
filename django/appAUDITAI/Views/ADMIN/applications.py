@@ -140,8 +140,6 @@ class AppPasswordViewSet(viewsets.ModelViewSet):
             'compliance_status': compliance_status
         }
 
-        print(context)
-
         return Response(context)
 
 class AppPasswordViewSetbyApp(viewsets.ModelViewSet):
@@ -175,6 +173,22 @@ class AppRecordViewSetbyApp(ListAPIView):
     def get_queryset(self):
         app_id = self.kwargs.get('APP_NAME')
         return APP_RECORD.objects.filter(APP_NAME_id=app_id).order_by(F('STATUS').asc(nulls_last=True))
+    
+class AppRecordViewSetbyAppAndGrantDate(ListAPIView):
+    queryset = APP_RECORD.objects.all()
+    serializer_class = AppRecordSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'APP_NAME'
+
+    def get_queryset(self):
+        app_id = self.kwargs.get('APP_NAME')
+        current_year = datetime.now().year
+
+        return APP_RECORD.objects.filter(
+            APP_NAME_id=app_id,
+            DATE_GRANTED__year=current_year 
+        ).order_by(F('STATUS').asc(nulls_last=True))
     
 
 class AppRecordLastRefreshDateByApp(APIView):
