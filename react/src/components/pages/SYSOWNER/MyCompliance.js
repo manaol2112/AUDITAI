@@ -13,19 +13,8 @@ import appService from '../../../services/ApplicationService';
 import userService from '../../../services/UserService';
 import companyService from '../../../services/CompanyService';
 import Tooltip from '@mui/material/Tooltip';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import Divider from '@mui/material/Divider';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import StorageIcon from '@mui/icons-material/Storage';
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
-import GppGoodIcon from '@mui/icons-material/GppGood';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import WarningIcon from '@mui/icons-material/Warning';
 import LaunchIcon from '@mui/icons-material/Launch';
-import GroupIcon from '@mui/icons-material/Group';
-import MemoryRoundedIcon from '@mui/icons-material/MemoryRounded';
-import SystemUpdateAltRoundedIcon from '@mui/icons-material/SystemUpdateAltRounded';
 import DynamicTabs from '../../common/DynamicTabs';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded';
@@ -46,10 +35,13 @@ const SysOwnerCompliance = () => {
 
     const [appsProvisioning, setAppsProvisioning] = useState([]);
 
+    const [incompleteSetupAuth, setIncompleteSetupAuth] = useState([]);
     const [withExceptions, setWithExceptions] = useState([]);
-    const [authCount, setAuthCount] = useState([]); 
+    const [withProvExceptions, setWithProvExceptions] = useState([]);
+    const [authCount, setAuthCount] = useState([]);
     const [openPasswordModal, setOpenPasswordModal] = useState(false);
-    const [passwordRows, setPasswordRows] = useState([]); 
+    const [openProvisioningModal, setOpenProvisioningModal] = useState(false);
+    const [passwordRows, setPasswordRows] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -58,7 +50,7 @@ const SysOwnerCompliance = () => {
                 if (currentUser) {
                     const assignedApps = await appService.fetchAppsByOwner(currentUser.id)
 
-                 
+
 
                     if (assignedApps) {
 
@@ -77,7 +69,7 @@ const SysOwnerCompliance = () => {
                                 return { id: app.id, policy: null };
                             }
                         });
-                        
+
                         const passwordPolicies = await Promise.all(passwordPolicyPromises);
 
                         if (passwordPolicies) {
@@ -90,7 +82,7 @@ const SysOwnerCompliance = () => {
                                 };
                                 return acc;
                             }, {});
-    
+
                             // Enhance assignedApps with combined data
                             const appsWithCombinedData = assignedApps.map((app) => ({
                                 ...app,
@@ -98,7 +90,7 @@ const SysOwnerCompliance = () => {
                                 passwordConfigured: combinedDataMap[app.id]?.passwordConfigured || null,
                                 complianceStatus: combinedDataMap[app.id]?.complianceStatus || null
                             }));
-    
+
                             // Set the combined data in state
                             setApps(appsWithCombinedData);
 
@@ -108,20 +100,22 @@ const SysOwnerCompliance = () => {
                                 counts[status] = (counts[status] || 0) + 1;
                                 return counts;
                             }, {});
-    
-                            
+
                             const formattedStatusCounts = Object.keys(statusCounts).map(status => ({
                                 label: status === 'undefined' ? 'Incomplete Setup' : status,
                                 value: statusCounts[status]
                             }));
-    
+
+                            setIncompleteSetupAuth(formattedStatusCounts)
+
                             setWithExceptions(formattedStatusCounts)
-    
+
                             const statusesToCount = ['Needs Review', 'Incomplete Setup'];
+
                             const authcount = formattedStatusCounts
                                 .filter(item => statusesToCount.includes(item.label))
                                 .reduce((total, item) => total + item.value, 0);
-    
+
                             setAuthCount(authcount)
                         }
 
@@ -144,21 +138,18 @@ const SysOwnerCompliance = () => {
 
                             const combinedProvisioningDataMap = provisioningData.reduce((acc, { id, data }) => {
                                 acc[id] = {
-                                    data: data ? data : null,  
+                                    data: data ? data : null,
                                 };
                                 return acc;
                             }, {});
 
-                             // Enhance assignedApps with combined data
-                             const appsWithCombinedProvisioningData = assignedApps.map((app) => ({
+                            // Enhance assignedApps with combined data
+                            const appsWithCombinedProvisioningData = assignedApps.map((app) => ({
                                 ...app,
                                 data: combinedProvisioningDataMap[app.id]?.data || null,
                             }));
 
-                            // Set the combined data in state
                             setAppsProvisioning(appsWithCombinedProvisioningData);
-
-                            console.log('Provisioning Data', appsWithCombinedProvisioningData)
 
 
                         } else {
@@ -166,7 +157,7 @@ const SysOwnerCompliance = () => {
                         }
 
 
-                    } 
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -184,7 +175,7 @@ const SysOwnerCompliance = () => {
 
     const allException = apps.map(status => ({
         label: status.complianceStatus,
-        value:  0
+        value: 0
     }));
 
     //DATA FOR AUTHENTICATION TABLE
@@ -193,61 +184,95 @@ const SysOwnerCompliance = () => {
         { field: 'id', headerName: '#', width: 50 },
         { field: 'APP_NAME', headerName: 'Application Name', flex: 1 },
         { field: 'COMPANY_NAME', headerName: 'Company', flex: 1 },
-        { field: 'AUTHENTICATION_TYPE', headerName: 'Authentication Type', sortable: false, flex: 1},
-        { field: 'complianceStatus', headerName: 'Compliance Status', sortable: false, flex: 1},
+        { field: 'AUTHENTICATION_TYPE', headerName: 'Authentication Type', sortable: false, flex: 1 },
+        { field: 'complianceStatus', headerName: 'Compliance Status', sortable: false, flex: 1 },
         { field: 'nonCompliantCount', headerName: 'Count', sortable: false, width: 1 },
-        { field: 'nonCompliantFields', headerName: 'Field Names', sortable: false, flex: 1},
-        
+        { field: 'nonCompliantFields', headerName: 'Field Names', sortable: false, flex: 1 },
+
     ];
 
     const rows = apps.map((app, index) => {
         const nonCompliantFields = app.complianceStatus?.non_compliant_fields;
-        const nonCompliantCount = Array.isArray(nonCompliantFields) ? nonCompliantFields.length :0;
-        
+        const nonCompliantCount = Array.isArray(nonCompliantFields) ? nonCompliantFields.length : 0;
+
         return {
             id: index + 1,
             APP_NAME: app.APP_NAME || '-',
             COMPANY_NAME: app.COMPANY_NAME || '-',
             AUTHENTICATION_TYPE: app.AUTHENTICATION_TYPE || '-',
             appID: app.id,
-            geninfo: app.SETUP_GENINFO, 
-            userdata: app.SETUP_USERDATA, 
+            geninfo: app.SETUP_GENINFO,
+            userdata: app.SETUP_USERDATA,
             process: app.SETUP_PROCESS,
             complianceStatus: (app.complianceStatus && 'status' in app.complianceStatus && app.complianceStatus.status) ? app.complianceStatus.status : 'Needs Review',
             nonCompliantFields: Array.isArray(nonCompliantFields) ? nonCompliantFields.join(', ') : 'INCOMPLETE SETUP',
             nonCompliantCount: nonCompliantCount,
-            passwordPolicy:app.passwordPolicy ? app.passwordPolicy: '',
-            passwordConfigured:app.passwordConfigured ? app.passwordConfigured: ''
+            passwordPolicy: app.passwordPolicy ? app.passwordPolicy : '',
+            passwordConfigured: app.passwordConfigured ? app.passwordConfigured : ''
 
         };
     });
 
 
-    //DATA FOR PROVISIONING TABLE
-
+    //DATA FOR PROVISIONING TABLE SUMMARY
+    
     const provisioningcolumns = [
         { field: 'id', headerName: '#', width: 50 },
         { field: 'APP_NAME', headerName: 'Application Name', flex: 1 },
         { field: 'COMPANY_NAME', headerName: 'Company', flex: 1 },
-        { field: 'WITHSUPPORT', headerName: 'Late Approval', sortable: false, flex: 1},
-        { field: 'nonCompliantCount', headerName: 'No Documentation', sortable: false, width: 1 },
+        { field: 'TOTALGRANTED', headerName: 'New Roles/Users', sortable: false, flex: 1 },
+        { field: 'NOAPPROVAL', headerName: 'No Approval', sortable: false, flex: 1 },
+        { field: 'LATEAPPROVAL', headerName: 'Late Approval', sortable: false, flex: 1 },
+        { field: 'COMPLIANCESTATUS', headerName: 'Compliance Status', sortable: false, flex: 1 },
     ];
 
     const provisioningrows = appsProvisioning.map((app, index) => {
-        
+
+        const dataLength = app.data.new_users_per_app.length;
+
+        const uniqueApproval = app.data.with_approval.filter((value, index, self) => {
+            return index === self.findIndex((t) => (
+                t.email === value.email && t.role === value.role
+            ));
+        });
+
+        const lateApproval = app.data.late_approval.filter((value, index, self) => {
+            return index === self.findIndex((t) => (
+                t.email === value.email && t.role === value.role
+            ));
+        });
+
+        const uniqueApprovalCount = uniqueApproval.length;
+        const noApproval = dataLength - uniqueApprovalCount
+        const lateApprovalCount = lateApproval.length;
+        const exceptionCount = noApproval + lateApprovalCount
+       
+        let complianceStatus
+
+        if (exceptionCount > 0) {
+            complianceStatus = "Needs Review";
+        } else {
+            complianceStatus = "-";
+        }
+
         return {
             id: index + 1,
             APP_NAME: app.APP_NAME || '-',
             COMPANY_NAME: app.COMPANY_NAME || '-',
-            AUTHENTICATION_TYPE: app.AUTHENTICATION_TYPE || '-',
+            TOTALGRANTED: dataLength || '-',
+            NOAPPROVAL: noApproval || '-',
+            LATEAPPROVAL: lateApprovalCount || '-',
+            COMPLIANCESTATUS: complianceStatus || '-',
             appID: app.id,
         };
     });
 
+    //DATA FOR PROVISIONING TABLE DETAILS
+
     const theme = createTheme({
         palette: {
             primary: {
-                main: '#ff9800', // Orange color
+                main: '#4caf50', // Orange color
             },
             secondary: {
                 main: '#4caf50', // Green color
@@ -259,17 +284,17 @@ const SysOwnerCompliance = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [selectedApp, setSelectedApp] = useState([]);
 
-    const mapPasswordPolicyToRows = (configure, policy ) => [
-        createData('Password Length',policy.LENGTH,configure.LENGTH, configure.LENGTH >= policy.LENGTH ? <CheckCircleIcon style={{color: 'green'}}/>: <WarningAmberIcon style={{color: 'orange'}}/>),
-        createData('Password Age', policy.AGE, configure.AGE, configure.AGE <= policy.AGE ? <CheckCircleIcon style={{color: 'green'}}/>: <WarningAmberIcon style={{color: 'orange'}}/>),
-        createData('Password History', policy.HISTORY, configure.HISTORY,  configure.HISTORY >= policy.HISTORY ? <CheckCircleIcon style={{color: 'green'}}/>: <WarningAmberIcon style={{color: 'orange'}}/>),
-        createData('Account Lockout Attempts', policy.LOCKOUT_ATTEMPT, configure.LOCKOUT_ATTEMPT, configure.LOCKOUT_ATTEMPT <= policy.LOCKOUT_ATTEMPT ? <CheckCircleIcon style={{color: 'green'}}/>: <WarningAmberIcon style={{color: 'orange'}}/>),
-        createData('Require Special Character', policy.SPECIAL_CHAR ? 'Yes' : 'No', configure.SPECIAL_CHAR ? 'Yes' : 'No',  configure.SPECIAL_CHAR === policy.SPECIAL_CHAR ? <CheckCircleIcon style={{color: 'green'}}/>: <WarningAmberIcon style={{color: 'orange'}}/>),
-        createData('Require Upper Case', policy.UPPER ? 'Yes' : 'No', configure.UPPER ? 'Yes' : 'No', configure.UPPER === policy.UPPER ? <CheckCircleIcon style={{color: 'green'}}/>: <WarningAmberIcon style={{color: 'orange'}}/>),
-        createData('Require Lower Case', policy.LOWER ? 'Yes' : 'No', configure.LOWER ? 'Yes' : 'No', configure.LOWER === policy.LOWER ? <CheckCircleIcon style={{color: 'green'}}/>: <WarningAmberIcon style={{color: 'orange'}}/>),
-        createData('Require Number', policy.NUMBER ? 'Yes' : 'No', configure.NUMBER ? 'Yes' : 'No', configure.NUMBER === policy.NUMBER ? <CheckCircleIcon style={{color: 'green'}}/>: <WarningAmberIcon style={{color: 'orange'}}/>),
+    const mapPasswordPolicyToRows = (configure, policy) => [
+        createData('Password Length', policy.LENGTH, configure.LENGTH, configure.LENGTH >= policy.LENGTH ? <CheckCircleIcon style={{ color: 'green' }} /> : <WarningAmberIcon style={{ color: 'orange' }} />),
+        createData('Password Age', policy.AGE, configure.AGE, configure.AGE <= policy.AGE ? <CheckCircleIcon style={{ color: 'green' }} /> : <WarningAmberIcon style={{ color: 'orange' }} />),
+        createData('Password History', policy.HISTORY, configure.HISTORY, configure.HISTORY >= policy.HISTORY ? <CheckCircleIcon style={{ color: 'green' }} /> : <WarningAmberIcon style={{ color: 'orange' }} />),
+        createData('Account Lockout Attempts', policy.LOCKOUT_ATTEMPT, configure.LOCKOUT_ATTEMPT, configure.LOCKOUT_ATTEMPT <= policy.LOCKOUT_ATTEMPT ? <CheckCircleIcon style={{ color: 'green' }} /> : <WarningAmberIcon style={{ color: 'orange' }} />),
+        createData('Require Special Character', policy.SPECIAL_CHAR ? 'Yes' : 'No', configure.SPECIAL_CHAR ? 'Yes' : 'No', configure.SPECIAL_CHAR === policy.SPECIAL_CHAR ? <CheckCircleIcon style={{ color: 'green' }} /> : <WarningAmberIcon style={{ color: 'orange' }} />),
+        createData('Require Upper Case', policy.UPPER ? 'Yes' : 'No', configure.UPPER ? 'Yes' : 'No', configure.UPPER === policy.UPPER ? <CheckCircleIcon style={{ color: 'green' }} /> : <WarningAmberIcon style={{ color: 'orange' }} />),
+        createData('Require Lower Case', policy.LOWER ? 'Yes' : 'No', configure.LOWER ? 'Yes' : 'No', configure.LOWER === policy.LOWER ? <CheckCircleIcon style={{ color: 'green' }} /> : <WarningAmberIcon style={{ color: 'orange' }} />),
+        createData('Require Number', policy.NUMBER ? 'Yes' : 'No', configure.NUMBER ? 'Yes' : 'No', configure.NUMBER === policy.NUMBER ? <CheckCircleIcon style={{ color: 'green' }} /> : <WarningAmberIcon style={{ color: 'orange' }} />),
     ];
-    
+
 
     const handleClick = (event, app) => {
         setAnchorEl(event.currentTarget);
@@ -279,23 +304,31 @@ const SysOwnerCompliance = () => {
         const matchingPolicy = app.passwordPolicy
         const matchingConfiguration = app.passwordConfigured
 
-    if (matchingPolicy || matchingConfiguration) {
+        if (matchingPolicy || matchingConfiguration) {
 
-        const policyData = matchingPolicy || {};
-        const configData = matchingConfiguration || {};
-        const passwordRows = mapPasswordPolicyToRows(configData, policyData);
-        setPasswordRows(passwordRows);
-    } else {
-    
-        setPasswordRows([]);
-    }
+            const policyData = matchingPolicy || {};
+            const configData = matchingConfiguration || {};
+            const passwordRows = mapPasswordPolicyToRows(configData, policyData);
+            setPasswordRows(passwordRows);
+        } else {
 
-        setOpenPasswordModal(true) 
+            setPasswordRows([]);
+        }
+
+        setOpenPasswordModal(true)
+    };
+
+    const handleProvisioningClick = (event, app) => {
+        setAnchorEl(event.currentTarget);
+        setIsMenuOpen(true);
+        setSelectedApp(app);
+
+        setOpenProvisioningModal(true)
     };
 
     const renderActionButton = (params) => {
         const app = params.row;
-    
+
         return (
             <ThemeProvider theme={theme}>
                 <Tooltip title="View Details" arrow>
@@ -310,12 +343,29 @@ const SysOwnerCompliance = () => {
             </ThemeProvider>
         );
     };
-    
+
+    const renderProvActionButton = (params) => {
+        const app = params.row;
+
+        return (
+            <ThemeProvider theme={theme}>
+                <Tooltip title="View Details" arrow>
+                    <mui.IconButton
+                        sx={{ color: theme.palette.primary.main }}
+                        size="small"
+                        onClick={(event) => handleProvisioningClick(event, app)}
+                    >
+                        <LaunchIcon sx={{ fontSize: '18px' }} />
+                    </mui.IconButton>
+                </Tooltip>
+            </ThemeProvider>
+        );
+    };
+
 
     // Add edit and action buttons to columns
     const columnsWithActions = [
         ...columns,
-
         {
             field: 'compliance',
             headerName: 'View Details',
@@ -324,9 +374,19 @@ const SysOwnerCompliance = () => {
             renderCell: renderActionButton,
         },
     ];
-    
-    const tabs = [
 
+    const columnsWithActionsProvisioning = [
+        ...provisioningcolumns,
+        {
+            field: 'compliance',
+            headerName: 'View Details',
+            width: 200,
+            sortable: false,
+            renderCell: renderProvActionButton,
+        },
+    ];
+
+    const tabs = [
         {
             value: '1',
             label: (<div>
@@ -334,21 +394,27 @@ const SysOwnerCompliance = () => {
             </div>),
             content: (
                 <div>
-                 <mui.Grid container spacing={2} sx={{ marginBottom: '20px' }}>
+                    <mui.Grid container spacing={2} sx={{ marginBottom: '20px' }}>
                         <mui.Grid item xs={2}>
                             <Paper sx={{ height: '200px', padding: '20px' }}>
-                                <DonutChart data={withExceptions} desc="Needs Review" title={authCount} />
+                                <DonutChart data={withExceptions} desc="With Policy Exception" title={authCount} />
                             </Paper>
                         </mui.Grid>
-                </mui.Grid>
-                    
-                <Suspense fallback={<div>Loading...</div>}>
-                    <DataTable
-                        rows={rows}
-                        columns={columns}
-                        columnsWithActions={columnsWithActions}
-                    />
-                </Suspense>
+
+                        <mui.Grid item xs={2}>
+                            <Paper sx={{ height: '200px', padding: '20px' }}>
+                                <DonutChart data={incompleteSetupAuth} desc="Incomplete Setup" title={authCount} />
+                            </Paper>
+                        </mui.Grid>
+                    </mui.Grid>
+
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <DataTable
+                            rows={rows}
+                            columns={columns}
+                            columnsWithActions={columnsWithActions}
+                        />
+                    </Suspense>
                 </div>
             ),
         },
@@ -362,20 +428,36 @@ const SysOwnerCompliance = () => {
                 <div>
 
                     <mui.Grid container spacing={2} sx={{ marginBottom: '20px' }}>
+
                         <mui.Grid item xs={2}>
                             <Paper sx={{ height: '200px', padding: '20px' }}>
-                                <DonutChart data={withExceptions} desc="Needs Review" title={authCount} />
+                                <DonutChart data={withExceptions} desc="Total" title={authCount} />
                             </Paper>
                         </mui.Grid>
+
+                        <mui.Grid item xs={2}>
+                            <Paper sx={{ height: '200px', padding: '20px' }}>
+                                <DonutChart data={withExceptions} desc="No Documentation" title={authCount} />
+                            </Paper>
+                        </mui.Grid>
+
+                        <mui.Grid item xs={2}>
+                            <Paper sx={{ height: '200px', padding: '20px' }}>
+                                <DonutChart data={withExceptions} desc="Late Approval" title={authCount} />
+                            </Paper>
+                        </mui.Grid>
+
                     </mui.Grid>
 
-                <Suspense fallback={<div>Loading...</div>}>
-                    <DataTable
-                        rows={provisioningrows}
-                        columns={provisioningcolumns}
-                        columnsWithActions={columnsWithActions}
-                    />
-                </Suspense>
+                    
+
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <DataTable
+                            rows={provisioningrows}
+                            columns={provisioningcolumns}
+                            columnsWithActions={columnsWithActionsProvisioning}
+                        />
+                    </Suspense>
 
                 </div>
             ),
@@ -415,6 +497,63 @@ const SysOwnerCompliance = () => {
         },
     ]
 
+    const provisioningTabs = [
+        {
+            value: '1',
+            label: (<div>
+                New Roles/User Assignment
+            </div>),
+            content: (
+                <div>
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <DataTable
+                            rows={rows}
+                            columns={columns}
+                            columnsWithActions={columnsWithActions}
+                        />
+                    </Suspense>
+                </div>
+            ),
+        },
+
+        {
+            value: '2',
+            label: (<div>
+                Missing Documentation
+            </div>),
+            content: (
+                <div>
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <DataTable
+                            rows={provisioningrows}
+                            columns={provisioningcolumns}
+                            columnsWithActions={columnsWithActionsProvisioning}
+                        />
+                    </Suspense>
+
+                </div>
+            ),
+        },
+        {
+            value: '3',
+            label: (<div>
+                Late Approval
+            </div>),
+            content: (
+                <div>
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <DataTable
+                            rows={provisioningrows}
+                            columns={provisioningcolumns}
+                            columnsWithActions={columnsWithActionsProvisioning}
+                        />
+                    </Suspense>
+                </div>
+            ),
+        },
+
+    ]
+
     const handleClosePasswordModal = (event, reason) => {
         if (reason == 'backdropClick') {
             setOpenPasswordModal(true)
@@ -424,9 +563,19 @@ const SysOwnerCompliance = () => {
         }
     };
 
+    const handleCloseProvisioningModal = (event, reason) => {
+        if (reason == 'backdropClick') {
+            setOpenProvisioningModal(true)
+        }
+        else {
+            setOpenProvisioningModal(false);
+        }
+    };
+
+
     function createData(name, policy, configured, result) {
         return { name, policy, configured, result };
-      }
+    }
 
     const customMainContent = (
         <div>
@@ -450,76 +599,101 @@ const SysOwnerCompliance = () => {
                 <Separator />
 
                 <mui.Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', textAlign: 'center' }}>
-                        <mui.Tooltip title="Manage Monitoring">
-                            <mui.IconButton>
-                                <SettingsRoundedIcon sx={{ width: 25, height: 25, color: '#046FB2' }} />
-                            </mui.IconButton>
-                        </mui.Tooltip>
+                    <mui.Tooltip title="Manage Monitoring">
+                        <mui.IconButton>
+                            <SettingsRoundedIcon sx={{ width: 25, height: 25, color: '#046FB2' }} />
+                        </mui.IconButton>
+                    </mui.Tooltip>
 
-                        <mui.Tooltip title="Download Compliance Report">
-                            <mui.IconButton>
-                                <DownloadRoundedIcon sx={{ width: 25, height: 25, color: '#046FB2' }} />
-                            </mui.IconButton>
-                        </mui.Tooltip>
+                    <mui.Tooltip title="Download Compliance Report">
+                        <mui.IconButton>
+                            <DownloadRoundedIcon sx={{ width: 25, height: 25, color: '#046FB2' }} />
+                        </mui.IconButton>
+                    </mui.Tooltip>
 
-                    </mui.Box>
+                </mui.Box>
 
                 <DynamicTabs tabs={tabs} />
 
 
                 <Modal
                     open={openPasswordModal}
-                    size = "md"
+                    size="md"
                     onClose={handleClosePasswordModal}
-                    header={`${selectedApp.APP_NAME} Password Details`}  
+                    header={`${selectedApp.APP_NAME} Password Details`}
                     body={
                         <>
                             <mui.Typography variant="subtitle2">
                                 Below is the detailed comparison of the password configured in {selectedApp.APP_NAME} against the requirement of the password policy.
                             </mui.Typography>
 
-                            <mui.Box sx={{marginTop: '20px'}}>
-                            <TableContainer component={Paper}>
-                                <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell>Password Parameters</TableCell>
-                                            <TableCell align="center">Password Policy Requirement</TableCell>
-                                            <TableCell align="center">Password Configured</TableCell>
-                                            <TableCell align="center">Result</TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {passwordRows.map((row) => (
-                                            <TableRow
-                                                key={row.name}
-                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                            >
-                                                <TableCell component="th" scope="row">
-                                                    {row.name}
-                                                </TableCell>
-                                                <TableCell align="center">{row.policy}</TableCell>
-                                                <TableCell align="center">{row.configured}</TableCell>
-                                                <TableCell align="center">{row.result}</TableCell>
+                            <mui.Box sx={{ marginTop: '20px' }}>
+                                <TableContainer component={Paper}>
+                                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>Password Parameters</TableCell>
+                                                <TableCell align="center">Password Policy Requirement</TableCell>
+                                                <TableCell align="center">Password Configured</TableCell>
+                                                <TableCell align="center">Result</TableCell>
                                             </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
+                                        </TableHead>
+                                        <TableBody>
+                                            {passwordRows.map((row) => (
+                                                <TableRow
+                                                    key={row.name}
+                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                >
+                                                    <TableCell component="th" scope="row">
+                                                        {row.name}
+                                                    </TableCell>
+                                                    <TableCell align="center">{row.policy}</TableCell>
+                                                    <TableCell align="center">{row.configured}</TableCell>
+                                                    <TableCell align="center">{row.result}</TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
                             </mui.Box>
                         </>
                     }
                     footer={
                         <>
-                            <mui.Button sx={{ marginBottom: '20px'}} onClick={handleClosePasswordModal} color="primary">
+                            <mui.Button sx={{ marginBottom: '20px' }} onClick={handleClosePasswordModal} color="primary">
                                 Close
                             </mui.Button>
                         </>
                     }
                 />
 
-                
-              
+                <Modal
+                    open={openProvisioningModal}
+                    size="lg"
+                    onClose={handleCloseProvisioningModal}
+                    header={`${selectedApp.APP_NAME} Provisioning Summary`}
+                    body={
+                        <>
+                            <mui.Typography variant="subtitle2">
+                                Below is the detailed summary of the provosioning report for {selectedApp.APP_NAME}.
+                            </mui.Typography>
+
+                            <mui.Box sx={{ marginTop: '20px' }}>
+
+                                <DynamicTabs tabs={provisioningTabs} />
+
+                            </mui.Box>
+                        </>
+                    }
+                    footer={
+                        <>
+                            <mui.Button sx={{ marginBottom: '20px' }} onClick={handleCloseProvisioningModal} color="primary">
+                                Close
+                            </mui.Button>
+                        </>
+                    }
+                />
+
             </ResponsiveContainer>
         </div>
     );

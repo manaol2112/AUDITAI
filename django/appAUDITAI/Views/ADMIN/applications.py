@@ -2,12 +2,13 @@ from rest_framework import viewsets
 from rest_framework.generics import RetrieveAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from appAUDITAI.models import APP_LIST, APP_PASSWORD
+from appAUDITAI.models import *
 from appAUDITAI.Views.UTILS.serializers import *
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from django.db.models import F
+import datetime
 
 class AppViewSet(viewsets.ModelViewSet):
     queryset = APP_LIST.objects.all()
@@ -174,21 +175,100 @@ class AppRecordViewSetbyApp(ListAPIView):
         app_id = self.kwargs.get('APP_NAME')
         return APP_RECORD.objects.filter(APP_NAME_id=app_id).order_by(F('STATUS').asc(nulls_last=True))
     
-class AppRecordViewSetbyAppAndGrantDate(ListAPIView):
+class AppRecordViewSetbyAppAndGrantDate(APIView):
     queryset = APP_RECORD.objects.all()
     serializer_class = AppRecordSerializer
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
-    lookup_field = 'APP_NAME'
 
-    def get_queryset(self):
+    def get(self, request, *args, **kwargs):
         app_id = self.kwargs.get('APP_NAME')
-        current_year = datetime.now().year
+        current_year = datetime.datetime.today().year
 
-        return APP_RECORD.objects.filter(
-            APP_NAME_id=app_id,
-            DATE_GRANTED__year=current_year 
-        ).order_by(F('STATUS').asc(nulls_last=True))
+        # Get the list of requests from the database for each app
+        try:
+            new_users_per_app = APP_RECORD.objects.filter(
+                APP_NAME_id=app_id,
+                DATE_GRANTED__year=current_year 
+            ).order_by(F('STATUS').asc(nulls_last=True))
+
+            # Serialize the new users per app
+            new_users_per_app_serializer = AppRecordSerializer(new_users_per_app, many=True)
+
+            with_approval = []  # List to store users with approval
+
+            late_approval = []  # List to store users with late approval
+
+            if new_users_per_app:
+                for user in new_users_per_app:
+                    try: 
+                        hr_record = HR_RECORD.objects.get(EMAIL_ADDRESS=user.EMAIL_ADDRESS)
+                        
+                        if hr_record:
+                            # Fetch the ACCESSREQUEST, assuming only one matching record per user/role
+                            try:
+                                requests = ACCESSREQUEST.objects.filter(REQUESTOR=hr_record.id, APP_NAME=app_id)
+
+                                for request in requests:
+
+                                    #Check if approval exists and get approval date
+
+                                    try:
+                                        approval_support = ACCESSREQUESTAPPROVER.objects.filter(REQUEST_ID=request).exclude(DATE_APPROVED__isnull=True).order_by('DATE_APPROVED').first()
+                                    
+                                        if approval_support:
+                                            roles_list = request.ROLES.split(',')
+                                            roles_list = [role.strip() for role in roles_list]
+                                            
+                                            if user.ROLE_NAME in roles_list:
+
+                                                with_approval.append({
+                                                    'email': user.EMAIL_ADDRESS,
+                                                    'role': user.ROLE_NAME,
+                                                    'status': user.STATUS,
+                                                    'date_granted': user.DATE_GRANTED,
+                                                    'approval_token': request.APPROVAL_TOKEN,
+                                                    'comments': request.COMMENTS
+                                                })
+
+                                                if approval_support and user.DATE_GRANTED and approval_support.DATE_APPROVED:
+                                                
+                                                    
+                                                    if isinstance(approval_support.DATE_APPROVED, datetime.datetime):
+                                                        approval_support.DATE_APPROVED = approval_support.DATE_APPROVED.date()  
+                                                   
+                                                    if isinstance(user.DATE_GRANTED, datetime.datetime):
+                                                        user.DATE_GRANTED = user.DATE_GRANTED.date() 
+                                                   
+                                                    if user.DATE_GRANTED < approval_support.DATE_APPROVED:
+                                
+                                                        late_approval.append({
+                                                            'email': user.EMAIL_ADDRESS,
+                                                            'role': user.ROLE_NAME,
+                                                            'status': user.STATUS,
+                                                            'date_granted': user.DATE_GRANTED,
+                                                            'date_approved': approval_support.DATE_APPROVED,
+                                                        })
+
+                                    except ACCESSREQUEST.DoesNotExist:
+                                        approval_support = None
+
+                            except ACCESSREQUEST.DoesNotExist:
+                                approval = None
+
+                    except HR_RECORD.DoesNotExist:
+                        hr_record = None
+
+        except APP_RECORD.DoesNotExist:
+            new_users_per_app = None
+
+        context = {
+            'new_users_per_app': new_users_per_app_serializer.data,  # Use `.data` to get serialized data
+            'with_approval':with_approval,
+            'late_approval':late_approval
+        }
+
+        return Response(context)
     
 
 class AppRecordLastRefreshDateByApp(APIView):

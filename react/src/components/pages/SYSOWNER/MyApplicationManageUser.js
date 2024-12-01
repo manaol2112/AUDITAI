@@ -108,12 +108,12 @@ const MyApplicationManageUsers = () => {
         { field: 'DATE_GRANTED', headerName: 'Date Granted', flex: 1 },
     ];
 
+
+    console.log('These are the users', users)
     const newusers_rows = users
 
         .filter(user => {
-
             const dateGrantedYear = new Date(user.DATE_GRANTED).getFullYear();
-
             return dateGrantedYear === currentYear;
         })
         .map((user, index) => ({
@@ -314,6 +314,7 @@ const MyApplicationManageUsers = () => {
                 }
 
                 const result = await appService.fetchAppsRecordById(id);
+                console.log(result)
                 if (result.length !== 0) {
                     setUsers(result);
                     const updatedData = {
@@ -333,7 +334,7 @@ const MyApplicationManageUsers = () => {
                 }
 
                 const lastRefreshDate = await SFTPService.fetchAppDataImportLog(id);
-                console.log('This is the last refresh date', lastRefreshDate)
+          
                 if (lastRefreshDate.length !== 0) {
                     setLastRefresh(lastRefreshDate);
                 } else {
@@ -392,8 +393,6 @@ const MyApplicationManageUsers = () => {
 
     //DONUT FOR NEW USERS
     const uniqueNewRoles = [...new Set(newusers_rows.map(user => user.ROLE_NAME))];
-
-    console.log('Unique New', uniqueNewRoles)
 
     const newroleCounts = {};
     
