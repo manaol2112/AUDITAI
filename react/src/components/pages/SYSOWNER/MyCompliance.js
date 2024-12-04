@@ -34,14 +34,23 @@ const SysOwnerCompliance = () => {
     const [apps, setApps] = useState([]);
 
     const [appsProvisioning, setAppsProvisioning] = useState([]);
-
     const [incompleteSetupAuth, setIncompleteSetupAuth] = useState([]);
     const [withExceptions, setWithExceptions] = useState([]);
     const [withProvExceptions, setWithProvExceptions] = useState([]);
     const [authCount, setAuthCount] = useState([]);
+    const [authPolicyViolationCount, setAuthPolicyViolationCount] = useState([]);
+    const [authIncompleteCount, setAuthIncompleteCount] = useState([]);
     const [openPasswordModal, setOpenPasswordModal] = useState(false);
     const [openProvisioningModal, setOpenProvisioningModal] = useState(false);
     const [passwordRows, setPasswordRows] = useState([]);
+    const [provisioningRowDetails, setProvisioningRowsDetails] = useState([]);
+    const [provisioningMissingDocsRowDetails, setProvisioningMissingDocsRowsDetails] = useState([]);
+    const [provisioningLateApprovalRowDetails, setProvisioningLateApprovalRowsDetails] = useState([]);
+
+    // PROVISIONING DONUTS
+    const [provNoDocCount, setProvNoDocCount] = useState([]);
+    const [provLateCount, setProvLateCount] = useState([]);
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -112,6 +121,22 @@ const SysOwnerCompliance = () => {
 
                             const statusesToCount = ['Needs Review', 'Incomplete Setup'];
 
+                            const policyViolationTocount = ['Needs Review'];
+                            const incompleteTocount = ['Incomplete Setup'];
+
+                            const policyViolation = formattedStatusCounts
+                                .filter(item => policyViolationTocount.includes(item.label))
+                                .reduce((total, item) => total + item.value, 0);
+
+                            setAuthPolicyViolationCount(policyViolation)
+
+                            const incompleteSetup = formattedStatusCounts
+                                .filter(item => incompleteTocount.includes(item.label))
+                                .reduce((total, item) => total + item.value, 0);
+
+                            setAuthIncompleteCount(incompleteSetup)
+                            
+
                             const authcount = formattedStatusCounts
                                 .filter(item => statusesToCount.includes(item.label))
                                 .reduce((total, item) => total + item.value, 0);
@@ -155,8 +180,6 @@ const SysOwnerCompliance = () => {
                         } else {
                             console.error('No provisioning data fetched');
                         }
-
-
                     }
                 }
             } catch (error) {
@@ -165,11 +188,6 @@ const SysOwnerCompliance = () => {
         }
         fetchData();
 
-        const fetchProvisioning = async () => {
-
-        }
-
-        fetchProvisioning()
     }, []);
 
 
@@ -215,7 +233,7 @@ const SysOwnerCompliance = () => {
 
 
     //DATA FOR PROVISIONING TABLE SUMMARY
-    
+
     const provisioningcolumns = [
         { field: 'id', headerName: '#', width: 50 },
         { field: 'APP_NAME', headerName: 'Application Name', flex: 1 },
@@ -225,6 +243,45 @@ const SysOwnerCompliance = () => {
         { field: 'LATEAPPROVAL', headerName: 'Late Approval', sortable: false, flex: 1 },
         { field: 'COMPLIANCESTATUS', headerName: 'Compliance Status', sortable: false, flex: 1 },
     ];
+
+
+    useEffect(() => {
+
+        let totalUniqueApprovalCount = 0;
+        let totalLateApprovalCount = 0;
+    
+        appsProvisioning.forEach(app => {
+          const dataLength = app.data.new_users_per_app.length;
+    
+          const uniqueApproval = app.data.with_approval.filter((value, index, self) => {
+            return index === self.findIndex((t) => (
+              t.email === value.email && t.role === value.role
+            ));
+          });
+    
+          const lateApproval = app.data.late_approval.filter((value, index, self) => {
+            return index === self.findIndex((t) => (
+              t.email === value.email && t.role === value.role
+            ));
+          });
+    
+          const uniqueApprovalCount = uniqueApproval.length;
+          const noApproval = dataLength - uniqueApprovalCount;
+          const lateApprovalCount = lateApproval.length;
+    
+          if (noApproval > 0) {
+            totalUniqueApprovalCount += 1;
+          }
+    
+          if (lateApprovalCount > 0) {
+            totalLateApprovalCount += 1;
+          }
+        });
+    
+        setProvNoDocCount(totalUniqueApprovalCount);
+        setProvLateCount(totalLateApprovalCount);
+
+      }, [appsProvisioning]); 
 
     const provisioningrows = appsProvisioning.map((app, index) => {
 
@@ -246,13 +303,12 @@ const SysOwnerCompliance = () => {
         const noApproval = dataLength - uniqueApprovalCount
         const lateApprovalCount = lateApproval.length;
         const exceptionCount = noApproval + lateApprovalCount
-       
+
+
         let complianceStatus
 
         if (exceptionCount > 0) {
-            complianceStatus = "Needs Review";
-        } else {
-            complianceStatus = "-";
+            complianceStatus = "Needs Review"
         }
 
         return {
@@ -265,10 +321,11 @@ const SysOwnerCompliance = () => {
             COMPLIANCESTATUS: complianceStatus || '-',
             appID: app.id,
         };
+
     });
 
     //DATA FOR PROVISIONING TABLE DETAILS
-
+   
     const theme = createTheme({
         palette: {
             primary: {
@@ -310,6 +367,7 @@ const SysOwnerCompliance = () => {
             const configData = matchingConfiguration || {};
             const passwordRows = mapPasswordPolicyToRows(configData, policyData);
             setPasswordRows(passwordRows);
+
         } else {
 
             setPasswordRows([]);
@@ -318,12 +376,89 @@ const SysOwnerCompliance = () => {
         setOpenPasswordModal(true)
     };
 
+    const provisioningColumnsDetails = [
+        { field: 'id', headerName: '#', width: 50 },
+        { field: 'APP_NAME', headerName: 'Application Name', flex: 1 },
+        { field: 'FIRST_NAME', headerName: 'First Name', flex: 1 },
+        { field: 'LAST_NAME', headerName: 'Last Name', flex: 1 },
+        { field: 'ROLE_NAME', headerName: 'Role', flex: 1 },
+        { field: 'DATE_GRANTED', headerName: 'Role', flex: 1 },
+       
+    ];
+
+    const provisioningLateApprovalColumnsDetails = [
+        { field: 'id', headerName: '#', width: 50 },
+        { field: 'APP_NAME', headerName: 'Application Name', flex: 1 },
+        { field: 'email', headerName: 'Email Address', flex: 1 },
+        { field: 'role', headerName: 'Role', flex: 1 },
+        { field: 'date_approved', headerName: 'Date Approved', flex: 1 },
+        { field: 'date_granted', headerName: 'Date Granted', flex: 1 },   
+    ];
+
     const handleProvisioningClick = (event, app) => {
+
         setAnchorEl(event.currentTarget);
         setIsMenuOpen(true);
         setSelectedApp(app);
 
+        console.log('This is the selected app', app.appID)
+
+        console.log('This is the provisioning data', appsProvisioning)
+
+        // Filter the appsProvisioning array based on the selected app
+        const filteredApps = appsProvisioning.filter(provisioningApp => provisioningApp.id === app.appID);
+
+        console.log(filteredApps)
+
+        const allNewUsers = filteredApps.map(provision => {
+            return provision.data.new_users_per_app.map((user, index) => {
+              return {
+                id: index + 1,
+                APP_NAME: provision.APP_NAME,
+                FIRST_NAME: user.FIRST_NAME,
+                LAST_NAME: user.LAST_NAME,
+                ROLE_NAME: user.ROLE_NAME,
+                DATE_GRANTED: user.DATE_GRANTED,
+              };
+            });
+          }).flat();  // .flat() is used to flatten the array of arrays into a single array
+
+        const missingDocuments = filteredApps.map(provision => {
+            return provision.data.new_users_per_app.map((user, index) => {
+              return {
+                id: index + 1,
+                APP_NAME: provision.APP_NAME,
+                FIRST_NAME: user.FIRST_NAME,
+                LAST_NAME: user.LAST_NAME,
+                ROLE_NAME: user.ROLE_NAME,
+                DATE_GRANTED: user.DATE_GRANTED,
+              };
+            });
+          }).flat();  // .flat() is used to flatten the array of arrays into a single array
+
+
+        const lateApproval = filteredApps.map(provision => {
+            return provision.data.late_approval.map((user, index) => {
+              return {
+                id: index + 1,
+                APP_NAME: provision.APP_NAME,
+                email: user.email,
+                role: user.role,
+                date_approved: user.date_approved,
+                date_granted: user.date_granted,
+              };
+            });
+          }).flat();  // .flat() is used to flatten the array of arrays into a single array
+
+
+       
+        // Set the filtered provisioning rows to be used in your modal
+        setProvisioningRowsDetails(allNewUsers);
+        setProvisioningMissingDocsRowsDetails(missingDocuments)
+        setProvisioningLateApprovalRowsDetails(lateApproval)
+        
         setOpenProvisioningModal(true)
+
     };
 
     const renderActionButton = (params) => {
@@ -362,7 +497,6 @@ const SysOwnerCompliance = () => {
         );
     };
 
-
     // Add edit and action buttons to columns
     const columnsWithActions = [
         ...columns,
@@ -386,6 +520,28 @@ const SysOwnerCompliance = () => {
         },
     ];
 
+    const columnsWithActionsProvisioningDetails = [
+        ...provisioningColumnsDetails,
+        {
+            field: 'compliance',
+            headerName: 'View Details',
+            width: 200,
+            sortable: false,
+            renderCell: renderProvActionButton,
+        },
+    ];
+
+    const columnsProvisioningLateApproval = [
+        ...provisioningLateApprovalColumnsDetails,
+        {
+            field: 'compliance',
+            headerName: 'View Details',
+            width: 200,
+            sortable: false,
+            renderCell: renderProvActionButton,
+        },
+    ];
+
     const tabs = [
         {
             value: '1',
@@ -397,13 +553,13 @@ const SysOwnerCompliance = () => {
                     <mui.Grid container spacing={2} sx={{ marginBottom: '20px' }}>
                         <mui.Grid item xs={2}>
                             <Paper sx={{ height: '200px', padding: '20px' }}>
-                                <DonutChart data={withExceptions} desc="With Policy Exception" title={authCount} />
+                                <DonutChart data={withExceptions} desc="Policy Exception" title={authPolicyViolationCount} />
                             </Paper>
                         </mui.Grid>
 
                         <mui.Grid item xs={2}>
                             <Paper sx={{ height: '200px', padding: '20px' }}>
-                                <DonutChart data={incompleteSetupAuth} desc="Incomplete Setup" title={authCount} />
+                                <DonutChart data={incompleteSetupAuth} desc="Incomplete Setup" title={authIncompleteCount} />
                             </Paper>
                         </mui.Grid>
                     </mui.Grid>
@@ -431,24 +587,17 @@ const SysOwnerCompliance = () => {
 
                         <mui.Grid item xs={2}>
                             <Paper sx={{ height: '200px', padding: '20px' }}>
-                                <DonutChart data={withExceptions} desc="Total" title={authCount} />
+                                <DonutChart data={withExceptions} desc="No Documentation" title={provNoDocCount} />
                             </Paper>
                         </mui.Grid>
 
                         <mui.Grid item xs={2}>
                             <Paper sx={{ height: '200px', padding: '20px' }}>
-                                <DonutChart data={withExceptions} desc="No Documentation" title={authCount} />
-                            </Paper>
-                        </mui.Grid>
-
-                        <mui.Grid item xs={2}>
-                            <Paper sx={{ height: '200px', padding: '20px' }}>
-                                <DonutChart data={withExceptions} desc="Late Approval" title={authCount} />
+                                <DonutChart data={withExceptions} desc="Late Approval" title={provLateCount} />
                             </Paper>
                         </mui.Grid>
 
                     </mui.Grid>
-
                     
 
                     <Suspense fallback={<div>Loading...</div>}>
@@ -507,9 +656,9 @@ const SysOwnerCompliance = () => {
                 <div>
                     <Suspense fallback={<div>Loading...</div>}>
                         <DataTable
-                            rows={rows}
-                            columns={columns}
-                            columnsWithActions={columnsWithActions}
+                            rows={provisioningRowDetails? provisioningRowDetails: ''}
+                            columns={provisioningColumnsDetails}
+                            columnsWithActions={columnsWithActionsProvisioningDetails}
                         />
                     </Suspense>
                 </div>
@@ -525,9 +674,9 @@ const SysOwnerCompliance = () => {
                 <div>
                     <Suspense fallback={<div>Loading...</div>}>
                         <DataTable
-                            rows={provisioningrows}
-                            columns={provisioningcolumns}
-                            columnsWithActions={columnsWithActionsProvisioning}
+                             rows={provisioningRowDetails? provisioningRowDetails: ''}
+                             columns={provisioningColumnsDetails}
+                             columnsWithActions={columnsWithActionsProvisioningDetails}
                         />
                     </Suspense>
 
@@ -543,9 +692,9 @@ const SysOwnerCompliance = () => {
                 <div>
                     <Suspense fallback={<div>Loading...</div>}>
                         <DataTable
-                            rows={provisioningrows}
-                            columns={provisioningcolumns}
-                            columnsWithActions={columnsWithActionsProvisioning}
+                            rows={provisioningLateApprovalRowDetails}
+                            columns={provisioningLateApprovalColumnsDetails}
+                            columnsWithActions={columnsProvisioningLateApproval}
                         />
                     </Suspense>
                 </div>
