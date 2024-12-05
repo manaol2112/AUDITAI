@@ -48,7 +48,7 @@ class SysOwnerSideBar extends Component {
     };
 
     handleAccessRequest = () => {
-        window.location.href = '/accessrequests';
+        window.location.href = '/accessrequest/dashboard';
     };
 
     handleDocumentRequest = () => {

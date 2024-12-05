@@ -26,6 +26,7 @@ import LaunchIcon from '@mui/icons-material/Launch';
 import GroupIcon from '@mui/icons-material/Group';
 import MemoryRoundedIcon from '@mui/icons-material/MemoryRounded';
 import SystemUpdateAltRoundedIcon from '@mui/icons-material/SystemUpdateAltRounded';
+import LanIcon from '@mui/icons-material/Lan';
 
 const DataTable = React.lazy(() => import('../../common/DataGrid'));
 
@@ -311,6 +312,16 @@ const SysOwnerApplications = () => {
                         <MenuItem onClick={() => navigate(`/Applications/Controls/${selectedApp.appID}`)} disableRipple>
                             <GppGoodIcon />
                             Process Understanding
+                            {selectedApp.process ? (
+                                <CheckCircleIcon style={{ marginLeft: '10px', color: 'green' }} />
+                            ) : (
+                                <WarningIcon style={{ marginLeft: '10px',color: 'orange'}} />
+                            )}
+                        </MenuItem>
+                        <Divider sx={{ my: 0.5 }} />
+                        <MenuItem onClick={() => navigate(`/Applications/Controls/${selectedApp.appID}`)} disableRipple>
+                            <LanIcon />
+                            Role Matrix
                             {selectedApp.process ? (
                                 <CheckCircleIcon style={{ marginLeft: '10px', color: 'green' }} />
                             ) : (

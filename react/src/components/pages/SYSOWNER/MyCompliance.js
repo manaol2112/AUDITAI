@@ -34,6 +34,7 @@ const SysOwnerCompliance = () => {
     const [apps, setApps] = useState([]);
 
     const [appsProvisioning, setAppsProvisioning] = useState([]);
+    const [appsTermination, setAppsTermination] = useState([]);
     const [incompleteSetupAuth, setIncompleteSetupAuth] = useState([]);
     const [withExceptions, setWithExceptions] = useState([]);
     const [withProvExceptions, setWithProvExceptions] = useState([]);
@@ -42,14 +43,22 @@ const SysOwnerCompliance = () => {
     const [authIncompleteCount, setAuthIncompleteCount] = useState([]);
     const [openPasswordModal, setOpenPasswordModal] = useState(false);
     const [openProvisioningModal, setOpenProvisioningModal] = useState(false);
+    const [openTerminationModal, setOpenTerminationModal] = useState(false);
     const [passwordRows, setPasswordRows] = useState([]);
+    //PROVISIONING
     const [provisioningRowDetails, setProvisioningRowsDetails] = useState([]);
     const [provisioningMissingDocsRowDetails, setProvisioningMissingDocsRowsDetails] = useState([]);
     const [provisioningLateApprovalRowDetails, setProvisioningLateApprovalRowsDetails] = useState([]);
+    //TERMINATION
+    const [terminationRowDetails, setTerminationRowsDetails] = useState([]);
+    const [terminationLateRemovalDetails, setTerminationLateRemovalRowsDetails] = useState([]);
 
     // PROVISIONING DONUTS
     const [provNoDocCount, setProvNoDocCount] = useState([]);
     const [provLateCount, setProvLateCount] = useState([]);
+
+    //TERMINATION DONUT
+    const [lateremovalCount, setLateRemovalCount] = useState([]);
 
 
     useEffect(() => {
@@ -176,10 +185,47 @@ const SysOwnerCompliance = () => {
 
                             setAppsProvisioning(appsWithCombinedProvisioningData);
 
+                        } else {
+                            console.error('No provisioning data fetched');
+                        }
+
+                          //GET TERMINATION DATA
+
+                        const terminationDataPromises = assignedApps
+                          .filter(app => app.id)  // Filter out apps without valid `id`
+                          .map(async (app) => {
+                              try {
+                                  return { id: app.id, data: await appService.fetchAppsRecordByIdAndRemoveDate(app.id) };
+                              } catch (err) {
+                                  console.error('Error fetching application record for', app.COMPANY_NAME, ':', err);
+                                  return { id: app.id, data: null };
+                              }
+                          });
+
+                        const terminationData = await Promise.all(terminationDataPromises);
+
+                        if (terminationData.length > 0) {
+
+                            const combinedTerminationDataMap = terminationData.reduce((acc, { id, data }) => {
+                                acc[id] = {
+                                    data: data ? data : null,
+                                };
+                                return acc;
+                            }, {});
+
+                            // Enhance assignedApps with combined data
+                            const appsWithCombinedTerminationData = assignedApps.map((app) => ({
+                                ...app,
+                                data: combinedTerminationDataMap[app.id]?.data || null,
+                            }));
+
+                            setAppsTermination(appsWithCombinedTerminationData);
 
                         } else {
                             console.error('No provisioning data fetched');
                         }
+
+                        console.log('This is the termination data', terminationData)
                     }
                 }
             } catch (error) {
@@ -189,6 +235,64 @@ const SysOwnerCompliance = () => {
         fetchData();
 
     }, []);
+
+    useEffect(() => {
+
+        let totalUniqueApprovalCount = 0;
+        let totalLateApprovalCount = 0;
+        let totalLateRemovalCount = 0;
+    
+        appsProvisioning.forEach(app => {
+          const dataLength = app.data.new_users_per_app.length;
+    
+          const uniqueApproval = app.data.with_approval.filter((value, index, self) => {
+            return index === self.findIndex((t) => (
+              t.email === value.email && t.role === value.role
+            ));
+          });
+    
+          const lateApproval = app.data.late_approval.filter((value, index, self) => {
+            return index === self.findIndex((t) => (
+              t.email === value.email && t.role === value.role
+            ));
+          });
+    
+          const uniqueApprovalCount = uniqueApproval.length;
+          const noApproval = dataLength - uniqueApprovalCount;
+          const lateApprovalCount = lateApproval.length;
+    
+          if (noApproval > 0) {
+            totalUniqueApprovalCount += 1;
+          }
+    
+          if (lateApprovalCount > 0) {
+            totalLateApprovalCount += 1;
+          }
+        });
+    
+        setProvNoDocCount(totalUniqueApprovalCount);
+        setProvLateCount(totalLateApprovalCount);
+
+        //Termination
+
+        appsTermination.forEach(app => {
+           
+            const lateRemoval = app.data.late_removal.filter((value, index, self) => {
+              return index === self.findIndex((t) => (
+                t.email === value.email && t.role === value.role
+              ));
+            });
+      
+            const lateRemovalCount = lateRemoval.length;
+      
+            if (lateRemovalCount > 0) {
+                totalLateRemovalCount += 1;
+            }
+          });
+      
+          setLateRemovalCount(totalLateRemovalCount);
+
+      }, [appsProvisioning, appsTermination]); 
 
 
     const allException = apps.map(status => ({
@@ -244,45 +348,6 @@ const SysOwnerCompliance = () => {
         { field: 'COMPLIANCESTATUS', headerName: 'Compliance Status', sortable: false, flex: 1 },
     ];
 
-
-    useEffect(() => {
-
-        let totalUniqueApprovalCount = 0;
-        let totalLateApprovalCount = 0;
-    
-        appsProvisioning.forEach(app => {
-          const dataLength = app.data.new_users_per_app.length;
-    
-          const uniqueApproval = app.data.with_approval.filter((value, index, self) => {
-            return index === self.findIndex((t) => (
-              t.email === value.email && t.role === value.role
-            ));
-          });
-    
-          const lateApproval = app.data.late_approval.filter((value, index, self) => {
-            return index === self.findIndex((t) => (
-              t.email === value.email && t.role === value.role
-            ));
-          });
-    
-          const uniqueApprovalCount = uniqueApproval.length;
-          const noApproval = dataLength - uniqueApprovalCount;
-          const lateApprovalCount = lateApproval.length;
-    
-          if (noApproval > 0) {
-            totalUniqueApprovalCount += 1;
-          }
-    
-          if (lateApprovalCount > 0) {
-            totalLateApprovalCount += 1;
-          }
-        });
-    
-        setProvNoDocCount(totalUniqueApprovalCount);
-        setProvLateCount(totalLateApprovalCount);
-
-      }, [appsProvisioning]); 
-
     const provisioningrows = appsProvisioning.map((app, index) => {
 
         const dataLength = app.data.new_users_per_app.length;
@@ -318,6 +383,55 @@ const SysOwnerCompliance = () => {
             TOTALGRANTED: dataLength || '-',
             NOAPPROVAL: noApproval || '-',
             LATEAPPROVAL: lateApprovalCount || '-',
+            COMPLIANCESTATUS: complianceStatus || '-',
+            appID: app.id,
+        };
+
+    });
+
+     //DATA FOR TERMINATION TABLE SUMMARY
+
+     const terminationcolumns = [
+        { field: 'id', headerName: '#', width: 50 },
+        { field: 'APP_NAME', headerName: 'Application Name', flex: 1 },
+        { field: 'COMPANY_NAME', headerName: 'Company', flex: 1 },
+        { field: 'TOTALTERMINATED', headerName: 'Termed Users', sortable: false, flex: 1 },
+        { field: 'STILL_ACTIVE', headerName: 'Still Active', sortable: false, flex: 1 },
+        { field: 'LATEREMOVAL', headerName: 'Late Removal', sortable: false, flex: 1 },
+        { field: 'COMPLIANCESTATUS', headerName: 'Compliance Status', sortable: false, flex: 1 },
+    ];
+
+    const terminationrows = appsTermination.map((app, index) => {
+
+        const dataLength = app.data.removal_per_app.length;
+
+        const uniqueremoval = app.data.removal_per_app.filter((value, index, self) => {
+            return index === self.findIndex((t) => (
+                t.email === value.email && t.role === value.role
+            ));
+        });
+
+        const lateremoval = app.data.late_removal.filter((value, index, self) => {
+            return index === self.findIndex((t) => (
+                t.email === value.email && t.role === value.role
+            ));
+        });
+
+        const uniqueremovalcount = uniqueremoval.length;
+        const lateremovalcount = lateremoval.length;
+
+        let complianceStatus
+
+        if (lateremovalcount > 0) {
+            complianceStatus = "Needs Review"
+        }
+
+        return {
+            id: index + 1,
+            APP_NAME: app.APP_NAME || '-',
+            COMPANY_NAME: app.COMPANY_NAME || '-',
+            TOTALTERMINATED: dataLength || '-',
+            LATEREMOVAL: lateremovalcount || '-',
             COMPLIANCESTATUS: complianceStatus || '-',
             appID: app.id,
         };
@@ -382,17 +496,38 @@ const SysOwnerCompliance = () => {
         { field: 'FIRST_NAME', headerName: 'First Name', flex: 1 },
         { field: 'LAST_NAME', headerName: 'Last Name', flex: 1 },
         { field: 'ROLE_NAME', headerName: 'Role', flex: 1 },
-        { field: 'DATE_GRANTED', headerName: 'Role', flex: 1 },
+        { field: 'DATE_GRANTED', headerName: 'Date Granted', flex: 1 },
        
     ];
 
     const provisioningLateApprovalColumnsDetails = [
         { field: 'id', headerName: '#', width: 50 },
         { field: 'APP_NAME', headerName: 'Application Name', flex: 1 },
-        { field: 'email', headerName: 'Email Address', flex: 1 },
-        { field: 'role', headerName: 'Role', flex: 1 },
-        { field: 'date_approved', headerName: 'Date Approved', flex: 1 },
-        { field: 'date_granted', headerName: 'Date Granted', flex: 1 },   
+        { field: 'FIRST_NAME', headerName: 'First Name', flex: 1 },
+        { field: 'LAST_NAME', headerName: 'Last Name', flex: 1 },
+        { field: 'ROLE_NAME', headerName: 'Role', flex: 1 },
+        { field: 'DATE_APPROVED', headerName: 'Date Approved', flex: 1 },
+        { field: 'DATE_GRANTED', headerName: 'Date Granted', flex: 1 },   
+    ];
+
+    const terminationColumnsDetails = [
+        { field: 'id', headerName: '#', width: 50 },
+        { field: 'APP_NAME', headerName: 'Application Name', flex: 1 },
+        { field: 'FIRST_NAME', headerName: 'First Name', flex: 1 },
+        { field: 'LAST_NAME', headerName: 'Last Name', flex: 1 },
+        { field: 'ROLE_NAME', headerName: 'Role', flex: 1 },
+        { field: 'DATE_REVOKED', headerName: 'Date Removed', flex: 1 },
+       
+    ];
+
+    const terminationLateRemovalColumnsDetails = [
+        { field: 'id', headerName: '#', width: 50 },
+        { field: 'APP_NAME', headerName: 'Application Name', flex: 1 },
+        { field: 'FIRST_NAME', headerName: 'First Name', flex: 1 },
+        { field: 'LAST_NAME', headerName: 'Last Name', flex: 1 },
+        { field: 'ROLE_NAME', headerName: 'Role', flex: 1 },
+        { field: 'HR_TERMED_DATE', headerName: 'HR Termed Date', flex: 1 },
+        { field: 'SYSTEM_TERMED_DATE', headerName: 'System Removal Date', flex: 1 },   
     ];
 
     const handleProvisioningClick = (event, app) => {
@@ -400,10 +535,6 @@ const SysOwnerCompliance = () => {
         setAnchorEl(event.currentTarget);
         setIsMenuOpen(true);
         setSelectedApp(app);
-
-        console.log('This is the selected app', app.appID)
-
-        console.log('This is the provisioning data', appsProvisioning)
 
         // Filter the appsProvisioning array based on the selected app
         const filteredApps = appsProvisioning.filter(provisioningApp => provisioningApp.id === app.appID);
@@ -417,6 +548,7 @@ const SysOwnerCompliance = () => {
                 APP_NAME: provision.APP_NAME,
                 FIRST_NAME: user.FIRST_NAME,
                 LAST_NAME: user.LAST_NAME,
+                EMAIL_ADDRESS: user.EMAIL_ADDRESS,
                 ROLE_NAME: user.ROLE_NAME,
                 DATE_GRANTED: user.DATE_GRANTED,
               };
@@ -424,7 +556,7 @@ const SysOwnerCompliance = () => {
           }).flat();  // .flat() is used to flatten the array of arrays into a single array
 
         const missingDocuments = filteredApps.map(provision => {
-            return provision.data.new_users_per_app.map((user, index) => {
+            return provision.data.without_approval.map((user, index) => {
               return {
                 id: index + 1,
                 APP_NAME: provision.APP_NAME,
@@ -442,10 +574,11 @@ const SysOwnerCompliance = () => {
               return {
                 id: index + 1,
                 APP_NAME: provision.APP_NAME,
-                email: user.email,
-                role: user.role,
-                date_approved: user.date_approved,
-                date_granted: user.date_granted,
+                FIRST_NAME: user.FIRST_NAME,
+                LAST_NAME: user.LAST_NAME,
+                ROLE_NAME: user.ROLE_NAME,
+                DATE_APPROVED: user.DATE_APPROVED,
+                DATE_GRANTED: user.DATE_GRANTED,
               };
             });
           }).flat();  // .flat() is used to flatten the array of arrays into a single array
@@ -460,6 +593,52 @@ const SysOwnerCompliance = () => {
         setOpenProvisioningModal(true)
 
     };
+
+    const handleTerminationClick = (event, app) => {
+
+        setAnchorEl(event.currentTarget);
+        setIsMenuOpen(true);
+        setSelectedApp(app);
+
+        // Filter the appsProvisioning array based on the selected app
+        const filteredApps = appsTermination.filter(terminationApp => terminationApp.id === app.appID);
+
+        const allTermedUsers = filteredApps.map(provision => {
+            return provision.data.removal_per_app.map((user, index) => {
+              return {
+                id: index + 1,
+                APP_NAME: provision.APP_NAME,
+                FIRST_NAME: user.FIRST_NAME,
+                LAST_NAME: user.LAST_NAME,
+                EMAIL_ADDRESS: user.EMAIL_ADDRESS,
+                ROLE_NAME: user.ROLE_NAME,
+                DATE_REVOKED: user.DATE_REVOKED,
+              };
+            });
+          }).flat();  // .flat() is used to flatten the array of arrays into a single array
+
+        const lateRemoval = filteredApps.map(term => {
+            return term.data.late_removal.map((user, index) => {
+              return {
+                id: index + 1,
+                APP_NAME: term.APP_NAME,
+                FIRST_NAME: user.FIRST_NAME,
+                LAST_NAME: user.LAST_NAME,
+                ROLE_NAME: user.ROLE_NAME,
+                SYSTEM_TERMED_DATE: user.SYSTEM_TERMED_DATE,
+                HR_TERMED_DATE:user.HR_TERMED_DATE
+              };
+            });
+          }).flat();  // .flat() is used to flatten the array of arrays into a single array
+
+        // Set the filtered provisioning rows to be used in your modal
+        setTerminationRowsDetails(allTermedUsers);
+        setTerminationLateRemovalRowsDetails(lateRemoval)
+        
+        setOpenTerminationModal(true)
+
+    };
+
 
     const renderActionButton = (params) => {
         const app = params.row;
@@ -489,6 +668,24 @@ const SysOwnerCompliance = () => {
                         sx={{ color: theme.palette.primary.main }}
                         size="small"
                         onClick={(event) => handleProvisioningClick(event, app)}
+                    >
+                        <LaunchIcon sx={{ fontSize: '18px' }} />
+                    </mui.IconButton>
+                </Tooltip>
+            </ThemeProvider>
+        );
+    };
+
+    const renderTermActionButton = (params) => {
+        const app = params.row;
+
+        return (
+            <ThemeProvider theme={theme}>
+                <Tooltip title="View Details" arrow>
+                    <mui.IconButton
+                        sx={{ color: theme.palette.primary.main }}
+                        size="small"
+                        onClick={(event) => handleTerminationClick(event, app)}
                     >
                         <LaunchIcon sx={{ fontSize: '18px' }} />
                     </mui.IconButton>
@@ -541,6 +738,42 @@ const SysOwnerCompliance = () => {
             renderCell: renderProvActionButton,
         },
     ];
+
+    //Termination Columns
+
+    const columnsWithActionsTermination = [
+        ...terminationcolumns,
+        {
+            headerName: 'View Details',
+            width: 200,
+            sortable: false,
+            renderCell: renderTermActionButton,
+        },
+    ];
+
+    const columnsWithActionsTerminationDetails = [
+        ...terminationColumnsDetails,
+        {
+            field: 'compliance',
+            headerName: 'View Details',
+            width: 200,
+            sortable: false,
+            renderCell: renderTermActionButton,
+        },
+    ];
+
+
+    const columnsWithActionsLateRemovalDetails = [
+        ...terminationLateRemovalColumnsDetails,
+        {
+            field: 'compliance',
+            headerName: 'View Details',
+            width: 200,
+            sortable: false,
+            renderCell: renderTermActionButton,
+        },
+    ];
+
 
     const tabs = [
         {
@@ -619,6 +852,25 @@ const SysOwnerCompliance = () => {
             content: (
                 <div>
 
+                    <mui.Grid container spacing={2} sx={{ marginBottom: '20px' }}>
+
+                    <mui.Grid item xs={2}>
+                        <Paper sx={{ height: '200px', padding: '20px' }}>
+                            <DonutChart data={withExceptions} desc="Late Removal" title={lateremovalCount} />
+                        </Paper>
+                    </mui.Grid>
+
+                    </mui.Grid>
+
+
+                    <Suspense fallback={<div>Loading...</div>}>
+                    <DataTable
+                        rows={terminationrows}
+                        columns={terminationcolumns}
+                        columnsWithActions={columnsWithActionsTermination}
+                    />
+                    </Suspense>
+
                 </div>
             ),
         },
@@ -674,7 +926,7 @@ const SysOwnerCompliance = () => {
                 <div>
                     <Suspense fallback={<div>Loading...</div>}>
                         <DataTable
-                             rows={provisioningRowDetails? provisioningRowDetails: ''}
+                             rows={provisioningMissingDocsRowDetails? provisioningMissingDocsRowDetails: ''}
                              columns={provisioningColumnsDetails}
                              columnsWithActions={columnsWithActionsProvisioningDetails}
                         />
@@ -703,6 +955,46 @@ const SysOwnerCompliance = () => {
 
     ]
 
+    const terminationTabs = [
+        {
+            value: '1',
+            label: (<div>
+                Termination List
+            </div>),
+            content: (
+                <div>
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <DataTable
+                            rows={terminationRowDetails? terminationRowDetails: ''}
+                            columns={terminationColumnsDetails}
+                            columnsWithActions={columnsWithActionsTerminationDetails}
+                        />
+                    </Suspense>
+                </div>
+            ),
+        },
+
+        {
+            value: '2',
+            label: (<div>
+                Late Removal
+            </div>),
+            content: (
+                <div>
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <DataTable
+                             rows={terminationLateRemovalDetails? terminationLateRemovalDetails: ''}
+                             columns={terminationLateRemovalColumnsDetails}
+                             columnsWithActions={columnsWithActionsLateRemovalDetails}
+                        />
+                    </Suspense>
+
+                </div>
+            ),
+        },
+
+    ]
+
     const handleClosePasswordModal = (event, reason) => {
         if (reason == 'backdropClick') {
             setOpenPasswordModal(true)
@@ -720,6 +1012,16 @@ const SysOwnerCompliance = () => {
             setOpenProvisioningModal(false);
         }
     };
+
+    const handleCloseTerminationModal = (event, reason) => {
+        if (reason == 'backdropClick') {
+            setOpenTerminationModal(true)
+        }
+        else {
+            setOpenTerminationModal(false);
+        }
+    };
+
 
 
     function createData(name, policy, configured, result) {
@@ -824,7 +1126,7 @@ const SysOwnerCompliance = () => {
                     body={
                         <>
                             <mui.Typography variant="subtitle2">
-                                Below is the detailed summary of the provosioning report for {selectedApp.APP_NAME}.
+                                Below is the detailed summary of the provisioning report for {selectedApp.APP_NAME}.
                             </mui.Typography>
 
                             <mui.Box sx={{ marginTop: '20px' }}>
@@ -842,6 +1144,34 @@ const SysOwnerCompliance = () => {
                         </>
                     }
                 />
+
+                <Modal
+                    open={openTerminationModal}
+                    size="lg"
+                    onClose={handleCloseTerminationModal}
+                    header={`${selectedApp.APP_NAME} Termination Summary`}
+                    body={
+                        <>
+                            <mui.Typography variant="subtitle2">
+                                Below is the detailed summary of the user termination report for {selectedApp.APP_NAME}.
+                            </mui.Typography>
+
+                            <mui.Box sx={{ marginTop: '20px' }}>
+
+                                <DynamicTabs tabs={terminationTabs} />
+
+                            </mui.Box>
+                        </>
+                    }
+                    footer={
+                        <>
+                            <mui.Button sx={{ marginBottom: '20px' }} onClick={handleCloseTerminationModal} color="primary">
+                                Close
+                            </mui.Button>
+                        </>
+                    }
+                />
+
 
             </ResponsiveContainer>
         </div>

@@ -84,6 +84,11 @@ const appService = {
         return response.data;
     },
 
+    fetchAppsRecordByIdAndRemoveDate: async (APP_NAME) => {
+        const response = await axiosInstance.get(`app-users/date-removed/${APP_NAME}/`);
+        return response.data;
+    },
+
     //PROVISIONING
     getProvisioningProcessByID: async(APP_NAME) => {
         const response = await axiosInstance.get(`process/provisioning/${APP_NAME}/`);

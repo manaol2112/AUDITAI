@@ -9,6 +9,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from django.db.models import F
 import datetime
+from datetime import date
 
 class AppViewSet(viewsets.ModelViewSet):
     queryset = APP_LIST.objects.all()
@@ -175,6 +176,70 @@ class AppRecordViewSetbyApp(ListAPIView):
         app_id = self.kwargs.get('APP_NAME')
         return APP_RECORD.objects.filter(APP_NAME_id=app_id).order_by(F('STATUS').asc(nulls_last=True))
     
+class AppRecordViewSetbyAppAndRemovalDate(APIView):
+    queryset = APP_RECORD.objects.all()
+    serializer_class = AppRecordSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        app_id = self.kwargs.get('APP_NAME')
+        current_year = date.today().year  # Get the current year
+        start_date = date(current_year, 1, 1)  # Start of the current year
+        end_date = date(current_year, 12, 31)  # End of the current year
+
+        try:
+            removal_per_app = APP_RECORD.objects.filter(
+                APP_NAME_id=app_id,
+                DATE_REVOKED__gte=start_date,
+                DATE_REVOKED__lte=end_date,
+                STATUS='Inactive'
+            ).order_by(F('STATUS').asc(nulls_last=True))
+
+            # Serialize the new users per app
+            removal_per_app_serializer = AppRecordSerializer(removal_per_app, many=True)
+
+            late_removal = []
+
+            if removal_per_app:
+                for user in removal_per_app:
+                    try: 
+                        hr_record = HR_RECORD.objects.get(EMAIL_ADDRESS=user.EMAIL_ADDRESS)
+
+                        if hr_record:
+                            
+                            if user.DATE_REVOKED and hr_record.TERMINATION_DATE:
+
+                                hr_removal_date = hr_record.TERMINATION_DATE.date() if isinstance(hr_record.TERMINATION_DATE, datetime.datetime) else hr_record.TERMINATION_DATE
+                                system_removal_date = user.DATE_REVOKED.date() if isinstance(user.DATE_REVOKED, datetime.datetime) else user.DATE_REVOKED
+
+                                if system_removal_date > hr_removal_date:
+                                                late_removal.append({
+                                                    'FIRST_NAME': user.FIRST_NAME,
+                                                    'LAST_NAME': user.LAST_NAME,
+                                                          'EMAIL_ADDRESS': user.EMAIL_ADDRESS,
+                                                    'ROLE_NAME': user.ROLE_NAME,
+                                                    'STATUS': user.STATUS,
+                                                    'HR_TERMED_DATE': hr_removal_date,
+                                                    'SYSTEM_TERMED_DATE': system_removal_date,
+                                                })
+
+                    except HR_RECORD.DoesNotExist:
+                            hr_record = None
+
+
+        except APP_RECORD.DoesNotExist:
+            removal_per_app = None
+
+        context = {
+            'removal_per_app': removal_per_app_serializer.data,
+            'late_removal': late_removal
+        }
+
+        return Response(context)
+        
+
+    
 class AppRecordViewSetbyAppAndGrantDate(APIView):
     queryset = APP_RECORD.objects.all()
     serializer_class = AppRecordSerializer
@@ -189,83 +254,92 @@ class AppRecordViewSetbyAppAndGrantDate(APIView):
         try:
             new_users_per_app = APP_RECORD.objects.filter(
                 APP_NAME_id=app_id,
-                DATE_GRANTED__year=current_year 
+                DATE_GRANTED__year=current_year
             ).order_by(F('STATUS').asc(nulls_last=True))
 
             # Serialize the new users per app
             new_users_per_app_serializer = AppRecordSerializer(new_users_per_app, many=True)
 
-            with_approval = []  # List to store users with approval
-
-            late_approval = []  # List to store users with late approval
+            with_approval = []
+            without_approval = []
+            late_approval = []
 
             if new_users_per_app:
                 for user in new_users_per_app:
+                    # Try fetching the HR record for the user
                     try: 
                         hr_record = HR_RECORD.objects.get(EMAIL_ADDRESS=user.EMAIL_ADDRESS)
-                        
-                        if hr_record:
-                            # Fetch the ACCESSREQUEST, assuming only one matching record per user/role
-                            try:
-                                requests = ACCESSREQUEST.objects.filter(REQUESTOR=hr_record.id, APP_NAME=app_id)
 
-                                for request in requests:
 
-                                    #Check if approval exists and get approval date
+                        if hr_record:# Fetch the ACCESSREQUEST objects related to the user and app
+                            requests = ACCESSREQUEST.objects.filter(REQUESTOR=hr_record.id, APP_NAME=app_id)
 
-                                    try:
-                                        approval_support = ACCESSREQUESTAPPROVER.objects.filter(REQUEST_ID=request).exclude(DATE_APPROVED__isnull=True).order_by('DATE_APPROVED').first()
+                            for request in requests:
+                                # Try to get an approval record
+                                approval_support = ACCESSREQUESTAPPROVER.objects.filter(REQUEST_ID=request).exclude(DATE_APPROVED__isnull=True).order_by('DATE_APPROVED').first()
+
+                                if approval_support:
+                                    roles_list = [role.strip() for role in request.ROLES.split(',')]
                                     
-                                        if approval_support:
-                                            roles_list = request.ROLES.split(',')
-                                            roles_list = [role.strip() for role in roles_list]
-                                            
-                                            if user.ROLE_NAME in roles_list:
+                                    # Check if user’s role matches the requested roles
+                                    if user.ROLE_NAME in roles_list:
+                                        with_approval.append({
+                                            'FIRST_NAME': user.FIRST_NAME,
+                                            'LAST_NAME': user.LAST_NAME,
+                                            'EMAIL_ADDRESS': user.EMAIL_ADDRESS,
+                                            'ROLE_NAME': user.ROLE_NAME,
+                                            'STATUS': user.STATUS,
+                                            'DATE_GRANTED': user.DATE_GRANTED,
+                                            'APPROVAL_TOKEN': request.APPROVAL_TOKEN,
+                                            'COMMENTS': request.COMMENTS
+                                        })
 
-                                                with_approval.append({
-                                                    'email': user.EMAIL_ADDRESS,
-                                                    'role': user.ROLE_NAME,
-                                                    'status': user.STATUS,
-                                                    'date_granted': user.DATE_GRANTED,
-                                                    'approval_token': request.APPROVAL_TOKEN,
-                                                    'comments': request.COMMENTS
+                                        if user.DATE_GRANTED and approval_support.DATE_APPROVED:
+                                            # Ensure both dates are compared correctly, stripping time if necessary
+                                            approval_date = approval_support.DATE_APPROVED.date() if isinstance(approval_support.DATE_APPROVED, datetime.datetime) else approval_support.DATE_APPROVED
+                                            granted_date = user.DATE_GRANTED.date() if isinstance(user.DATE_GRANTED, datetime.datetime) else user.DATE_GRANTED
+
+                                            if granted_date < approval_date:
+                                                late_approval.append({
+                                                    'FIRST_NAME': user.FIRST_NAME,
+                                                    'LAST_NAME': user.LAST_NAME,
+                                                    'EMAIL_ADDRESS': user.EMAIL_ADDRESS,
+                                                    'ROLE_NAME': user.ROLE_NAME,
+                                                    'STATUS': user.STATUS,
+                                                    'DATE_GRANTED': granted_date,
+                                                    'DATE_APPROVED': approval_date,
                                                 })
+                                else:
 
-                                                if approval_support and user.DATE_GRANTED and approval_support.DATE_APPROVED:
-                                                
-                                                    
-                                                    if isinstance(approval_support.DATE_APPROVED, datetime.datetime):
-                                                        approval_support.DATE_APPROVED = approval_support.DATE_APPROVED.date()  
-                                                   
-                                                    if isinstance(user.DATE_GRANTED, datetime.datetime):
-                                                        user.DATE_GRANTED = user.DATE_GRANTED.date() 
-                                                   
-                                                    if user.DATE_GRANTED < approval_support.DATE_APPROVED:
-                                
-                                                        late_approval.append({
-                                                            'email': user.EMAIL_ADDRESS,
-                                                            'role': user.ROLE_NAME,
-                                                            'status': user.STATUS,
-                                                            'date_granted': user.DATE_GRANTED,
-                                                            'date_approved': approval_support.DATE_APPROVED,
-                                                        })
-
-                                    except ACCESSREQUEST.DoesNotExist:
-                                        approval_support = None
-
-                            except ACCESSREQUEST.DoesNotExist:
-                                approval = None
+                                    without_approval.append({
+                                        'email': user.EMAIL_ADDRESS,
+                                        'role': user.ROLE_NAME,
+                                        'status': user.STATUS,
+                                        'date_granted': user.DATE_GRANTED,
+                                        'approval_token': request.APPROVAL_TOKEN,
+                                        'comments': request.COMMENTS
+                                    })
 
                     except HR_RECORD.DoesNotExist:
-                        hr_record = None
+
+                        without_approval.append({
+                                'FIRST_NAME': user.FIRST_NAME,
+                                            'LAST_NAME': user.LAST_NAME,
+                                            'EMAIL_ADDRESS': user.EMAIL_ADDRESS,
+                                            'ROLE_NAME': user.ROLE_NAME,
+                                            'STATUS': user.STATUS,
+                                            'DATE_GRANTED': user.DATE_GRANTED,
+                            })
 
         except APP_RECORD.DoesNotExist:
             new_users_per_app = None
 
+        # Build response context
         context = {
-            'new_users_per_app': new_users_per_app_serializer.data,  # Use `.data` to get serialized data
-            'with_approval':with_approval,
-            'late_approval':late_approval
+            'new_users_per_app': new_users_per_app_serializer.data,
+            'with_approval': with_approval,
+            'without_approval': without_approval,
+            'late_approval': late_approval,
         }
 
         return Response(context)

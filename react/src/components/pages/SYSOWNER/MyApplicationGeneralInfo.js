@@ -645,7 +645,6 @@ const MyApplicationGeneralInfo = () => {
                         }}>
                             <MultipleSelect
                                 isMultiSelect={false}
-                                defaultValue={selectedApps?.DEVTYPE}
                                 placeholderText="Select Devevelopment Type*"
                                 selectOptions={developOptions}
                                 selectedOptions={selectedDev}
@@ -673,7 +672,6 @@ const MyApplicationGeneralInfo = () => {
                         }}>
                             <MultipleSelect
                                 isMultiSelect={false}
-                                defaultValue={selectedApps?.HOSTED}
                                 placeholderText="Select Hosting Type*"
                                 selectOptions={hostingOptions}
                                 selectedOptions={selectedHosting}
