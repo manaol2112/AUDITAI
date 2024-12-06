@@ -30,6 +30,24 @@ const RoleMatrix = () => {
         <div>
             <ResponsiveContainer>
 
+            <mui.Breadcrumbs aria-label="breadcrumb">
+                    <mui.Link underline="hover" color="inherit" href="/dashboard">
+                        <i className="material-icons">home</i>
+                    </mui.Link>
+                    <mui.Link underline="hover" color="inherit" href="/dashboard">
+                        My Dashboard
+                    </mui.Link>
+                    <mui.Typography color="text.primary"> My Applications</mui.Typography>
+                </mui.Breadcrumbs>
+
+                <SearchAppBar title="Manage Applications" icon={<GridViewIcon />} />
+
+                <mui.Typography sx={{ marginTop: '20px' }} variant="subtitle2" gutterBottom>
+                    View and manage the relevant data of the applications assigned to you
+                </mui.Typography>
+
+                <Separator />
+
             
 
             </ResponsiveContainer>

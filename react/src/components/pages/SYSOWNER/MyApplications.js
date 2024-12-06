@@ -130,7 +130,7 @@ const SysOwnerApplications = () => {
     const handleClose = () => {
         setAnchorEl(null);
         setIsMenuOpen(false);
-        setSelectedApp(null); // Clear the selected app when closing
+        setSelectedApp(null); 
     };
 
     const StyledMenu = styled((props) => (
