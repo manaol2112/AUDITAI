@@ -47,6 +47,8 @@ import AccessRequestDashboard from './pages/SYSOWNER/AccessRequestDashboard';
 import AccessRequestSuccess from './pages/SYSOWNER/AccessRequestSuccess';
 import AccessRequestApproval from './pages/SYSOWNER/AccessRequestApproval';
 import MyAccessRequest from './pages/SYSOWNER/MyAccessRequests';
+import RoleMatrix from './pages/SYSOWNER/RoleMatrix';
+import LandingPage from './pages/DEFAULT/Landingpage';
 
 
 const App = () => {
@@ -64,12 +66,12 @@ const App = () => {
       <Routes>
         {/* Public route */}
         <Route path="/login" element={<Login />} />
-        <Route path="" element={<Login />} />
+        <Route path="" element={<LandingPage />} />
 
         {/* Private routes based on user groups */}
         {isGroupMember('Administrator') && (
           <Route path="/" element={<PrivateRoute requiredGroup="Administrator" />}>
-            <Route index path="/" element={<Dashboard />} />
+            {/* <Route index path="/" element={<Dashboard />} /> */}
             <Route index path="/dashboard" element={<Dashboard />} />
             <Route path="/companies" element={<Companies />} />
             <Route path="/companies/:companyId" element={<CompanyDetails />} />
@@ -92,13 +94,14 @@ const App = () => {
 
         {isGroupMember('Process Owner') && (
           <Route path="/" element={<PrivateRoute requiredGroup="Process Owner" />}>
-            <Route  index path="/" element={<SysOwnerDashboard />} />
+            {/* <Route  index path="/" element={<SysOwnerDashboard />} /> */}
             <Route  index path="/dashboard" element={<SysOwnerDashboard />} />
             <Route  path="/applications" element={<SysOwnerApplications />} />
             <Route  path="/applications/Users/:id" element={<SysOwnerApplicationsUsers />} />
             <Route  path="/applications/SetupInfo/:id" element={<MyApplicationGeneralInfo />} />
             <Route  path="/applications/ManageUsers/:id" element={<MyApplicationManageUsers />} />
-            <Route  path="/applications/Controls/:id" element={<MyApplicationControls />} />
+            <Route  path="/applications/controls/:id" element={<MyApplicationControls />} />
+            <Route  path="/applications/rolematrix/:id" element={<RoleMatrix />} />
             <Route  path="/compliance" element={<SysOwnerCompliance />} />
             <Route  path="/processNarrative" element={<ProcessNarrative />} />
             <Route  path="/processNarrative/:company/:id" element={<ProcessNarrativeDetails />} />
@@ -111,7 +114,7 @@ const App = () => {
 
         {isGroupMember('Internal Auditor') && (
           <Route path="/" element={<PrivateRoute requiredGroup="Internal Auditor"/>}>
-            <Route index path="/" element={<IAAuditDashboard />} />
+            {/* <Route index path="/" element={<IAAuditDashboard />} /> */}
             <Route index path="/dashboard" element={<IAAuditDashboard />} />
             <Route  path="/audit/RiskLibrary" element={<AuditRiskLibrary />} />
             <Route  path="/audit/ControlsLibrary" element={<ControlsLibrary />} />

@@ -288,7 +288,7 @@ const SysOwnerApplications = () => {
             >
                 {selectedApp && (
                     <>
-                        <MenuItem onClick={() => navigate(`/Applications/SetupInfo/${selectedApp.appID}`)} disableRipple>
+                        <MenuItem onClick={() => navigate(`/applications/setupinfo/${selectedApp.appID}`)} disableRipple>
                             <StorageIcon />
                             Setup General Information
                             {selectedApp.geninfo ? (
@@ -299,7 +299,7 @@ const SysOwnerApplications = () => {
                         </MenuItem>
 
                         <Divider sx={{ my: 0.5 }} />
-                        <MenuItem onClick={() => navigate(`/Applications/ManageUsers/${selectedApp.appID}`)} disableRipple>
+                        <MenuItem onClick={() => navigate(`/applications/manageusers/${selectedApp.appID}`)} disableRipple>
                             <ManageAccountsIcon />
                             Manage User Data
                             {selectedApp.userdata ? (
@@ -309,7 +309,7 @@ const SysOwnerApplications = () => {
                             )}
                         </MenuItem>
                         <Divider sx={{ my: 0.5 }} />
-                        <MenuItem onClick={() => navigate(`/Applications/Controls/${selectedApp.appID}`)} disableRipple>
+                        <MenuItem onClick={() => navigate(`/applications/controls/${selectedApp.appID}`)} disableRipple>
                             <GppGoodIcon />
                             Process Understanding
                             {selectedApp.process ? (
@@ -319,7 +319,7 @@ const SysOwnerApplications = () => {
                             )}
                         </MenuItem>
                         <Divider sx={{ my: 0.5 }} />
-                        <MenuItem onClick={() => navigate(`/Applications/Controls/${selectedApp.appID}`)} disableRipple>
+                        <MenuItem onClick={() => navigate(`/applications/rolematrix/${selectedApp.appID}`)} disableRipple>
                             <LanIcon />
                             Role Matrix
                             {selectedApp.process ? (

@@ -1,0 +1,307 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Apply Professional Font */
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Landing Page Container */
+.landing-page {
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* Header Section */
+.navbar {
+    background-color: #003366; /* Primary Blue */
+    padding: 1rem 2rem; /* Default padding for larger screens */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: padding 0.3s ease;
+}
+
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo img {
+    max-width: 40px;
+    margin-right: 10px;
+}
+
+.navbar-logo {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.logo-text {
+    color: #fff;
+    font-size: 1.3rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: color 0.3s ease;
+}
+
+.navbar-logo:hover .logo-text {
+    color: #80b3ff;
+}
+
+/* Navigation Links */
+.nav-links ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+}
+
+.nav-links ul li {
+    margin: 0 2rem; /* Increased space between nav items */
+}
+
+.nav-links ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: color 0.3s;
+}
+
+.nav-links ul li a:hover {
+    color: #80b3ff;
+}
+
+/* CTA Buttons */
+.cta-buttons {
+    display: flex;
+    align-items: center;
+}
+
+.cta-buttons .btn {
+    background-color: #0066cc;
+    color: #fff;
+    padding: 0.6rem 1.8rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 600;
+    margin-left: 1.5rem;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+.cta-buttons .btn:hover {
+    background-color: #004c99;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;              /* Use flexbox */
+    flex-direction: column;     /* Stack items vertically */
+    justify-content: center;    /* Center vertically */
+    align-items: center;        /* Center horizontally */
+    padding: 3rem 2rem;         /* Space around the content */
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.content-container {
+    text-align: center;
+    width: 100%;
+}
+
+.slogan {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #003366;
+    margin-bottom: 2rem;
+    margin-top: -2rem;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: color 0.3s ease, transform 0.3s ease;
+    animation: fadeInUp 1s forwards;
+}
+
+.description {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 2rem;
+}
+
+/* Waitlist Form */
+.waitlist-form {
+    margin: 0 auto;             /* Horizontally center the form */
+    margin-top: 50px;           /* Add some space at the top */
+    width: 100%;
+    max-width: 400px;           /* Limit the form width */
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 2rem 3rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.email-input {
+    width: 100%;
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    transition: border-color 0.3s;
+    box-sizing: border-box;
+}
+
+.email-input:focus {
+    border-color: #0066cc;
+    outline: none;
+}
+
+.cta-btn {
+    background-color: #0066cc;
+    color: #fff;
+    padding: 0.8rem 1.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: background-color 0.3s;
+    width: 100%;
+}
+
+.cta-btn:hover {
+    background-color: #004c99;
+}
+
+/* Additional Encouragement Below the Form */
+.waitlist-encouragement {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 2rem;
+    margin-top: 1.5rem;      /* Space between the form and the text */
+    font-weight: 500;        /* Slightly lighter text */
+    line-height: 1.5;        /* Improved line spacing for readability */
+}
+
+/* Keyframes for fade-in and move-up animation */
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Media Queries for Responsiveness */
+
+/* For Tablets and Small Screens (Portrait) */
+@media screen and (max-width: 768px) {
+    .navbar {
+        padding: 0.8rem 1.5rem;
+    }
+
+    .navbar-container {
+        flex-direction: column;
+        align-items: center;
+        padding: 1rem;
+    }
+
+    .logo img {
+        max-width: 35px;
+    }
+
+    .logo-text {
+        font-size: 1.1rem;
+    }
+
+    /* Hide Navigation Links */
+    .nav-links ul {
+        display: none;
+    }
+
+    .cta-buttons {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .main-content {
+        padding: 2rem 1rem;
+    }
+
+    .slogan {
+        font-size: 2.5rem;
+        margin-top: 0;
+    }
+
+    .description {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .cta-btn {
+        font-size: 1rem;
+        padding: 0.8rem 1.5rem;
+    }
+}
+
+/* For Small Mobile Screens (Portrait) */
+@media screen and (max-width: 480px) {
+    .navbar {
+        padding: 0.6rem 1.2rem;
+    }
+
+    .navbar-container {
+        flex-direction: column;
+        align-items: center;
+        padding: 0.8rem;
+    }
+
+    .logo img {
+        max-width: 30px;
+    }
+
+    .logo-text {
+        font-size: 1rem;
+    }
+
+    .nav-links ul,
+    .cta-buttons {
+        display: none;
+    }
+
+    .main-content {
+        padding: 1.5rem 1rem;
+    }
+
+    .slogan {
+        font-size: 2rem;
+        margin-top: 0;
+    }
+
+    .description {
+        font-size: 0.9rem;
+    }
+
+    .cta-btn {
+        font-size: 1rem;
+        padding: 0.6rem 1.2rem;
+    }
+}
