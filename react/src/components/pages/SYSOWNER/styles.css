@@ -102,4 +102,66 @@ body {
   .mainOpen {
     margin-left: 240px;
   }
+
+  /* Main Select Wrapper */
+select {
+  appearance: none; /* Remove default dropdown style */
+  -webkit-appearance: none; /* Safari */
+  -moz-appearance: none; /* Firefox */
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #333;
+  cursor: pointer;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* Focused state */
+select:focus {
+  border-color: #5c6bc0; /* Blue border when focused */
+  box-shadow: 0 0 0 3px rgba(92, 107, 192, 0.2); /* Light blue shadow */
+  outline: none;
+}
+
+/* Custom arrow icon */
+select::-ms-expand {
+  display: none; /* Hide the default dropdown arrow in IE */
+}
+
+/* Dropdown icon (custom arrow) */
+select::after {
+  content: ' ▼';
+  font-size: 12px;
+  margin-left: 5px;
+  color: #888;
+}
+
+/* Style the dropdown options */
+option {
+  background-color: #fff;
+  color: #333;
+  padding: 8px;
+}
+
+/* Option hover effect */
+select option:hover {
+  background-color: #f1f1f1;
+}
+
+/* Disabled state */
+select:disabled {
+  background-color: #f9f9f9;
+  color: #aaa;
+  cursor: not-allowed;
+  border-color: #e0e0e0;
+}
+
+/* Add some space for the select wrapper if necessary */
+select + option {
+  margin-top: 5px;
+}
   

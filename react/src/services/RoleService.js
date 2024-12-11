@@ -45,7 +45,34 @@ const roleService = {
     updateSystemPassword: async(id,passwordData) => {
         const response = await axiosInstance.put(`systemsettings/${id}/`, passwordData);
         return response.data;
-    }
+    },
+
+
+    //ROLE Owner Services
+    fetchRoleOwners: async () => {
+        const response = await axiosInstance.get('roleowners/');
+        return response.data;
+      },
+    
+    fetchRoleOwnerById: async (appName, roleName) => {
+        const response = await axiosInstance.get(`role-owners/${appName}/${roleName}/`);
+        return response.data;
+    },
+    
+    createRoleOwner: async (rolenameData) => {
+        const response = await axiosInstance.post(`roleowners/`, rolenameData);
+        return response.data;
+      },
+    
+    updateRoleOwner: async (roleName, rolenameData) => {
+        const response = await axiosInstance.put(`roleowners/${roleName}/`, rolenameData);
+        return response.data;
+      },
+    
+    deleteRoleOwner: async (roleName) => {
+        const response = await axiosInstance.delete(`roleowners/${roleName}/`);
+        return response.data;
+      }
 
 };
 

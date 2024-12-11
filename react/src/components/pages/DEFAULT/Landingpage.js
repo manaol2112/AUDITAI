@@ -20,6 +20,7 @@ const LandingPage = () => {
     };
 
     return (
+        
         <div className="landing-page">
             {/* Header Section */}
             <header className="navbar">
@@ -74,14 +75,16 @@ const LandingPage = () => {
                             className="email-input"
                             required
                         />
-                        <button type="submit" className="cta-btn">Join the Waitlist</button>
+                        <button type="submit" className="cta-btn">Join Waitlist</button>
                     </form>
 
                     {/* Additional Encouragement Below Form */}
-                    <p className="waitlist-encouragement">
+                    <p className="description">
                         By joining the waitlist, you'll get early access to exclusive features and updates. Don't miss out!
                     </p>
                 </div>
+
+
             </section>
         </div>
     );

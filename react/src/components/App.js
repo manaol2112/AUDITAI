@@ -71,7 +71,7 @@ const App = () => {
         {/* Private routes based on user groups */}
         {isGroupMember('Administrator') && (
           <Route path="/" element={<PrivateRoute requiredGroup="Administrator" />}>
-            {/* <Route index path="/" element={<Dashboard />} /> */}
+            <Route index path="/" element={<Dashboard />} />
             <Route index path="/dashboard" element={<Dashboard />} />
             <Route path="/companies" element={<Companies />} />
             <Route path="/companies/:companyId" element={<CompanyDetails />} />
@@ -94,7 +94,7 @@ const App = () => {
 
         {isGroupMember('Process Owner') && (
           <Route path="/" element={<PrivateRoute requiredGroup="Process Owner" />}>
-            {/* <Route  index path="/" element={<SysOwnerDashboard />} /> */}
+            <Route  index path="/" element={<SysOwnerDashboard />} />
             <Route  index path="/dashboard" element={<SysOwnerDashboard />} />
             <Route  path="/applications" element={<SysOwnerApplications />} />
             <Route  path="/applications/Users/:id" element={<SysOwnerApplicationsUsers />} />
@@ -114,7 +114,7 @@ const App = () => {
 
         {isGroupMember('Internal Auditor') && (
           <Route path="/" element={<PrivateRoute requiredGroup="Internal Auditor"/>}>
-            {/* <Route index path="/" element={<IAAuditDashboard />} /> */}
+            <Route index path="/" element={<IAAuditDashboard />} />
             <Route index path="/dashboard" element={<IAAuditDashboard />} />
             <Route  path="/audit/RiskLibrary" element={<AuditRiskLibrary />} />
             <Route  path="/audit/ControlsLibrary" element={<ControlsLibrary />} />

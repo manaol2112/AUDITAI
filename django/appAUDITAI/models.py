@@ -335,7 +335,6 @@ class APP_USERS(models.Model):
     LOCKED = models.CharField(max_length=100,blank=True,null=True)
 
 
-
 class APP_OWNERS(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     APPLICATION_OWNER = models.ForeignKey(User,on_delete=models.DO_NOTHING,blank=True,null=True)
@@ -343,6 +342,15 @@ class APP_OWNERS(models.Model):
     class Meta:
         managed = True
         db_table = 'APP_OWNERS'
+
+class ROLE_OWNERS(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    ROLE_OWNERS = models.ForeignKey(HR_RECORD,on_delete=models.DO_NOTHING,blank=True,null=True)
+    ROLE_NAME = models.CharField(max_length=100,blank=True,null=True)
+    APP_NAME = models.ForeignKey(APP_LIST,on_delete=models.CASCADE,blank=True,null=True)
+    class Meta:
+        managed = True
+        db_table = 'ROLE_OWNERS'
 
 def workpaper_upload_to(instance, filename):
     audit_id = instance.audit_id

@@ -9,6 +9,7 @@ from appAUDITAI.Views.UTILS.serializers import CompanySerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.generics import RetrieveAPIView, ListAPIView
+from rest_framework.exceptions import NotFound
 
 class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.all()
@@ -69,8 +70,6 @@ class USERROLESViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-
-        print(serializer)
         if serializer.is_valid():
             self.perform_create(serializer)
             headers = self.get_success_headers(serializer.data)
@@ -114,3 +113,32 @@ class SystemSettingViewSetbyID(viewsets.ModelViewSet):
     lookup_field = 'id'
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated] 
+
+
+class RoleOwnerViewSet(viewsets.ModelViewSet):
+    queryset = ROLE_OWNERS.objects.all()
+    serializer_class = RoleOwnerSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+
+class RoleOwnerViewSetbyID(ListAPIView):
+    queryset = ROLE_OWNERS.objects.all()
+    serializer_class = RoleOwnerSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Get APP_NAME and ROLE_NAME from URL parameters (kwargs)
+        app_name = self.kwargs.get('APP_NAME')
+        role_name = self.kwargs.get('ROLE_NAME')
+        
+        if not app_name or not role_name:
+            raise NotFound("Both APP_NAME and ROLE_NAME must be provided.")
+
+        try:
+            # Filter the queryset based on the provided parameters
+            return self.queryset.filter(ROLE_NAME=role_name, APP_NAME=app_name)
+        except ROLE_OWNERS.DoesNotExist:
+            raise NotFound("Role owner with the given ROLE_NAME and APP_NAME not found.")
+    

@@ -72,6 +72,11 @@ class AppRecordMappingSerializer(serializers.ModelSerializer):
     class Meta:
         model = CSV_MAPPING_TABLE
         fields = '__all__'
+
+class RoleOwnerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ROLE_OWNERS
+        fields = '__all__' 
          
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
