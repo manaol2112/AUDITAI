@@ -142,4 +142,23 @@ class RoleOwnerViewSetbyID(ListAPIView):
             return self.queryset.filter(ROLE_NAME=role_name, APP_NAME=app_name)
         except ROLE_OWNERS.DoesNotExist:
             raise NotFound("Role owner with the given ROLE_NAME and APP_NAME not found.")
+        
+class RoleOwnerViewSetbyApp(ListAPIView):
+    queryset = ROLE_OWNERS.objects.all()
+    serializer_class = RoleOwnerSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Get APP_NAME and ROLE_NAME from URL parameters (kwargs)
+        app_name = self.kwargs.get('APP_NAME')
+       
+        if not app_name:
+            raise NotFound("Both APP_NAME and ROLE_NAME must be provided.")
+
+        try:
+            # Filter the queryset based on the provided parameters
+            return self.queryset.filter(APP_NAME=app_name)
+        except ROLE_OWNERS.DoesNotExist:
+            raise NotFound("Role owner with the given ROLE_NAME and APP_NAME not found.")
     

@@ -87,6 +87,7 @@ urlpatterns = [
     path('api/accessrequest/approval/<uuid:id>/', ApproveAccessRequestView.as_view(), name='approve_request'),
     path('api/accessrequest/reject/<uuid:id>/', SubmitRequestView.as_view(), name='reject_request'),
     path('api/access/myrequests/<uuid:app_id>/', AccessRequestByAppViewSet.as_view({'get': 'list'}), name='my_requests'),
-   path('api/role-owners/<uuid:APP_NAME>/<str:ROLE_NAME>/', RoleOwnerViewSetbyID.as_view(), name='role-owner-by-id')
+    path('api/role-owners/<uuid:APP_NAME>/<str:ROLE_NAME>/', RoleOwnerViewSetbyID.as_view(), name='role-owner-by-id'),
+    path('api/role-owners/<uuid:APP_NAME>/', RoleOwnerViewSetbyApp.as_view(), name='role-owner-by-app')
 
-]
+]   

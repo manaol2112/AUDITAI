@@ -88,7 +88,6 @@ class COMPANY(models.Model):
 
     #AUDITPROJECT
 
-
     
 class HR_DATA_MAPPING(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -472,8 +471,6 @@ class WORKPAPER_UPLOAD(models.Model):
    
     def __str__(self):
         return f"File id: {self.id}"
-
-
 
 class TEST_PROCEDURES(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -1244,6 +1241,30 @@ class UAR_PROCESS(models.Model):
     class Meta:
         managed = True
         db_table = 'UAR_PROCESS'
+
+class UAR_FILE(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    APP_NAME = models.ForeignKey(APP_LIST, on_delete=models.CASCADE, null=True, blank=True)
+    REVIEW_TAG = models.CharField(max_length=100,blank=True,null=True)
+    FREQUENCY = models.CharField(max_length=100,blank=True,null=True)
+    INTIATED_BY = models.CharField(max_length=100,blank=True,null=True)
+    INITIATED_ON = models.DateField(auto_now_add=True,null=True,blank=True)
+    REPORT_DATE = models.DateField(auto_now_add=True,null=True,blank=True)
+
+    class Meta:
+        managed = True
+        db_table = 'UAR_FILE'
+
+
+class UAR_DATA(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    APP_NAME = models.ForeignKey(APP_LIST, on_delete=models.CASCADE, null=True, blank=True)
+    UAR_FILE = models.ForeignKey(UAR_FILE, on_delete=models.CASCADE, null=True, blank=True)
+
+    class Meta:
+        managed = True
+        db_table = 'UAR_DATA'
+
 
 class PRIVILEGED_PROCESS(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

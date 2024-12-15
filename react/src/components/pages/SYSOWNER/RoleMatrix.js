@@ -18,8 +18,12 @@ import Tooltip from '@mui/material/Tooltip';
 import LaunchIcon from '@mui/icons-material/Launch';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import LinkIcon from '@mui/icons-material/Link';
+import AddLinkIcon from '@mui/icons-material/AddLink';
 import Modal from '../../common/Modal';
 import MultipleSelect from '../../common/MultipleSelect';
+import Badge from '@mui/material/Badge';
+import { styled } from '@mui/material/styles';
+import IconButton from '@mui/material/IconButton';
 
 
 const DataTable = React.lazy(() => import('../../common/DataGrid'));
@@ -38,6 +42,7 @@ const RoleMatrix = () => {
     const [selectedRole, setSelectedRole] = useState({});
     const [saved, setSaved] = useState(false);
 
+    const [unassignedCount, setunassignedCount] = useState(0);
     const [roleData, setRoleData] = useState({});
 
 
@@ -66,7 +71,8 @@ const RoleMatrix = () => {
         const fetchRoles = async () => {
             try {
 
-                const existingRoleOwners = await roleService.fetchRoleOwners(id);
+                const existingRoleOwners = await roleService.fetchRoleOwnersByApp(id);
+
                 setMappedRoles(existingRoleOwners)
                 // Check if RoleOwners have already been created
                 if (isRoleOwnerCreatedRef.current) {
@@ -78,6 +84,7 @@ const RoleMatrix = () => {
                 const roles = await appService.fetchAppsRecordById(id);
 
                 const existingRoleNames = new Set(existingRoleOwners.map(owner => owner.ROLE_NAME));
+                
                 const filteredRoles = roles.filter(role => !existingRoleNames.has(role.ROLE_NAME));
 
                 if (Array.isArray(filteredRoles)) {
@@ -89,7 +96,7 @@ const RoleMatrix = () => {
                         label: item,
                     }));
 
-                    // Set state for roles
+                    setunassignedCount(formattedRoleNames.length)
                     setRoles(formattedRoleNames);
                 }
 
@@ -143,7 +150,7 @@ const RoleMatrix = () => {
             }
         }
 
-    },  [id, saved]);
+    },  [saved]);
 
 
     // Define the columns for the table
@@ -158,11 +165,14 @@ const RoleMatrix = () => {
         { field: 'ROLE_OWNER', headerName: 'Current Role Owner', flex: 1 },
     ];
 
-    const rows = roles.map((app, index) => ({
+    const rows = roles.map((app, index) => {
+ 
+        return {
         id: index + 1,
         ROLE_NAME: app.value || '-',
         ROLE_OWNER: app.roleOwner || '', 
-    }));
+        }
+    });
 
     const mappedrows = mappedRoles.map((role, index) => {
      
@@ -188,21 +198,23 @@ const RoleMatrix = () => {
     });
 
     const renderUpdateMapping = (params) => {
-        const app = params.row;
+
+        const role = params.row;
 
         return (
             <ThemeProvider theme={theme}>
-                <Tooltip title="Update Mapping" arrow>
+                <Tooltip title="Update Owner" arrow>
                     <mui.IconButton
                         sx={{ color: theme.palette.primary.main }}
                         size="small"
-                    // onClick={(event) => handleTerminationClick(event, app)}
+                        onClick={(event) => handleMappingClick(event, role)}
                     >
                         <ManageAccountsIcon sx={{ fontSize: '18px' }} />
                     </mui.IconButton>
                 </Tooltip>
             </ThemeProvider>
         );
+
     };
 
     const handleMappingClick = (event, role) => {
@@ -233,13 +245,13 @@ const RoleMatrix = () => {
 
         return (
             <ThemeProvider theme={theme}>
-                <Tooltip title="Map Owner" arrow>
+                <Tooltip title="Assign Owner" arrow>
                     <mui.IconButton
                         sx={{ color: theme.palette.primary.main }}
                         size="small"
                         onClick={(event) => handleMappingClick(event, role)}
                     >
-                        <LinkIcon sx={{ fontSize: '18px' }} />
+                        <AddLinkIcon sx={{ fontSize: '18px' }} />
                     </mui.IconButton>
                 </Tooltip>
             </ThemeProvider>
@@ -268,7 +280,13 @@ const RoleMatrix = () => {
         },
     ];
 
-
+    const StyledBadge = styled(Badge)(({ theme }) => ({
+        '& .MuiBadge-badge': {
+          right: '2px',
+          border: `2px solid ${theme.palette.background.paper}`,
+          padding: '0 4px',
+        },
+      }));
 
     const tabs = [
         {
@@ -293,9 +311,15 @@ const RoleMatrix = () => {
 
         {
             value: '2',
-            label: (<div>
-                Needs Mapping
-            </div>),
+            label: (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    Unassigned
+                    <IconButton aria-label="cart" style={{ marginLeft: '8px' }}>
+                        <StyledBadge badgeContent={unassignedCount} color="primary">
+                        </StyledBadge>
+                    </IconButton>
+                </div>
+            ),
             content: (
                 <div>
                     <Suspense fallback={<div>Loading...</div>}>
@@ -338,6 +362,7 @@ const RoleMatrix = () => {
 
             const updateMapping = await roleService.updateRoleOwner(recordExist[0].id, roleData);
             console.log('Role owner data', roleData)
+
         } else {
             const roleMapping = await roleService.createRoleOwner(roleData)
         }

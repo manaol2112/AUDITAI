@@ -100,13 +100,13 @@ const SysOwnerDashboard = () => {
 
                 <mui.Grid container spacing={3} direction="row" justifyContent="flex-start" alignItems="center">
                     <mui.Grid item>
-                        <OutlinedCard icon={iconMapping['grid_view']} title="My Applications" to="/Applications" buttonlabel="View" />
+                        <OutlinedCard icon={iconMapping['grid_view']} title="My Applications" to="/applications" buttonlabel="View" />
                     </mui.Grid>
                     <mui.Grid item>
-                        <OutlinedCard icon={iconMapping['assured_workload']} title="Compliance Status" to="/Compliance" buttonlabel="View" />
+                        <OutlinedCard icon={iconMapping['assured_workload']} title="Compliance Status" to="/compliance" buttonlabel="View" />
                     </mui.Grid>
                     <mui.Grid item>
-                        <OutlinedCard icon={iconMapping['account_tree']} title="Process Narrative" to="/ProcessNarrative" buttonlabel="View" />
+                        <OutlinedCard icon={iconMapping['account_tree']} title="Process Narrative" to="/processnarrative" buttonlabel="View" />
                     </mui.Grid>
                     <mui.Grid item>
                         <OutlinedCard icon={iconMapping['badge']} title="New Access Requests" to="/accessrequest/dashboard" buttonlabel="View" />
@@ -115,10 +115,10 @@ const SysOwnerDashboard = () => {
                         <OutlinedCard icon={iconMapping['mark_email_unread']} title="Process Requests" to="/accessrequest/granting" buttonlabel="View" />
                     </mui.Grid>
                     <mui.Grid item>
-                        <OutlinedCard icon={iconMapping['rate_review']} title="User Access Review" to="/SystemRoles" buttonlabel="View" />
+                        <OutlinedCard icon={iconMapping['rate_review']} title="User Access Review" to="/useraccessreview" buttonlabel="View" />
                     </mui.Grid>
                     <mui.Grid item>
-                        <OutlinedCard icon={iconMapping['inventory']} title="Audit Requests" to="/Security" buttonlabel="View" />
+                        <OutlinedCard icon={iconMapping['inventory']} title="Audit Requests" to="/security" buttonlabel="View" />
                     </mui.Grid>
                     <mui.Grid item>
                         <OutlinedCard icon={iconMapping['summarize']} title="Reports" to="/Interfaces" buttonlabel="View" />

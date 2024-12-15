@@ -50,9 +50,15 @@ const roleService = {
 
     //ROLE Owner Services
     fetchRoleOwners: async () => {
-        const response = await axiosInstance.get('roleowners/');
+        const response = await axiosInstance.get(`roleowners/`);
         return response.data;
-      },
+    },
+
+     //ROLE Owner Services
+     fetchRoleOwnersByApp: async (appName) => {
+        const response = await axiosInstance.get(`role-owners/${appName}/`);
+        return response.data;
+    },
     
     fetchRoleOwnerById: async (appName, roleName) => {
         const response = await axiosInstance.get(`role-owners/${appName}/${roleName}/`);
