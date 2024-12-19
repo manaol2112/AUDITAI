@@ -30,6 +30,7 @@ router.register(r'access/approval',AccessRequestApprovalViewSet, basename='appro
 router.register(r'hr-sftp', HRSFTPViewSet)
 router.register(r'hr-job-schedule', HRJobViewSet)
 router.register(r'applications', AppViewSet)
+router.register(r'useraccessreview', UARViewSet)
 router.register(r'app-password/>', AppPasswordViewSetbyApp)
 router.register(r'process/provisioning', ProvisioningProcessViewSetByID, basename='provisioning')
 router.register(r'process/termination', TerminationProcessViewSetByID, basename='termination')
@@ -56,10 +57,11 @@ urlpatterns = [
     path('api/', include(router.urls)),  
     path('api/companies/<uuid:companyId>/', CompanyViewSetByID.as_view, name = 'company-details' ),
     path('api/applications/<uuid:appId>/', AppViewSetByID.as_view, name = 'app-details' ),
+    # path('api/useraccessreviewbyapp/<uuid:APP_NAME>/', UARViewSetbyApp.as_view(), name = 'uar-by-app'),
     path('api/fetch-app-password/<uuid:APP_NAME>/', AppPasswordViewSetbyID.as_view({'get': 'retrieve','post': 'create', 'put': 'update','delete': 'destroy'}), name='app-password-by-app'),
     path('api/app-password/appid/<uuid:APP_NAME>/', AppPasswordViewSet.as_view({'get': 'retrieve','post': 'create', 'put': 'update','delete': 'destroy'}), name='app-password-by-app'),
     path('api/app-users/<str:APP_NAME>/', AppRecordViewSetbyApp.as_view(), name='app-user-by-app'),
-    path('api/app-users/date-granted/<str:APP_NAME>/', AppRecordViewSetbyAppAndGrantDate.as_view(), name='app-user-by-app-granted'),
+    path('api/useraccess-review/<uuid:APP_NAME>/', UARViewSetbyApp.as_view({'get': 'list'}), name='uar-by-app'),
     path('api/app-users/date-removed/<uuid:APP_NAME>/', AppRecordViewSetbyAppAndRemovalDate.as_view(), name='app-user-by-app-removed'),
     path('api/audit/mapping/app/<uuid:APP_NAME>/<uuid:COMPANY_ID>/', RiskMappingViewSetbyAPP.as_view({'get':'list'}), name='riskmapping-by-app'),
     path('api/audit/workpapers/<uuid:APP_NAME>/<uuid:COMPANY_ID>/', WorkpapersViewSet.as_view({'get':'list'}), name='workpapers'),

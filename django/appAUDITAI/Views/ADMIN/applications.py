@@ -562,3 +562,22 @@ class AdminProcessViewSetByID(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # Save the new instance
         serializer.save()
+
+
+class UARViewSet(viewsets.ModelViewSet):
+    queryset = UAR_FILE.objects.all()
+    serializer_class = UARSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+
+class UARViewSetbyApp(viewsets.ModelViewSet):
+    queryset = UAR_FILE.objects.all()
+    serializer_class = UARSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'APP_NAME'
+
+    def get_queryset(self):
+            app_id = self.kwargs.get(self.lookup_field)
+            return UAR_FILE.objects.filter(APP_NAME = app_id).order_by('REVIEW_TAG')

@@ -68,8 +68,6 @@ const SysOwnerCompliance = () => {
                 if (currentUser) {
                     const assignedApps = await appService.fetchAppsByOwner(currentUser.id)
 
-
-
                     if (assignedApps) {
 
                         setApps(assignedApps);
@@ -1050,6 +1048,7 @@ const SysOwnerCompliance = () => {
                 <Separator />
 
                 <mui.Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', textAlign: 'center' }}>
+                    
                     <mui.Tooltip title="Manage Monitoring">
                         <mui.IconButton>
                             <SettingsRoundedIcon sx={{ width: 25, height: 25, color: '#046FB2' }} />

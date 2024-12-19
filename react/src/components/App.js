@@ -51,6 +51,8 @@ import RoleMatrix from './pages/SYSOWNER/RoleMatrix';
 import LandingPage from './pages/DEFAULT/Landingpage';
 import UserAccessReview from './pages/SYSOWNER/UserAccessReview';
 import UserAccessReviewDetails from './pages/SYSOWNER/UserAccessReviewDetails';
+import UserAccessReviewData from './pages/SYSOWNER/UserAccessReviewData';
+
 
 
 const App = () => {
@@ -107,6 +109,7 @@ const App = () => {
             <Route path="/applications/rolematrix/:id" element={<RoleMatrix />} />
             <Route path="/useraccessreview" element={<UserAccessReview />} />
             <Route path="/useraccessreview/:id" element={<UserAccessReviewDetails />} />
+            <Route path="/useraccessreview/data/:id/:phase" element={<UserAccessReviewData />} />
             <Route path="/compliance" element={<SysOwnerCompliance />} />
             <Route path="/processnarrative" element={<ProcessNarrative />} />
             <Route path="/processnarrative/:company/:id" element={<ProcessNarrativeDetails />} />

@@ -14,6 +14,16 @@ class HRSerializer(serializers.ModelSerializer):
         model = HR_RECORD
         fields = '__all__'
 
+class UARSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UAR_FILE
+        fields = '__all__'
+
+class UARDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UAR_DATA
+        fields = '__all__'
+
 class AccessRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = ACCESSREQUEST
