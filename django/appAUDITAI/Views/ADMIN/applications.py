@@ -581,3 +581,4 @@ class UARViewSetbyApp(viewsets.ModelViewSet):
     def get_queryset(self):
             app_id = self.kwargs.get(self.lookup_field)
             return UAR_FILE.objects.filter(APP_NAME = app_id).order_by('REVIEW_TAG')
+    

@@ -1260,13 +1260,28 @@ class UAR_DATA(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     APP_NAME = models.ForeignKey(APP_LIST, on_delete=models.CASCADE, null=True, blank=True)
     UAR_FILE = models.ForeignKey(UAR_FILE, on_delete=models.CASCADE, null=True, blank=True)
+    EMAIL_ADDRESS = models.ForeignKey(APP_RECORD, on_delete=models.DO_NOTHING, null=True, blank=True)
+    REVIEW_CYCLE = models.CharField(max_length=100,blank=True,null=True)
+    REVIEWED_BY = models.ForeignKey(HR_RECORD, on_delete=models.DO_NOTHING, null=True, blank=True)
     INTIATED_BY = models.CharField(max_length=100,blank=True,null=True)
     INITIATED_ON = models.DateField(auto_now_add=True,null=True,blank=True)
-    REPORT_DATE = models.DateField(auto_now_add=True,null=True,blank=True)
+    REVIEW_COMPLETED_ON = models.DateField(auto_now_add=True,null=True,blank=True)
 
     class Meta:
         managed = True
         db_table = 'UAR_DATA'
+
+class UAR_NOTES(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    UAR_DATA = models.ForeignKey(UAR_FILE, on_delete=models.CASCADE, null=True, blank=True)
+    CREATED_BY = models.CharField(max_length=100,blank=True,null=True)
+    REVIEW_COMMENTS=  models.CharField(max_length=100,blank=True,null=True)
+    REVIEW_COMMENTS_DATE = models.DateField(auto_now_add=True,null=True,blank=True)
+    REVIEW_NOTES_STATUS = models.CharField(max_length=100,blank=True,null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'UAR_NOTES'
 
 
 class PRIVILEGED_PROCESS(models.Model):

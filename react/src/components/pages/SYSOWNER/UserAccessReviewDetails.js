@@ -311,13 +311,13 @@ const UserAccessReviewDetails = () => {
     const columns = [
         { field: 'id', headerName: '#', width: 50 },
         { field: 'FREQUENCY', headerName: 'Frequency', flex: 1 },
-        { field: 'REVIEW_TAG', headerName: 'Review Phase', flex: 1 },
+        { field: 'REVIEW_TAG', headerName: 'Review Cycle', flex: 1 },
         { field: 'STATUS', headerName: 'Status', flex: 1 },
     ];
 
 
     const handleClick = (event, app) => {
-        navigate(`/useraccessreview/data/${id}`)
+        navigate(`/useraccessreview/data/${id}/${app.uarID}`)
     };
 
     const theme = createTheme({
