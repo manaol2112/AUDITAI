@@ -190,6 +190,22 @@ const UserAccessReviewData = () => {
                                             <CardActionArea>
                                                 <CardContent>
                                                     <Typography gutterBottom variant="h5" component="div">
+                                                        {uniqueUsers}
+                                                    </Typography>
+                                                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                                        Active Users
+                                                    </Typography>
+                                                </CardContent>
+                                            </CardActionArea>
+
+                                        </Card>
+                                    </mui.Grid>
+
+                                    <mui.Grid item xs={2}>
+                                        <Card sx={{ maxWidth: 345 }}>
+                                            <CardActionArea>
+                                                <CardContent>
+                                                    <Typography gutterBottom variant="h5" component="div">
                                                         {uniqueRoles}
                                                     </Typography>
                                                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
