@@ -62,6 +62,7 @@ urlpatterns = [
     path('api/app-password/appid/<uuid:APP_NAME>/', AppPasswordViewSet.as_view({'get': 'retrieve','post': 'create', 'put': 'update','delete': 'destroy'}), name='app-password-by-app'),
     path('api/app-users/<str:APP_NAME>/', AppRecordViewSetbyApp.as_view(), name='app-user-by-app'),
     path('api/useraccess-review/<uuid:APP_NAME>/', UARViewSetbyApp.as_view({'get': 'list'}), name='uar-by-app'),
+    path('api/app-users/date-granted/<uuid:APP_NAME>/', AppRecordViewSetbyAppAndGrantDate.as_view(), name='app-user-by-app-granted'),
     path('api/app-users/date-removed/<uuid:APP_NAME>/', AppRecordViewSetbyAppAndRemovalDate.as_view(), name='app-user-by-app-removed'),
     path('api/audit/mapping/app/<uuid:APP_NAME>/<uuid:COMPANY_ID>/', RiskMappingViewSetbyAPP.as_view({'get':'list'}), name='riskmapping-by-app'),
     path('api/audit/workpapers/<uuid:APP_NAME>/<uuid:COMPANY_ID>/', WorkpapersViewSet.as_view({'get':'list'}), name='workpapers'),
