@@ -24,6 +24,7 @@ import MultipleSelect from '../../common/MultipleSelect';
 import companyService from '../../../services/CompanyService';
 import userrolesService from '../../../services/UserRoleService';
 import DynamicSnackbar from '../../common/Snackbar';
+import { ChevronRightIcon } from '@heroicons/react/20/solid'
 
 
 const ManageUsers = () => {
@@ -38,12 +39,14 @@ const ManageUsers = () => {
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
+    const navigate = useNavigate();
+
     const handleSnackbarClose = () => {
         setSnackbarOpen(false);
     };
 
     const [selectedCompany, setSelectedCompany] = useState({
-        COMPANY_ID:[],
+        COMPANY_ID: [],
     });
 
     const [userData, setNewUsers] = useState({
@@ -51,8 +54,8 @@ const ManageUsers = () => {
         first_name: '',
         last_name: '',
         email: '',
-        is_active:true,
-        groups:''
+        is_active: true,
+        groups: ''
     });
 
     const handleChange = (e) => {
@@ -62,11 +65,11 @@ const ManageUsers = () => {
 
     const handleCompanyChange = (selectedCompany) => {
         setSelectedCompany(selectedCompany);
-      };
-    
+    };
+
     const handleRoleChange = (selectedRoles) => {
         setSelectedRoles(selectedRoles);
-      };
+    };
 
     const handleOpenCreateModal = () => {
         setOpenCreateModal(true);
@@ -86,13 +89,13 @@ const ManageUsers = () => {
         try {
 
             setFormSubmitted(true);
-           
+
             //CREATE USER 
             const userDataWithRoles = {
                 ...userData,
                 groups: selectedRoles.map(role => role.value),
             };
-        
+
             const userResponse = await userService.createUser(userDataWithRoles);
 
             console.log(userResponse)
@@ -115,9 +118,9 @@ const ManageUsers = () => {
 
             setSnackbarMessage('User successfully created');
             setSnackbarSeverity('success');
-            setSnackbarOpen(true); 
+            setSnackbarOpen(true);
 
-            setUsers([...users, userResponse]); 
+            setUsers([...users, userResponse]);
 
             // Add a delay before refreshing the page
             setTimeout(() => {
@@ -128,7 +131,7 @@ const ManageUsers = () => {
         } catch (error) {
             setSnackbarMessage('There was a problem creating a new user');
             setSnackbarSeverity('error');
-            setSnackbarOpen(true); 
+            setSnackbarOpen(true);
         }
     };
 
@@ -137,25 +140,25 @@ const ManageUsers = () => {
 
     const fetchUsers = async () => {
         try {
-            const response = await userService.fetchUsers(); 
-            setUsers(response); 
-          } catch (error) {
+            const response = await userService.fetchUsers();
+            setUsers(response);
+        } catch (error) {
             console.error('Error fetching users:', error);
-          }
+        }
     };
 
     useEffect(() => {
         fetchUsers();
     }, []);
 
-    
+
     const fetchRoles = async () => {
         try {
-            const response = await roleService.fetchRoles(); 
-            setRoles(response); 
-          } catch (error) {
+            const response = await roleService.fetchRoles();
+            setRoles(response);
+        } catch (error) {
             console.error('Error fetching companies:', error);
-          }
+        }
     };
 
     useEffect(() => {
@@ -163,20 +166,24 @@ const ManageUsers = () => {
     }, []);
 
     const roleList = roles.map(role => ({
-        value: role.id, 
-        label: role.name 
-      }));
-    
-    const [companies, setCompanies] = useState([]); 
+        value: role.id,
+        label: role.name
+    }));
+
+    const [companies, setCompanies] = useState([]);
 
     const fetchCompanies = async () => {
         try {
-            const response = await companyService.fetchCompanies(); 
-            setCompanies(response); 
-          } catch (error) {
+            const response = await companyService.fetchCompanies();
+            setCompanies(response);
+        } catch (error) {
             console.error('Error fetching companies:', error);
-          }
+        }
     };
+
+    const handleButtonClick = (username) => {
+        navigate(`/ManageUsers/${username}`);
+      };
 
     useEffect(() => {
         fetchCompanies();
@@ -185,14 +192,14 @@ const ManageUsers = () => {
 
     const companyList = companies.map(item => ({
         value: item.id,
-        label: item.COMPANY_NAME 
-      }));
+        label: item.COMPANY_NAME
+    }));
     const emptyRole = formSubmitted & selectedRoles.length === 0;
     const emptyCompany = formSubmitted & selectedCompany.length === 0;
     const customMainContent = (
         <div>
             <ResponsiveContainer>
-            <mui.Breadcrumbs aria-label="breadcrumb">
+                <mui.Breadcrumbs aria-label="breadcrumb">
                     <mui.Link underline="hover" color="inherit" href="/Dashboard">
                         <i className="material-icons">home</i>
                     </mui.Link>
@@ -206,14 +213,14 @@ const ManageUsers = () => {
                 </mui.Breadcrumbs>
 
                 <SearchAppBar title="Manage Users" icon={<PeopleAltIcon />} />
-                
+
                 <mui.Typography sx={{ marginTop: '20px' }} variant="subtitle2" gutterBottom>
                     Create, manage, and update users
                 </mui.Typography>
 
                 <Separator />
 
-                <mui.Grid
+                {/* <mui.Grid
                     container
                     direction="row"
                     justifyContent="flex-start"
@@ -251,7 +258,45 @@ const ManageUsers = () => {
 
                     ))}
 
-                </mui.Grid>
+                </mui.Grid> */}
+
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+
+                    <ul role="list" className="divide-y divide-gray-100">
+                        {users.map((person) => (
+                            <li key={person.username} className="relative flex justify-between gap-x-6 py-3">
+                                <div className="flex min-w-0 gap-x-4">
+                                    <DynamicAvatarList names={`${person.first_name} ${person.last_name}`} />
+                                    <div className="min-w-0 flex-auto">
+                                        <p className="text-sm font-semibold text-gray-900 leading-tight">
+                                            <a href={person.href}>
+                                                <span className="absolute inset-x-0 -top-px bottom-0" />
+                                                {`${person.first_name} ${person.last_name}`}
+                                            </a>
+                                        </p>
+                                        <p className="mt-1 text-xs text-gray-500">
+                                            <a href={`mailto:${person.email}`} className=" no-underline relative truncate hover:underline text-gray-500">
+                                                {person.email}
+                                            </a>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex shrink-0 items-center gap-x-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleButtonClick(person.username)}
+                                        className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50 z-10"
+                                    >
+                                        View
+                                    </button>
+                                </div>
+
+                            </li>
+                        ))}
+                    </ul>
+
+                </div>
+
 
                 <CustomSpeedDial onClick={handleOpenCreateModal} />
 
@@ -266,56 +311,56 @@ const ManageUsers = () => {
                                 label="Username"
                                 name="username"
                                 value={userData.username}
-                                onChange={handleChange} 
-                                required={true}  
+                                onChange={handleChange}
+                                required={true}
                             />
                             <NormalTextField
                                 label="First Name"
                                 name="first_name"
                                 value={userData.first_name}
-                                onChange={handleChange} 
-                                required={true}  
+                                onChange={handleChange}
+                                required={true}
                             />
 
                             <NormalTextField
                                 label="Last Name"
                                 name="last_name"
                                 value={userData.last_name}
-                                onChange={handleChange} 
-                                required={true}  
+                                onChange={handleChange}
+                                required={true}
                             />
 
                             <NormalTextField
                                 label="Email"
                                 name="email"
                                 value={userData.email}
-                                onChange={handleChange} 
-                                required={true}  
+                                onChange={handleChange}
+                                required={true}
                             />
 
-                            <div style={{ marginTop: '18px'}}>
+                            <div style={{ marginTop: '18px' }}>
                                 <MultipleSelect
                                     isMultiSelect={true}
                                     placeholderText="Select Roles*"
                                     selectOptions={roleList}
                                     value={selectedRoles}
                                     handleChange={handleRoleChange}
-                                    required={emptyRole} 
-                                    label = "Roles"
+                                    required={emptyRole}
+                                    label="Roles"
                                 />
                             </div>
 
-                            <div style={{ marginTop: '18px'}}>
+                            <div style={{ marginTop: '18px' }}>
                                 <MultipleSelect
                                     isMultiSelect={true}
                                     placeholderText="Select Company*"
                                     selectOptions={companyList}
                                     value={selectedCompany}
                                     handleChange={handleCompanyChange}
-                                    required={emptyCompany} 
+                                    required={emptyCompany}
                                 />
                             </div>
-                           
+
                         </>
                     }
                     footer={

@@ -13,6 +13,7 @@ from appAUDITAI.Views.ADMIN.audit import *
 from appAUDITAI.Views.ADMIN.hr import *
 from appAUDITAI.Views.ADMIN.requests import *
 from appAUDITAI.Views.UTILS.emails import *
+from appAUDITAI.Views.ONBOARDING.onboarding import *
 
 
 router = DefaultRouter()
@@ -30,6 +31,7 @@ router.register(r'access/approval',AccessRequestApprovalViewSet, basename='appro
 router.register(r'hr-sftp', HRSFTPViewSet)
 router.register(r'hr-job-schedule', HRJobViewSet)
 router.register(r'applications', AppViewSet)
+router.register(r'registration', RegistrationViewSet)
 router.register(r'useraccessreview', UARViewSet)
 router.register(r'app-password/>', AppPasswordViewSetbyApp)
 router.register(r'process/provisioning', ProvisioningProcessViewSetByID, basename='provisioning')
@@ -56,6 +58,7 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), 
     path('api/', include(router.urls)),  
     path('api/companies/<uuid:companyId>/', CompanyViewSetByID.as_view, name = 'company-details' ),
+    path('api/registration/<uuid:id>/', RegistrationViewSetByID.as_view, name = 'registration-details' ),
     path('api/applications/<uuid:appId>/', AppViewSetByID.as_view, name = 'app-details' ),
     # path('api/useraccessreviewbyapp/<uuid:APP_NAME>/', UARViewSetbyApp.as_view(), name = 'uar-by-app'),
     path('api/fetch-app-password/<uuid:APP_NAME>/', AppPasswordViewSetbyID.as_view({'get': 'retrieve','post': 'create', 'put': 'update','delete': 'destroy'}), name='app-password-by-app'),
@@ -87,6 +90,7 @@ urlpatterns = [
     path('api/current_user/', current_user, name='current_user'),
     path('api/request-id/', GenerateRequestIDView.as_view(), name='generate_request_id'),
     path('api/send-approval-request/', SubmitRequestView.as_view(), name='submit_request'),
+    path('api/send-registration-confirmation/', SubmitRegistrationConfirmationView.as_view(), name='submit_registration_confirmation'),
     path('api/accessrequest/approval/<uuid:id>/', ApproveAccessRequestView.as_view(), name='approve_request'),
     path('api/accessrequest/reject/<uuid:id>/', SubmitRequestView.as_view(), name='reject_request'),
     path('api/access/myrequests/<uuid:app_id>/', AccessRequestByAppViewSet.as_view({'get': 'list'}), name='my_requests'),

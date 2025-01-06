@@ -42,7 +42,6 @@ const UserAccessReview = () => {
     const navigate = useNavigate();
 
 
-
     useEffect(() => {
         const fetchData = async () => {
             try {

@@ -315,7 +315,6 @@ const UserAccessReviewDetails = () => {
         { field: 'STATUS', headerName: 'Status', flex: 1 },
     ];
 
-
     const handleClick = (event, app) => {
         navigate(`/useraccessreview/data/${id}/${app.uarID}`)
     };
@@ -398,7 +397,7 @@ const UserAccessReviewDetails = () => {
                             columns={columns}
                             columnsWithActions={columnsWithActions}
                         />
-                    </Suspense>
+                </Suspense>
 
                 
                 <CustomSpeedDial onClick={handleCreateUAR} />

@@ -67,7 +67,10 @@ class SideBar extends Component {
         const { mainContent } = this.props;
 
         return (
-            <div className="App">
+
+            <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">{
+                
+                <div className="App">
                 <navbar>
                     <i className="material-icons" onClick={this.handleDrawer}>
                         menu
@@ -103,8 +106,12 @@ class SideBar extends Component {
               {mainContent}
             </main>
 
+                </div>
+
+            }
             </div>
-        );
+            
+                   );
     }
 }
 

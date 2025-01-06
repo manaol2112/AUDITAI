@@ -39,14 +39,6 @@ const Login = () => {
     }
   };  
 
-  const handleLogout = async (e) => {
-    e.preventDefault();
-    Cookies.remove('token');
-    Cookies.remove('groups');
-    setIsLoggedIn(false);
-    navigate('/login'); // Navigate to the login page instead
-  };
-
   return (
     <div style={{ 
       backgroundImage: `url(${backgroundImg})`, 

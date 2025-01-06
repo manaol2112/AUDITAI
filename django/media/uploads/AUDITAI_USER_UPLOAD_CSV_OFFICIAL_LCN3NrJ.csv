@@ -1,0 +1,9 @@
+﻿USER_ID,EMAIL,FIRST_NAME,LAST_NAME,ROLE,STATUS,DATE_GRANTED,DATE_REVOKED,LAST_LOGIN
+manaol2112@gmail.com,manaol2112@gmail.com,Robert John,Manaol,Administrator,Active,10/1/25,,11/8/25
+joannarosemanaol@gmail.com,joannarosemanaol@gmail.com,Joanna Rose,Manaol,AP MANAGER,Active,5/1/25,5/13/25,11/8/25
+sophiagmanaol@gmail.com,sophiagmanaol@gmail.com,Sophia Merce Test,Manaol,Administrator,Inactive,11/1/25,11/13/25,11/24/25
+sophiamerce@gmail.com,sophiamerce@gmail.com,Sophia Merce Test,Manaol,AP Accountant,Inactive,11/1/25,11/13/25,11/24/25
+robertjohnbmanaol@gmail.com,robertjohnbmanaol@gmail.com,Robert John,Manaol,Administrator,Active,11/1/25,,10/31/25
+eladriel123@gmail.com,eladriel123@gmail.com,John Eladriel,Manaol,AP Supervisor,Inactive,11/18/25,11/30/25,12/24/25
+eladriel123@gmail.com,eladriel123@gmail.com,John Eladriel,Manaol,Associate,Active,11/18/25,11/30/25,12/24/25
+test_test@gmail.com,test_test@gmail.com,test_test,TEST,Associate,Active,1/1/25,,10/31/25

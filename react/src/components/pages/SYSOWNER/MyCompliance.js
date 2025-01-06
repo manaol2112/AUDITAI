@@ -800,7 +800,7 @@ const SysOwnerCompliance = () => {
                                 <CardActionArea>
                                     <CardContent>
                                         {authPolicyViolationCount === undefined ? (
-                                            <CircularProgress /> 
+                                            <CircularProgress /> // Show loading spinner when data is not yet available
                                         ) : (
                                             <>
                                                 <mui.Typography gutterBottom variant="h4" component="div">

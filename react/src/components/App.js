@@ -52,8 +52,12 @@ import LandingPage from './pages/DEFAULT/Landingpage';
 import UserAccessReview from './pages/SYSOWNER/UserAccessReview';
 import UserAccessReviewDetails from './pages/SYSOWNER/UserAccessReviewDetails';
 import UserAccessReviewData from './pages/SYSOWNER/UserAccessReviewData';
+import Register from './pages/ONBOARDING/Registration';
 
-
+//v2
+import LoginForm from './pages/LoginForm';
+import SysOwnerDashboardv2 from './pages/SYSOWNER/SysOwnerDashboardv2';
+import Dashboardv2 from './pages/ADMIN/Dashboardv2';
 
 const App = () => {
   const token = Cookies.get('token');
@@ -69,14 +73,16 @@ const App = () => {
     <Router>
       <Routes>
         {/* Public route */}
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<LoginForm />} />
         <Route path="" element={<LandingPage />} />
+        <Route path="/register" element={<Register />} />
+
 
         {/* Private routes based on user groups */}
         {isGroupMember('Administrator') && (
           <Route path="/" element={<PrivateRoute requiredGroup="Administrator" />}>
-            <Route index path="/" element={<Dashboard />} />
-            <Route index path="/dashboard" element={<Dashboard />} />
+            <Route index path="/" element={<Dashboardv2 />} />
+            <Route index path="/dashboard" element={<Dashboardv2 />} />
             <Route path="/companies" element={<Companies />} />
             <Route path="/companies/:companyId" element={<CompanyDetails />} />
             <Route path="/systemroles" element={<SystemRoles />} />

@@ -20,6 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DynamicSnackbar from '../../common/Snackbar';
 import NormalTextField from '../../common/NormalTextField';
+import { EllipsisVerticalIcon, ArrowRightCircleIcon } from '@heroicons/react/20/solid'
 
 
 const Companies = () => {
@@ -93,6 +94,33 @@ const Companies = () => {
         }
     };
 
+    function classNames(...classes) {
+        return classes.filter(Boolean).join(' ')
+      }
+
+    // Helper function to get initials from COMPANY_NAME
+    function getInitials(name) {
+        return name
+        .split(' ')  // Split name into words
+        .map(word => word[0].toUpperCase())  // Get the first letter of each word
+        .join('');  // Join the letters together
+    }
+
+    function getRandomColor() {
+        const colors = [
+          'bg-pink-600',
+          'bg-purple-600',
+          'bg-yellow-500',
+          'bg-green-500',
+          'bg-blue-500',
+          'bg-red-500',
+          'bg-teal-500',
+          'bg-indigo-600',
+          'bg-orange-500',
+        ]
+        return colors[Math.floor(Math.random() * colors.length)] // Pick a random color
+      }
+
     const customMainContent = (
         <div>
             <ResponsiveContainer>
@@ -115,7 +143,7 @@ const Companies = () => {
                 </mui.Typography>
                 <Separator />
 
-                <mui.Grid
+                {/* <mui.Grid
                     container
                     direction="row"
                     justifyContent="flex-start"
@@ -134,8 +162,44 @@ const Companies = () => {
                             />
                         </mui.Grid>
                     ))}
-                </mui.Grid>
+                </mui.Grid> */}
 
+                <ul role="list" className="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+                    {companies.map((company) => {
+                        const randomBgColor = getRandomColor(); // Generate a random color for each company
+                        return (
+                            <li key={company.COMPANY_ID} className="col-span-1 flex rounded-md shadow-sm">
+                                <div
+                                    className={classNames(
+                                        randomBgColor,  // Dynamically apply the random background color
+                                        'flex w-16 shrink-0 items-center justify-center rounded-l-md text-sm font-medium text-white',
+                                    )}
+                                >
+                                    {getInitials(company.COMPANY_NAME)}  {/* Display initials */}
+                                </div>
+                                <div className="flex flex-1 items-center justify-between truncate rounded-r-md border-b border-r border-t border-gray-200 bg-white">
+                                    <div className="flex-1 truncate px-4 py-2 text-sm">
+                                   
+                                            {company.COMPANY_ID} {/* Company Name */}
+                                    
+                                        <p className="text-gray-500">{company.COMPANY_NAME}</p> {/* You can customize this part based on the available data */}
+                                    </div>
+                                    <div className="shrink-0 pr-2">
+                                        <button
+                                            type="button"
+                                            className="inline-flex size-8 items-center justify-center rounded-full bg-transparent bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                        >
+                                            <span className="sr-only">Open options</span>
+                                            <a href={`/companies/${company.id}`} className="inline-flex items-center text-gray-400 hover:text-gray-500">
+                                                <ArrowRightCircleIcon aria-hidden="true" className="size-5" />
+                                            </a>
+                                        </button>
+                                    </div>
+                                </div>
+                            </li>
+                        );
+                    })}
+                </ul>
 
                 <CustomSpeedDial onClick={handleOpenCreateModal} />
 

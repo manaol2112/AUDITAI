@@ -14,6 +14,12 @@ class HRSerializer(serializers.ModelSerializer):
         model = HR_RECORD
         fields = '__all__'
 
+class RegistrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ALPHAREGISTRATION
+        fields = '__all__'
+
+
 class UARSerializer(serializers.ModelSerializer):
     class Meta:
         model = UAR_FILE

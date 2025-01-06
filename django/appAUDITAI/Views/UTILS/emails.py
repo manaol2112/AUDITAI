@@ -266,3 +266,83 @@ class SubmitRequestView(APIView):
                 self.send_email(approver.EMAIL_ADDRESS, subject, body)
 
             return Response({'message': 'Request submitted successfully and emails sent to approvers.'}, status=status.HTTP_200_OK)
+        
+
+class SubmitRegistrationConfirmationView(APIView):
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        first_name = data.get('FIRST_NAME')
+        last_name = data.get('LAST_NAME')
+        email = data.get('EMAIL')
+
+        if email:
+                
+                subject = f"Welcome to AUDIT-AI!"
+        
+                body = f"""
+                <html>
+                    <body style="font-family: Arial, sans-serif; color: #333333; line-height: 1.6;">
+                        <p>Dear {first_name} {last_name},</p>
+
+                        <p>Congratulations and welcome to the <strong>Audit-AI</strong> family! 🎉</p>
+
+                        <p>We are excited to have you join our community of innovators who are transforming the way businesses approach auditing and AI-driven insights. Your journey towards a smarter, more efficient audit process starts now, and we couldn’t be more thrilled to support you every step of the way.</p>
+
+                        <p><strong>What’s Next?</strong></p>
+                        <ul>
+                            <li><strong>Access Your Dashboard:</strong> Log in to your account <a href="https://audit-ai.net/login" style="color: #1E90FF;">here</a> to access your personalized dashboard where you can manage settings and monitor activity.</li>
+                            <li><strong>Set Up Your Profile:</strong> Make sure your profile is complete to unlock personalized features and recommendations. For help, check out our <a href="#" style="color: #1E90FF;">Help Center</a>.</li>
+                            <li><strong>Explore Our Resources:</strong> Dive into our <a href="#" style="color: #1E90FF;">Knowledge Base</a> and <a href="#" style="color: #1E90FF;">Video Tutorials</a> to get familiar with Audit-AI’s powerful features.</li>
+                            <li><strong>Reach Out for Support:</strong> Our team is here to assist you. If you have any questions, contact us at <a href="mailto:support@auditai.com" style="color: #1E90FF;">support@auditai.com</a>.</li>
+                            <li><strong>Stay Updated:</strong> Follow us on social media for updates, tips, and more. You can find us on <a href="#" style="color: #1E90FF;">LinkedIn</a>, <a href="#" style="color: #1E90FF;">Twitter</a>, and <a href="#" style="color: #1E90FF;">Facebook</a>.</li>
+                        </ul>
+
+                        <p>If you have not authorized this registration or believe this was done in error, please contact our admin team at your convenience.</p>
+
+                        <p>Thank you for choosing <strong>Audit-AI</strong>! We look forward to helping you achieve your goals and make your audit process smarter and more efficient.</p>
+
+                        <br><br>
+                        <p>Best regards,</p>
+                        <p><strong>The Audit-AI Team</strong></p>
+                        <p><a href="#" style="color: #1E90FF;">Website</a> | <a href="mailto:support@auditai.com" style="color: #1E90FF;">Contact Support</a></p>
+                    </body>
+                </html>
+                """
+                
+                # Send email to the approver
+                self.send_email(email, subject, body)
+
+        return Response({'message': 'Request submitted successfully and emails sent to approvers.'}, status=status.HTTP_200_OK)
+    
+    def send_email(self, to_email, subject, body):
+        try:
+            # Create the SendGrid client
+        
+            sg = SendGridAPIClient(api_key=SENDGRID_API_KEY)
+            
+
+            # Define from and to email addresses
+            from_email = Email('manaol2112@gmail.com')  # Replace with your verified SendGrid sender email
+            to_email_obj = To(to_email)  # SendGrid To object, which encapsulates the email address
+            content = Content("text/html", body)
+            mail = Mail(from_email, to_email_obj, subject, content)
+
+            # Send the email
+            response = sg.send(mail)
+
+            # Debug output
+            print(f"SendGrid Response Status: {response.status_code}")
+            print(f"SendGrid Response Headers: {response.headers}")
+
+            if response.status_code != 202:
+                print(f"Failed to send email. Response body: {response.body}")
+                return None
+
+            # Log the successful email delivery
+            print(f"Email sent to {to_email_obj.email} with status code {response.status_code}")
+            return response
+
+        except Exception as e:
+            print(f"Error sending email: {str(e)}")
+            return None

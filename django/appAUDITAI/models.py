@@ -594,13 +594,13 @@ class OE_TESTING(models.Model):
 
 class ALPHAREGISTRATION(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    FIRST_NAME = models.CharField(max_length=25,blank=True,null=True)
-    LAST_NAME = models.CharField(max_length=25,blank=True,null=True)
-    COMPANY = models.CharField(max_length=25,blank=True,null=True)
-    EMAIL = models.CharField(max_length=25,blank=True,null=True)
+    FIRST_NAME = models.CharField(max_length=100,blank=True,null=True)
+    LAST_NAME = models.CharField(max_length=100,blank=True,null=True)
+    COMPANY = models.CharField(max_length=100,blank=True,null=True)
+    EMAIL = models.CharField(max_length=1000,blank=True,null=True)
     MESSAGE = models.CharField(max_length=25,blank=True,null=True)
-    DATE_REGISTERED =models.DateField(null=True,blank=True)
-
+    DATE_REGISTERED =models.DateField(null=True,auto_now_add=True,blank=True)
+    REFERRER = models.CharField(max_length=100,blank=True,null=True)
     class Meta:
         managed = True
         db_table = 'ALPHA_REG'
