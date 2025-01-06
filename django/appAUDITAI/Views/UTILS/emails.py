@@ -282,32 +282,36 @@ class SubmitRegistrationConfirmationView(APIView):
         
                 body = f"""
                 <html>
-                    <body style="font-family: Arial, sans-serif; color: #333333; line-height: 1.6;">
-                        <p>Dear {first_name} {last_name},</p>
+                    <body style="font-family: Arial, sans-serif; color: #333333; line-height: 1.6; background: #f8f9fa; padding: 20px;">
+                        <div style="max-width: 600px; margin: 0 auto; background: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+                            <p style="color: #333333;">Dear {first_name} {last_name},</p>
 
-                        <p>Congratulations and welcome to the <strong>Audit-AI</strong> family! 🎉</p>
+                            <p style="font-size: 18px; color: #0D6EFD; font-weight: bold;">Congratulations and welcome to the <strong>Audit-AI</strong> family! 🎉</p>
 
-                        <p>We are excited to have you join our community of innovators who are transforming the way businesses approach auditing and AI-driven insights. Your journey towards a smarter, more efficient audit process starts now, and we couldn’t be more thrilled to support you every step of the way.</p>
+                            <p>We are excited to have you join our community of innovators who are transforming the way businesses approach auditing and AI-driven insights. Your journey towards a smarter, more efficient audit process starts now, and we couldn’t be more thrilled to support you every step of the way.</p>
 
-                        <p><strong>What’s Next?</strong></p>
-                        <ul>
-                            <li><strong>Access Your Dashboard:</strong> Log in to your account <a href="https://audit-ai.net/login" style="color: #1E90FF;">here</a> to access your personalized dashboard where you can manage settings and monitor activity.</li>
-                            <li><strong>Set Up Your Profile:</strong> Make sure your profile is complete to unlock personalized features and recommendations. For help, check out our <a href="#" style="color: #1E90FF;">Help Center</a>.</li>
-                            <li><strong>Explore Our Resources:</strong> Dive into our <a href="#" style="color: #1E90FF;">Knowledge Base</a> and <a href="#" style="color: #1E90FF;">Video Tutorials</a> to get familiar with Audit-AI’s powerful features.</li>
-                            <li><strong>Reach Out for Support:</strong> Our team is here to assist you. If you have any questions, contact us at <a href="mailto:support@auditai.com" style="color: #1E90FF;">support@auditai.com</a>.</li>
-                            <li><strong>Stay Updated:</strong> Follow us on social media for updates, tips, and more. You can find us on <a href="#" style="color: #1E90FF;">LinkedIn</a>, <a href="#" style="color: #1E90FF;">Twitter</a>, and <a href="#" style="color: #1E90FF;">Facebook</a>.</li>
-                        </ul>
+                            <p><strong style="font-size: 16px; color: #0D6EFD;">What’s Next?</strong></p>
+                            <ul style="padding-left: 20px; color: #555555;">
+                                <li><strong>Access Your Dashboard:</strong> Log in to your account <a href="https://audit-ai.net/login" style="color: #0D6EFD;">here</a> to access your personalized dashboard where you can manage settings and monitor activity.</li>
+                                <li><strong>Set Up Your Profile:</strong> Make sure your profile is complete to unlock personalized features and recommendations. For help, check out our <a href="#" style="color: #0D6EFD;">Help Center</a>.</li>
+                                <li><strong>Explore Our Resources:</strong> Dive into our <a href="#" style="color: #0D6EFD;">Knowledge Base</a> and <a href="#" style="color: #0D6EFD;">Video Tutorials</a> to get familiar with Audit-AI’s powerful features.</li>
+                                <li><strong>Reach Out for Support:</strong> Our team is here to assist you. If you have any questions, contact us at <a href="mailto:support@auditai.com" style="color: #0D6EFD;">support@auditai.com</a>.</li>
+                                <li><strong>Stay Updated:</strong> Follow us on social media for updates, tips, and more. You can find us on <a href="#" style="color: #0D6EFD;">LinkedIn</a>, <a href="#" style="color: #0D6EFD;">Twitter</a>, and <a href="#" style="color: #0D6EFD;">Facebook</a>.</li>
+                            </ul>
 
-                        <p>If you have not authorized this registration or believe this was done in error, please contact our admin team at your convenience.</p>
+                            <p>If you have not authorized this registration or believe this was done in error, please contact our admin team at your convenience.</p>
 
-                        <p>Thank you for choosing <strong>Audit-AI</strong>! We look forward to helping you achieve your goals and make your audit process smarter and more efficient.</p>
+                            <p>Thank you for choosing <strong>Audit-AI</strong>! We look forward to helping you achieve your goals and make your audit process smarter and more efficient.</p>
 
-                        <br><br>
-                        <p>Best regards,</p>
-                        <p><strong>The Audit-AI Team</strong></p>
-                        <p><a href="#" style="color: #1E90FF;">Website</a> | <a href="mailto:support@auditai.com" style="color: #1E90FF;">Contact Support</a></p>
+                            <br><br>
+                            <p>Best regards,</p>
+                            <p><strong>The Audit-AI Team</strong></p>
+                            <p><a href="#" style="color: #0D6EFD;">Website</a> | <a href="mailto:support@auditai.com" style="color: #0D6EFD;">Contact Support</a></p>
+                        </div>
                     </body>
                 </html>
+
+
                 """
                 
                 # Send email to the approver
