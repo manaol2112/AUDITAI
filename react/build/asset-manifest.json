@@ -1,17 +1,33 @@
 {
   "files": {
-    "main.css": "/static/css/main.3df65eb2.css",
-    "main.js": "/static/js/main.76d1901a.js",
+    "main.css": "/static/css/main.e6959a9a.css",
+    "main.js": "/static/js/main.4b980b7c.js",
     "static/js/453.22c76e41.chunk.js": "/static/js/453.22c76e41.chunk.js",
+    "static/media/iStock-1544760741.jpg": "/static/media/iStock-1544760741.1bb1f4831e113e089547.jpg",
     "static/media/techAI.jpg": "/static/media/techAI.7e9d4b7bf55d4b0ca427.jpg",
+    "static/media/Compliance Module.png": "/static/media/Compliance Module.277e98c5446ad3150eb5.png",
+    "static/media/Access Request Module.png": "/static/media/Access Request Module.5d725d8de9ad2cce2741.png",
+    "static/media/SOX Module.png": "/static/media/SOX Module.922de5760a1d3ee40cc9.png",
+    "static/media/User Access Review Module.png": "/static/media/User Access Review Module.3d10d0d3d3b5de5f7a30.png",
+    "static/media/reporting.png": "/static/media/reporting.8e21c7236fdce41656ff.png",
+    "static/media/background-features.jpg": "/static/media/background-features.8ba630fe852a0cfc2c76.jpg",
+    "static/media/expenses.png": "/static/media/expenses.ec22dfc3499a3b313728.png",
+    "static/media/payroll.png": "/static/media/payroll.4a31cb5160ad799713e8.png",
+    "static/media/vat-returns.png": "/static/media/vat-returns.318c726e40e2ae31349b.png",
     "static/media/logo.jpeg": "/static/media/logo.a2159163a4c1d4bf53f2.jpeg",
+    "static/media/statamic.svg": "/static/media/statamic.e8d01f5234e0839cce6000a0c2d1f646.svg",
+    "static/media/statickit.svg": "/static/media/statickit.8d31af0ef54bdd5ddc66505859392591.svg",
+    "static/media/laravel.svg": "/static/media/laravel.838512329f04d53f9cfc21d28b5a783e.svg",
+    "static/media/transistor.svg": "/static/media/transistor.f10e2de3ec069e0890215d270215e499.svg",
+    "static/media/mirage.svg": "/static/media/mirage.53dd91daf2c826dae0303e77d37a741c.svg",
+    "static/media/tuple.svg": "/static/media/tuple.e4b81f6adfbf537090d64bed4dac02c4.svg",
     "index.html": "/index.html",
-    "main.3df65eb2.css.map": "/static/css/main.3df65eb2.css.map",
-    "main.76d1901a.js.map": "/static/js/main.76d1901a.js.map",
+    "main.e6959a9a.css.map": "/static/css/main.e6959a9a.css.map",
+    "main.4b980b7c.js.map": "/static/js/main.4b980b7c.js.map",
     "453.22c76e41.chunk.js.map": "/static/js/453.22c76e41.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.3df65eb2.css",
-    "static/js/main.76d1901a.js"
+    "static/css/main.e6959a9a.css",
+    "static/js/main.4b980b7c.js"
   ]
 }
