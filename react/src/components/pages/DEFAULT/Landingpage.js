@@ -44,13 +44,14 @@ const LandingPage = () => {
                         <ul>
                             <li><a href="/solutions">Updates</a></li>
                             <li><a href="/solutions">Resources</a></li>
-                            <li><a href="/resources">Contact Us</a></li>
+                            <li><a href="mailto:support@auditai.com">Contact Us</a></li>
+
                         </ul>
                     </nav>
 
                     {/* Call to Action (CTA) Buttons */}
                     <div className="cta-buttons">
-                        <a href="/request-demo" className="btn">Join Waitlist</a>
+                        <a href="/register" className="btn">Join Waitlist</a>
                         <a href="/login" className="btn">Login</a>
                     </div>
                 </div>

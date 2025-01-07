@@ -114,7 +114,7 @@ const LoginForm = () => {
           <p className="mt-10 text-center text-sm text-gray-500">
             Not a member?{' '}
             <a href="/register" className="font-semibold text-[#0D6EFD] hover:text-[#0a58ca]">
-              Sign-up for a free demo
+              Register for a free demo
             </a>
           </p>
         </div>

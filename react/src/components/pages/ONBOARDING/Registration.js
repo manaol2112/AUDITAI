@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { SelectField, TextField } from '../../common/Fields';
+import { SelectField } from '../../common/Fields';
+import { TextField } from '../../common/Fields';
 import { SlimLayout } from '../../common/SlimLayout';
 import logo from '../../../assets/images/logo.jpeg';
 import OnboardingService from '../../../services/OnboardingService';
@@ -80,7 +81,7 @@ export default function Register() {
         </a>
       </div>
       <h2 className="mt-10 text-lg font-semibold text-gray-900 text-center">
-        Get started for free
+      Join our Waitlist and Be the First to Experience the Future of Audit — For Free!
       </h2>
       <p className="mt-2 text-sm text-gray-700 text-center">
         Already registered?{' '}
@@ -171,7 +172,7 @@ export default function Register() {
             className="flex w-full justify-center rounded-md bg-[#0D6EFD] px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-[#0a58ca] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0D6EFD]"
           >
             <span>
-              Sign up <span aria-hidden="true">&rarr;</span>
+             Submit
             </span>
           </button>
         </div>

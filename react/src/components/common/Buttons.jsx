@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import clsx from 'clsx'
 
 const baseStyles = {
@@ -36,11 +35,12 @@ export function Button({ className, ...props }) {
         ? variantStyles.solid[props.color]
         : undefined,
     className,
+    props.href ? 'no-underline' : '' // Prevent underline if it's an <a> tag
   )
 
   return typeof props.href === 'undefined' ? (
     <button className={className} {...props} />
   ) : (
-    <Link className={className} {...props} />
+    <a className={className} {...props} />
   )
 }

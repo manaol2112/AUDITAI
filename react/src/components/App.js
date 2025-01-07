@@ -53,6 +53,7 @@ import UserAccessReview from './pages/SYSOWNER/UserAccessReview';
 import UserAccessReviewDetails from './pages/SYSOWNER/UserAccessReviewDetails';
 import UserAccessReviewData from './pages/SYSOWNER/UserAccessReviewData';
 import Register from './pages/ONBOARDING/Registration';
+import LandingPagev2 from './pages/ONBOARDING/LandingPagev2';
 
 //v2
 import LoginForm from './pages/LoginForm';
@@ -74,7 +75,7 @@ const App = () => {
       <Routes>
         {/* Public route */}
         <Route path="/login" element={<LoginForm />} />
-        <Route path="" element={<LandingPage />} />
+        <Route path="" element={<LandingPagev2 />} />
         <Route path="/register" element={<Register />} />
 
 

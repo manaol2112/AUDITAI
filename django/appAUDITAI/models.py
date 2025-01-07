@@ -535,7 +535,6 @@ class WORKPAPER_DETAILS(models.Model):
     FINAL_CONCLUSION = models.CharField(max_length=25,blank=True,null=True)
     FINAL_CONCLUSION_RATIONALE =  models.TextField(null=True,blank=True)
     
-
     class Meta:
         managed = True
         db_table = 'WORKPAPER_DETAILS'
@@ -601,6 +600,7 @@ class ALPHAREGISTRATION(models.Model):
     MESSAGE = models.CharField(max_length=25,blank=True,null=True)
     DATE_REGISTERED =models.DateField(null=True,auto_now_add=True,blank=True)
     REFERRER = models.CharField(max_length=100,blank=True,null=True)
+    
     class Meta:
         managed = True
         db_table = 'ALPHA_REG'
