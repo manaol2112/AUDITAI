@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from appAUDITAI.Views.UTILS.serializers import *
-from rest_framework.generics import RetrieveAPIView
+from rest_framework.generics import RetrieveAPIView,  ListAPIView
 from django.contrib.auth.models import *
 from rest_framework.decorators import action
 from rest_framework import viewsets, status
@@ -40,15 +40,14 @@ class HRSFTPViewSet(viewsets.ModelViewSet):
 class HRSFTPViewSetbyID(viewsets.ModelViewSet):
     queryset = HR_LIST_SFTP.objects.all()
     serializer_class = HRSFTPSerializer
-    lookup_field = "id"
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated, isAdministrator]
 
 
-class HRSFTPViewSetbyID(viewsets.ModelViewSet):
-    queryset = HR_LIST_SFTP.objects.all()
-    serializer_class = HRSFTPSerializer
-    lookup_field = "id"
+class APPSFTPViewSetbyID(viewsets.ModelViewSet):
+    queryset = APP_USER_SFTP.objects.all()
+    serializer_class = APPSFTPSerializer
+    lookup_field = "APP_NAME"
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated, isAdministrator]
 
@@ -58,6 +57,67 @@ class HRJobViewSet(viewsets.ModelViewSet):
     lookup_field = "id"
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated, isAdministrator]
+
+class AppJobViewSet(viewsets.ModelViewSet):
+    queryset = APP_JOB_PULL.objects.all()
+    serializer_class = AppJobSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, isAdministrator]
+    lookup_field = "APP_NAME"  # Use APP_NAME as the lookup field
+
+class AppJobViewSetByID(ListAPIView):
+    serializer_class = AppJobSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, isAdministrator]
+    lookup_field = "APP_NAME"  # Use APP_NAME as the lookup field
+    
+    def get_queryset(self):
+        # Get the APP_NAME from the URL
+        app_name = self.kwargs.get('APP_NAME')
+        
+        if app_name:
+            return APP_JOB_PULL.objects.filter(APP_NAME=app_name)
+        
+class AppJobUserLogFetchViewSetByID(ListAPIView):
+    serializer_class = JobUserFetchLogSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, isAdministrator]
+    lookup_field = "APP_NAME"  # Use APP_NAME as the lookup field
+    
+    def get_queryset(self):
+        # Get the APP_NAME from the URL
+        app_name = self.kwargs.get('APP_NAME')
+        
+        if app_name:
+            return APP_JOB_USER_LOG.objects.filter(APP_NAME=app_name)
+        
+class JobAlertViewSet(viewsets.ModelViewSet):
+    queryset = JOB_ALERT_RECIPIENT.objects.all()
+    serializer_class = JobAlertSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, isAdministrator]
+    lookup_field = "APP_NAME" 
+
+class JobAlertSetByID(ListAPIView):
+    serializer_class = JobAlertSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, isAdministrator]
+    lookup_field = "APP_NAME"  # Use APP_NAME as the lookup field
+    
+    def get_queryset(self):
+        # Get the APP_NAME from the URL
+        app_name = self.kwargs.get('APP_NAME')
+        
+        if app_name:
+            return JOB_ALERT_RECIPIENT.objects.filter(APP_NAME=app_name)
+        
+class JobAlertHRViewSet(viewsets.ModelViewSet):
+    queryset = JOB_ALERT_HR_RECIPIENT.objects.all()
+    serializer_class = JobAlertHRSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, isAdministrator]
+    lookup_field = "id"  # Use APP_NAME as the lookup field
+
 
 class HRJobViewSetbyID(viewsets.ModelViewSet):
     queryset = HR_JOB_PULL.objects.all()
@@ -73,6 +133,12 @@ class HR_Data_MappingViewSet(viewsets.ModelViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated, isAdministrator]
 
+class HRJobLogView(viewsets.ModelViewSet):
+    queryset = HR_RECORD_IMPORT_LOG.objects.all()
+    serializer_class = HRLogSerializer
+    lookup_field = "id"
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, isAdministrator]
 
 class HR_Data_MappingViewSetbyID(viewsets.ModelViewSet):
     queryset = HR_DATA_MAPPING.objects.all()
@@ -385,3 +451,5 @@ class HRDataMappingView(APIView):
 
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+

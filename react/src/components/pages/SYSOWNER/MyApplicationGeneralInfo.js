@@ -36,7 +36,7 @@ const MyApplicationGeneralInfo = () => {
     const [toolList, setToolList] = useState([]);
     const [networkList, setNetworkList] = useState([]);
     const saveTimeout = useRef(null);
-    const [pwExist, setPWExist] = useState([]);
+    const [pwExist, setPWExist] = useState(false);
 
     const [geninfo, setGenInfo] = useState(false);
     const [userdata, setUserData] = useState(false);
@@ -48,6 +48,7 @@ const MyApplicationGeneralInfo = () => {
     const [hostingTypeVisibility, setHostingTypeVisibility] = useState('none');
 
     const [passwordData, setPasswordData] = useState({});
+
 
 
     const Item = styled(Paper)(({ theme }) => ({
@@ -67,8 +68,7 @@ const MyApplicationGeneralInfo = () => {
         };
 
         setSelectedApps(updatedData);
-        // Immediately save on blur without debounce
-        saveChanges(updatedData);
+    
     };
 
     const handleChange = (e) => {
@@ -105,6 +105,7 @@ const MyApplicationGeneralInfo = () => {
     const handleDevChange = (selectedType) => {
 
         const devtype = selectedType.value
+
         setSelectedDev(selectedType)
 
         const updatedData = {
@@ -193,16 +194,20 @@ const MyApplicationGeneralInfo = () => {
         saveChanges(updatedData);
     };
 
-    //TRIGGER THE CHECKMARK
+    // TRIGGER THE CHECKMARK
     useEffect(() => {
         visibleCheckMark();
-    }, [selectedApps, passwordData]);
+    },[id, selectedApps, passwordData]);
 
 
     //SAVE CHANGES TO THE APPLICATION RECORD
     const saveChanges = async (updatedData) => {
         try {
             const response = await appService.updateApp(id, updatedData);
+            if (response) {
+                setSelectedApps(response)
+                
+            }
         } catch (error) {
             console.error('Error saving changes:', error);
         }
@@ -210,35 +215,34 @@ const MyApplicationGeneralInfo = () => {
 
     //SAVE PASSWORD RECORD
     const savePWChanges = async (updatedData) => {
-        if (updatedData) {
-            let passwordFound;
-            try {
-                passwordFound = await appPasswordService.fetchAppPasswordByApp(id);
-            } catch (error) {
-                if (error.response && error.response.status === 404) {
-                    const newData = { ...updatedData, APP_NAME: id };
-                    const newRecord = await appPasswordService.createAppPassword(newData);
-                    setPasswordData(newRecord)
-                    setPWExist(true)
-                    console.log("New Password Data Created")
-                } else {
-                    // Handle other types of errors
-                    console.error('Error mapping record:', error);
-                }
+        try {
+            let updatedRecord;
+
+            console.log(pwExist)
+    
+            if (pwExist) {
+                // Update the existing password data
+                updatedRecord = await appPasswordService.updateAppPassword(id, updatedData);
+                console.log("Updated Password");
+                setPasswordData(updatedRecord);
+                setPWExist(true);
+             
+            } else {
+                // Create new password data if it doesn't exist
+                const newData = { ...updatedData, APP_NAME: id };
+                updatedRecord = await appPasswordService.createAppPassword(newData);
+                console.log("New Password Data Created");
+                setPasswordData(updatedRecord);
+                setPWExist(true);
+               
             }
-            if (passwordFound){
-                try {
-                    const updated_record =  await appPasswordService.updateAppPassword(id, updatedData);
-                    setPasswordData(updated_record)
-                    setPWExist(true)
-                    console.log("Updated Password")
-                } catch (error) {
-                    console.error('Error updating record:', error);
-                }
-            }
+            
+    
+        } catch (error) {
+            console.error('Error saving password data:', error);
         }
-        
     };
+    
     
     const typeOptions = [
         { value: 'Application', label: 'Application' },
@@ -290,12 +294,11 @@ const MyApplicationGeneralInfo = () => {
             const appsByIdResponse = await fetchWithErrorHandling(() => appService.fetchAppsById(id));
             
             // Fetch other categories concurrently
-            const [OSResponse, DBResponse, NetworkResponse, ToolResponse, appPWResponse] = await Promise.all([
+            const [OSResponse, DBResponse, NetworkResponse, ToolResponse] = await Promise.all([
                 fetchWithErrorHandling(() => appService.fetchAppsByType(OS)),
                 fetchWithErrorHandling(() => appService.fetchAppsByType(DB)),
                 fetchWithErrorHandling(() => appService.fetchAppsByType(NETWORK)),
                 fetchWithErrorHandling(() => appService.fetchAppsByType(TOOL)),
-                fetchWithErrorHandling(() => appPasswordService.fetchAppPasswordbyID(id))
             ]);
     
             // Process appByIdResponse if available
@@ -323,13 +326,7 @@ const MyApplicationGeneralInfo = () => {
             }
     
             // Process appPWResponse if available
-            if (appPWResponse) {
-                setPasswordData(appPWResponse);
-                setPWExist(true);
-            } else {
-                setPasswordData([]);
-                setPWExist(false);
-            }
+           
     
             // Process OSResponse if available
             if (OSResponse) {
@@ -393,11 +390,32 @@ const MyApplicationGeneralInfo = () => {
                 setToolList([]);
             }
         };
-    
+
+        const fetchAppPassword = async () => {
+            try {
+                const appPWResponse = await appPasswordService.fetchAppPasswordbyID(id)
+                console.log('This is the password data', appPWResponse);
+
+                if (appPWResponse) {
+                    if (appPWResponse) {
+                        setPasswordData(appPWResponse);
+                        setPWExist(true);
+                    } else {
+                        setPWExist(false);
+                    }
+                } else {
+                    setPWExist(false);
+                }
+            } catch (error) {
+                console.error(`Error fetching password data: ${error.message}`);
+            }
+        };
+
         fetchData();
+        fetchAppPassword();
+   
     }, [id]);
     
-
 
     const handleHostingTypeVisibility = () => {
         return hostingTypeVisibility;
@@ -435,12 +453,14 @@ const MyApplicationGeneralInfo = () => {
             ...passwordData,
             [name]: value
         };
+
+        setPasswordData(updatedData)
+
         // Save changes with the updated state
         saveTimeout.current = setTimeout(() => {
             savePWChanges(updatedData);
         }, 1000); 
 
-        setPasswordData(updatedData);
     }
 
     const handlePWBlur = (e) => {
@@ -450,16 +470,13 @@ const MyApplicationGeneralInfo = () => {
             ...passwordData,
             [name]: value
         };
-
         setPasswordData(updatedData)
-      
-        savePWChanges(updatedData);
     };
 
     const isNonEmptyString = (value) => typeof value === 'string' && value.trim() !== '';
     const isValidInteger = (value) => Number.isInteger(value) && value > 0;
 
-    const visibleCheckMark = () => {
+    const visibleCheckMark = async () => {
 
         let generalInfoValid = false;
         let infrastructureValid = false;
@@ -536,24 +553,26 @@ const MyApplicationGeneralInfo = () => {
             authenticationValid = false;
            
         }
-  
-        const isGenInfoValid = generalInfoValid && infrastructureValid && authenticationValid;
 
-        if (isGenInfoValid) {
+        if (generalInfoValid && infrastructureValid &&authenticationValid ) {
+            console.log("General information is ready for audit")
 
             const updatedData = {
                 ...selectedApps,
                 SETUP_GENINFO: true
             };
+            
+            const gen_info_ready = await appService.updateApp(id, updatedData )
 
-            saveChanges(updatedData)
-          
         } else {
+            console.log('Need to be updated')
+
             const updatedData = {
                 ...selectedApps,
                 SETUP_GENINFO: false
             };
-            saveChanges(updatedData)
+
+            const gen_info_ready = await appService.updateApp(id, updatedData )
         }
 
     };

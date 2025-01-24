@@ -47,6 +47,7 @@ const SysOwnerCompliance = () => {
     const [withProvExceptions, setWithProvExceptions] = useState([]);
     const [authCount, setAuthCount] = useState([]);
     const [authPolicyViolationCount, setAuthPolicyViolationCount] = useState([]);
+    const [compliantCount, setCompliantCount] = useState([]);
     const [authIncompleteCount, setAuthIncompleteCount] = useState([]);
     const [openPasswordModal, setOpenPasswordModal] = useState(false);
     const [openProvisioningModal, setOpenProvisioningModal] = useState(false);
@@ -137,6 +138,13 @@ const SysOwnerCompliance = () => {
 
                             const policyViolationTocount = ['Needs Review'];
                             const incompleteTocount = ['Incomplete Setup'];
+                            const compliantTocount = ['Compliant']
+
+                            const compliantApp = formattedStatusCounts
+                                .filter(item => compliantTocount.includes(item.label))
+                                .reduce((total, item) => total + item.value, 0);
+
+                            setCompliantCount(compliantApp)
 
                             const policyViolation = formattedStatusCounts
                                 .filter(item => policyViolationTocount.includes(item.label))
@@ -791,6 +799,34 @@ const SysOwnerCompliance = () => {
             content: (
                 <div>
                     <mui.Grid container spacing={2} sx={{ marginBottom: '20px' }}>
+                    <mui.Grid item xs={2}>
+                            {/* <Paper sx={{ height: '200px', padding: '20px' }}>
+                                <DonutChart data={withExceptions} desc="Policy Exception" title={authPolicyViolationCount} />
+                            </Paper> */}
+
+                            <Card sx={{ maxWidth: 345 }}>
+                                <CardActionArea>
+                                    <CardContent>
+                                        {compliantCount === undefined ? (
+                                            <CircularProgress /> // Show loading spinner when data is not yet available
+                                        ) : (
+                                            <>
+                                             <mui.Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                                    Compliant
+                                                </mui.Typography>
+                                                <mui.Typography gutterBottom variant="h4" component="div">
+                                                    {compliantCount}  
+                                                </mui.Typography>
+                                               
+                                            </>
+                                        )}
+                                    </CardContent>
+                                </CardActionArea>
+                            </Card>
+
+
+                        </mui.Grid>
+                        
                         <mui.Grid item xs={2}>
                             {/* <Paper sx={{ height: '200px', padding: '20px' }}>
                                 <DonutChart data={withExceptions} desc="Policy Exception" title={authPolicyViolationCount} />
@@ -803,12 +839,13 @@ const SysOwnerCompliance = () => {
                                             <CircularProgress /> // Show loading spinner when data is not yet available
                                         ) : (
                                             <>
+                                             <mui.Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                                    Policy Exceptions
+                                                </mui.Typography>
                                                 <mui.Typography gutterBottom variant="h4" component="div">
                                                     {authPolicyViolationCount}
                                                 </mui.Typography>
-                                                <mui.Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                                    Policy Exceptions
-                                                </mui.Typography>
+                                               
                                             </>
                                         )}
                                     </CardContent>
@@ -826,12 +863,13 @@ const SysOwnerCompliance = () => {
                             <Card sx={{ maxWidth: 345 }}>
                                 <CardActionArea>
                                     <CardContent>
+                                    <mui.Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                            Incomplete Setup
+                                        </mui.Typography>
                                         <mui.Typography gutterBottom variant="h4" component="div">
                                             {authIncompleteCount}
                                         </mui.Typography>
-                                        <mui.Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                            Incomplete Setup
-                                        </mui.Typography>
+                                       
                                     </CardContent>
                                 </CardActionArea>
 

@@ -154,10 +154,40 @@ class HRSFTPSerializer(serializers.ModelSerializer):
         model = HR_LIST_SFTP
         fields = '__all__' 
 
+class APPSFTPSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = APP_USER_SFTP
+        fields = '__all__' 
+
 class HRJobSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HR_JOB_PULL
+        fields = '__all__'
+
+
+class AppJobSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = APP_JOB_PULL
+        fields = '__all__'
+
+class JobAlertSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = JOB_ALERT_RECIPIENT
+        fields = '__all__'
+
+class JobAlertHRSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = JOB_ALERT_HR_RECIPIENT
+        fields = '__all__'
+
+class JobUserFetchLogSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = APP_JOB_USER_LOG
         fields = '__all__'
 
 class HRDataMappingSerializer(serializers.ModelSerializer):
@@ -169,11 +199,16 @@ class HRDataMappingSerializer(serializers.ModelSerializer):
         model = HR_DATA_MAPPING
         fields = '__all__'
 
-
 class HRLogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = HR_RECORD_IMPORT_LOG
+        fields = '__all__'
+
+class NetworkAuthSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = NETWORK_AUTH
         fields = '__all__'
 
 

@@ -7,16 +7,12 @@ import Separator from '../../layout/Separator';
 import ResponsiveContainer from '../../layout/Container';
 import RecentActorsIcon from '@mui/icons-material/RecentActors';
 import DataTable from '../../common/DataGrid';
-import appService from '../../../services/ApplicationService';
-import userService from '../../../services/UserService';
-import companyService from '../../../services/CompanyService';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import IconButton from '@mui/material/IconButton';
 import CreateOutlinedIcon from '@mui/icons-material/CreateOutlined';
 import PeopleRoundedIcon from '@mui/icons-material/PeopleRounded';
 import VerifiedUserRoundedIcon from '@mui/icons-material/VerifiedUserRounded';
 import Tooltip from '@mui/material/Tooltip';
-
 
 
 const InterfacesApp = () => {
@@ -50,13 +46,12 @@ const InterfacesApp = () => {
     };
 
     const handleEditClick = (row) => {
-        // Handle edit action, e.g., open a modal or navigate to edit page
+       
         console.log('Edit clicked for row:', row);
     };
 
     const handleActionClick = (row) => {
-        alert('Edit is clicked')
-        // Handle custom action, e.g., delete or view details
+        
         console.log('Action clicked for row:', row);
     };
 

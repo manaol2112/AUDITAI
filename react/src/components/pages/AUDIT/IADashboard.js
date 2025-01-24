@@ -96,6 +96,9 @@ const IAAuditDashboard = () => {
                         <OutlinedCard icon="stairs" title="Procedures Library" to="/Audit/ProcedureLibrary" buttonlabel="View" />
                     </mui.Grid>
                     <mui.Grid item>
+                        <OutlinedCard icon="collections_bookmark" title="Policy Library" to="/SystemRoles" buttonlabel="View" />
+                    </mui.Grid>
+                    <mui.Grid item>
                         <OutlinedCard icon="rebase_edit" title="Process Narrative" to="/SystemRoles" buttonlabel="View" />
                     </mui.Grid>
                  

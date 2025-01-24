@@ -12,6 +12,7 @@ from appAUDITAI.Views.ADMIN.policies import *
 from appAUDITAI.Views.ADMIN.audit import *
 from appAUDITAI.Views.ADMIN.hr import *
 from appAUDITAI.Views.ADMIN.requests import *
+from appAUDITAI.Views.ADMIN.network import *
 from appAUDITAI.Views.UTILS.emails import *
 from appAUDITAI.Views.ONBOARDING.onboarding import *
 
@@ -29,11 +30,17 @@ router.register(r'access/request',AccessRequestViewSet, basename='requests')
 router.register(r'access/approval',AccessRequestApprovalViewSet, basename='approval')
 # router.register(r'access/myrequests',AccessRequestByAppViewSet, basename='requestbyapp')
 router.register(r'hr-sftp', HRSFTPViewSet)
+router.register(r'app-sftp', APPSFTPViewSetbyID)
 router.register(r'hr-job-schedule', HRJobViewSet)
+router.register(r'hr-job-log', HRJobLogView)
+router.register(r'network-auth', NetworkAuthViewSet)
+router.register(r'app-job-schedule', AppJobViewSet,  basename='app_scheduling')
+router.register(r'app-job-alert', JobAlertViewSet,  basename='job_alerting')
+router.register(r'hr-job-alert', JobAlertHRViewSet,  basename='hr_job_alerting')
 router.register(r'applications', AppViewSet)
 router.register(r'registration', RegistrationViewSet)
 router.register(r'useraccessreview', UARViewSet)
-router.register(r'app-password/>', AppPasswordViewSetbyApp)
+router.register(r'app-password', AppPasswordViewSetbyApp)
 router.register(r'process/provisioning', ProvisioningProcessViewSetByID, basename='provisioning')
 router.register(r'process/termination', TerminationProcessViewSetByID, basename='termination')
 router.register(r'process/uar', UARProcessViewSetByID, basename='uar')
@@ -71,7 +78,7 @@ urlpatterns = [
     path('api/audit/workpapers/<uuid:APP_NAME>/<uuid:COMPANY_ID>/', WorkpapersViewSet.as_view({'get':'list'}), name='workpapers'),
     path('api/audit/riskmapping/delete/<uuid:APP_NAME>/<uuid:RISK_ID>/<uuid:COMPANY_ID>/', RiskMappingUpdateViewSet.as_view({'delete': 'destroy', 'put':'update'}), name='riskmapping-delete-by-app'),
     path('api/audit/mapping/controls/<uuid:APP_NAME>/<uuid:RISK_ID>/<uuid:COMPANY_ID>/', MappedControlsViewSet.as_view({'get': 'list', 'put':'update'}), name='workpaper-query'),
-    path('api/app-users/joblog/<uuid:APP_NAME>/', AppRecordLastRefreshDateByApp.as_view(), name = 'hr-data-mapping-by-id' ),
+    path('api/app-users/joblog/<uuid:APP_NAME>/', AppRecordLastRefreshDateByApp.as_view(), name = 'job-log-by-app' ),
     path('api/applications/myapp/<str:APPLICATION_OWNER>/', AppViewSetByOwner.as_view(), name='app-details-by-owner'),
     path('api/applications/myapp/company/<uuid:COMPANY_ID>/', AppViewSetByCompany.as_view(), name='app-details-by-company'),
     path('api/applications/myapp/apptype/<str:appType>/', AppViewSetByType.as_view(), name='app-details-by-type'),
@@ -95,6 +102,10 @@ urlpatterns = [
     path('api/accessrequest/reject/<uuid:id>/', SubmitRequestView.as_view(), name='reject_request'),
     path('api/access/myrequests/<uuid:app_id>/', AccessRequestByAppViewSet.as_view({'get': 'list'}), name='my_requests'),
     path('api/role-owners/<uuid:APP_NAME>/<str:ROLE_NAME>/', RoleOwnerViewSetbyID.as_view(), name='role-owner-by-id'),
-    path('api/role-owners/<uuid:APP_NAME>/', RoleOwnerViewSetbyApp.as_view(), name='role-owner-by-app')
-
-]   
+    path('api/role-owners/<uuid:APP_NAME>/', RoleOwnerViewSetbyApp.as_view(), name='role-owner-by-app'),
+    path('test_ldap/', connect_ldap, name='connect_ldap'),   
+    path('deactivate_user/', deactivate_user, name='deactive_user'), 
+    path('api/jobschedule/<uuid:APP_NAME>/', AppJobViewSetByID.as_view(), name='job-schedule'),
+    path('api/jobalert/<uuid:APP_NAME>/', JobAlertSetByID.as_view(), name='job-alert'),
+    path('api/joblog/<uuid:APP_NAME>/', AppJobUserLogFetchViewSetByID.as_view(), name='job-log'),
+]       

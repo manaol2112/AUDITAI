@@ -54,11 +54,15 @@ import UserAccessReviewDetails from './pages/SYSOWNER/UserAccessReviewDetails';
 import UserAccessReviewData from './pages/SYSOWNER/UserAccessReviewData';
 import Register from './pages/ONBOARDING/Registration';
 import LandingPagev2 from './pages/ONBOARDING/LandingPagev2';
+import InterfaceDetailsPerApp from './pages/ADMIN/InterfaceAppDetails';
+import NetworkLayer from './pages/ADMIN/NetworkSetup';
 
 //v2
 import LoginForm from './pages/LoginForm';
 import SysOwnerDashboardv2 from './pages/SYSOWNER/SysOwnerDashboardv2';
 import Dashboardv2 from './pages/ADMIN/Dashboardv2';
+import ManageApplicationsv2 from './pages/ADMIN/Applicationsv2';
+import EmployeeRecord from './pages/ADMIN/EmployeeRecord';
 
 const App = () => {
   const token = Cookies.get('token');
@@ -91,15 +95,22 @@ const App = () => {
             <Route path="/manageusers" element={<ManageUser />} />
             <Route path="/manageusers/:username" element={<ManageUsersDetails />} />
             <Route path="/security" element={<Security />} />
+            <Route path="/networklayer" element={<NetworkLayer />} />
             <Route path="/interfaces" element={<Interfaces />} />
             <Route path="/interfaces/hr" element={<InterfacesHR />} />
             <Route path="/interfaces/hr/home" element={<InterfacesHRHome />} />
             <Route path="/interfaces/hr/details" element={<InterfacesHRDetails />} />
+            <Route path="/interfaces/applications/:id" element={<InterfaceDetailsPerApp />} />
             <Route path="/interfaces/applications" element={<InterfacesApp />} />
-            <Route path="/interfaces/applications/home" element={<InterfacesAppHome />} />
+            <Route path="/interfaces/applications/home" element={<ManageApplicationsv2 />} />
             <Route path="/security/passwordconfiguration" element={<PasswordSettings />} />
-            <Route path="/applications" element={<ManageApplications />} />
+            <Route path="/applications" element={<ManageApplicationsv2 />} />
+            <Route path="/hrrecord" element={<EmployeeRecord />} />
             <Route path="/applications/:id" element={<ManageApplicationsDetails />} />
+
+            {/* Admin Path */}
+            <Route path="/applications/manageusers/:id" element={<MyApplicationManageUsers />} />
+
           </Route>
 
         )}
@@ -128,7 +139,7 @@ const App = () => {
 
         )}
 
-        {isGroupMember('Internal Auditor') && (
+        {isGroupMember('Internal Auditor')  && (
           <Route path="/" element={<PrivateRoute requiredGroup="Internal Auditor" />}>
             <Route index path="/" element={<IAAuditDashboard />} />
             <Route index path="/dashboard" element={<IAAuditDashboard />} />

@@ -209,6 +209,7 @@ class HR_RECORD(models.Model):
     CREATED_ON = models.DateField(auto_now_add=True, null=True,blank=True)
     LAST_MODIFIED = models.DateTimeField(null=True)
     MODIFIED_BY = models.CharField(max_length=50,blank=True,null=True)
+    LAST_REFRESHED = models.DateTimeField(null=True)
 
     def __str__(self):
         return f"{self.FIRST_NAME} {self.LAST_NAME}"
@@ -216,6 +217,28 @@ class HR_RECORD(models.Model):
     class Meta:
         managed = True
         db_table = 'HR_RECORD'
+
+
+class NETWORK_AUTH(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    LDAP_SERVER = models.CharField(max_length=128,blank=True,null=True)
+    LDAP_PORT = models.CharField(max_length=128,blank=True,null=True)
+    BASE_DN=models.CharField(max_length=128,blank=True,null=True)
+    BIND_DN=models.CharField(max_length=128,blank=True,null=True)
+    LDAP_PW_HASHED = models.CharField(max_length=128,blank=True,null=True)
+    def set_password(self,raw_password):
+            self.LDAP_PW_HASHED = make_password(raw_password)
+    def check_password(self,raw_password):
+            return check_password(raw_password,self.LDAP_PW_HASHED)
+    
+    def __str__(self):
+        return f"{self.LDAP_SERVER}"
+    AUTO_TERMINATE_AD = models.BooleanField(default=False, blank=True, null=True)
+    
+    class Meta:
+        managed = True
+        db_table = 'NETWORK_AUTH'
+
 
 class APP_LIST(models.Model):
     #APPLICATION LIST
@@ -772,6 +795,12 @@ class APP_USER_SFTP(models.Model):
             self.SFTP_PW_HASHED = make_password(raw_password)
     def check_password(self,raw_password):
             return check_password(raw_password,self.SFTP_PW_HASHED)
+    SFTP_SECRET_HASHED = models.CharField(max_length=128,blank=True,null=True)
+    PORT = models.CharField(max_length=128,blank=True,null=True)
+    def set_password(self,raw_password):
+            self.SFTP_SECRET_HASHED = make_password(raw_password)
+    def check_password(self,raw_password):
+            return check_password(raw_password,self.SFTP_SECRET_HASHED)
     SFTP_DIRECTORY = models.CharField(max_length=1000,blank=True,null=True)
     SFTP_DESTINATION = models.CharField(max_length=1000,blank=True,null=True)
     SETUP_COMPLETE = models.BooleanField(default=False)
@@ -798,6 +827,7 @@ class APP_JOB_PULL(models.Model):
     SATURDAY = models.BooleanField(default=False,null=True)
     SUNDAY = models.BooleanField(default=False,null=True)
     SCHEDULE_TIME = models.TimeField(null=True,blank=True)
+    STATUS = models.CharField(max_length=50,blank=True,null=True)
     #LOG
     CREATED_BY = models.CharField(max_length=50,blank=True,null=True)
     CREATED_ON = models.DateField(auto_now_add=True,null=True,blank=True)
@@ -807,6 +837,17 @@ class APP_JOB_PULL(models.Model):
     class Meta:
         managed = True
         db_table = 'USER_JOB_SCHEDULE'
+
+class JOB_ALERT_RECIPIENT(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    APP_NAME = models.ForeignKey(APP_LIST, on_delete=models.CASCADE,max_length=100,blank=True)
+    JOB_NAME = models.ForeignKey(APP_JOB_PULL, on_delete=models.DO_NOTHING, max_length=1000,blank=True,null=True)
+    RECIPIENT= models.CharField(max_length=1000,blank=True,null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'JOB_ALERT_RECIPIENT'
+
 
 class APP_JOB_USER_LOG(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -828,6 +869,7 @@ class APP_JOB_USER_LOG(models.Model):
 class APP_JOB_USER_LOG_PROCESS(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     APP_NAME = models.ForeignKey(APP_LIST, on_delete=models.CASCADE,max_length=100,blank=True,null=True)
+    JOB_NAME = models.CharField(max_length=128, null=True, blank=True)
     USER_ID = models.CharField(max_length=128, null=True, blank=True)
     JOB_DATE = models.DateTimeField(null=True,blank=False)
     JOB_FILE_DESTINATION = models.CharField(max_length=1000,null=True,blank=True)
@@ -845,11 +887,17 @@ class HR_LIST_SFTP(models.Model):
     HOST_NAME = models.CharField(max_length=1000,blank=True,null=True)
     SFTP_USERNAME = models.CharField(max_length=128,blank=True)
     SFTP_PW_HASHED = models.CharField(max_length=128,blank=True,null=True)
+    PORT = models.CharField(max_length=128,blank=True,null=True)
     def set_password(self,raw_password):
             self.SFTP_PW_HASHED = make_password(raw_password)
     def check_password(self,raw_password):
             return check_password(raw_password,self.SFTP_PW_HASHED)
     SFTP_DIRECTORY = models.CharField(max_length=1000,blank=True,null=True)
+    SFTP_SECRET_HASHED = models.CharField(max_length=128,blank=True,null=True)
+    def set_password(self,raw_password):
+            self.SFTP_SECRET_HASHED = make_password(raw_password)
+    def check_password(self,raw_password):
+            return check_password(raw_password,self.SFTP_SECRET_HASHED)
     SFTP_DESTINATION = models.CharField(max_length=1000,blank=True,null=True)
     SETUP_COMPLETE = models.BooleanField(default=False)
     AUTH_KEY = models.CharField(max_length=1000,blank=True,null=True)
@@ -875,7 +923,7 @@ class HR_JOB_PULL(models.Model):
     FRIDAY = models.BooleanField(default=False)
     SATURDAY = models.BooleanField(default=False)
     SUNDAY = models.BooleanField(default=False)
-    SCHEDULE_TIME = models.DateTimeField(null=True, blank=True)  # Changed to DateTimeField
+    SCHEDULE_TIME = models.TimeField(null=True,blank=True)
 
      #LOG
     CREATED_BY = models.CharField(max_length=50,blank=True,null=True)
@@ -896,6 +944,15 @@ class HR_JOB_USER_LOG(models.Model):
     class Meta:
         managed = True
         db_table = 'HR_JOB_USER_LOG'
+
+class JOB_ALERT_HR_RECIPIENT(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    JOB_NAME = models.ForeignKey(HR_JOB_PULL, on_delete=models.DO_NOTHING, max_length=1000,blank=True,null=True)
+    RECIPIENT= models.CharField(max_length=1000,blank=True,null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'JOB_ALERT_HR_RECIPIENT'
         
 
 class HR_RECORD_IMPORT_LOG(models.Model):
@@ -966,6 +1023,7 @@ class APP_RECORD(models.Model):
     CREATED_ON = models.DateField(auto_now_add=True,null=True,blank=True)
     LAST_MODIFIED = models.DateField(auto_now_add=True) 
     MODIFIED_BY = models.CharField(max_length=50,blank=True,null=True)
+    LAST_UPDATED = models.DateTimeField(null=True)
 
     def __str__(self):
         return f"{self.APP_NAME} - {self.USER_ID}" 

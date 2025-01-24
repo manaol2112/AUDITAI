@@ -9,9 +9,10 @@ import {
     UsersIcon,
     ComputerDesktopIcon,
     BuildingOfficeIcon,
-    LinkIcon,
+    UserGroupIcon,
     LockClosedIcon,
-    Square3Stack3DIcon
+    Square3Stack3DIcon,
+    SignalIcon
     
 } from '@heroicons/react/24/outline';
 
@@ -23,23 +24,23 @@ const Dashboardv2 = () => {
             icon: BuildingOfficeIcon,
             iconForeground: 'text-teal-700',
             iconBackground: 'bg-teal-50',
-            description: 'Manage and view your company details, add new companies or edit existing ones.'
+            description: 'Manage and view your company details, add new companies or edit existing ones'
         },
-        {
-            title: 'System Roles',
-            href: '/SystemRoles',
-            icon: ComputerDesktopIcon,
-            iconForeground: 'text-purple-700',
-            iconBackground: 'bg-purple-50',
-            description: 'Configure roles for users in your system and assign them appropriate permissions.'
-        },
+        // {
+        //     title: 'System Roles',
+        //     href: '/SystemRoles',
+        //     icon: ComputerDesktopIcon,
+        //     iconForeground: 'text-purple-700',
+        //     iconBackground: 'bg-purple-50',
+        //     description: 'Configure roles for users in your system and assign them appropriate permissions.'
+        // },
         {
             title: 'Users',
             href: '/ManageUsers',
             icon: UsersIcon,
             iconForeground: 'text-sky-700',
             iconBackground: 'bg-sky-50',
-            description: 'View, manage, and update the user accounts and their settings.'
+            description: 'View, manage, and update the user accounts and their settings'
         },
         {
             title: 'Applications',
@@ -47,7 +48,7 @@ const Dashboardv2 = () => {
             icon: Square3Stack3DIcon,
             iconForeground: 'text-yellow-700',
             iconBackground: 'bg-yellow-50',
-            description: 'Manage applications, configure integrations, and monitor system status.'
+            description: 'Manage applications, configure integrations, and monitor system status'
         },
         {
             title: 'Security',
@@ -55,15 +56,23 @@ const Dashboardv2 = () => {
             icon: LockClosedIcon,
             iconForeground: 'text-rose-700',
             iconBackground: 'bg-rose-50',
-            description: 'Set up and manage security protocols for your system.'
+            description: 'Set up and manage security protocols for your system'
         },
         {
-            title: 'Interfaces',
-            href: '/Interfaces',
-            icon: LinkIcon,
+            title: 'Employee Record',
+            href: '/hrrecord',
+            icon: UserGroupIcon,
             iconForeground: 'text-indigo-700',
             iconBackground: 'bg-indigo-50',
-            description: 'Configure external interfaces and API integrations for your system.'
+            description: 'Configure HR interfaces and API integrations for your system'
+        },
+        {
+            title: 'Network Layer Setup',
+            href: '/networklayer',
+            icon: SignalIcon,
+            iconForeground: 'text-orange-700',
+            iconBackground: 'bg-orange-50',
+            description: 'Configure network interfaces and manage automated access management'
         },
     ];
 

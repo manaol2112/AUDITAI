@@ -12,10 +12,25 @@ const SFTPService = {
     return response.data;
 },
 
+  fetchAppSFTPById: async (appID) => {
+    const response = await axiosInstance.get(`app-sftp/${appID}/`);
+    return response.data;
+  },
+
   createSFTP: async (sftpData) => {
     const response = await axiosInstance.post(`hr-sftp/`, sftpData);
     return response.data;
   }, 
+
+  createAppSFTP: async (sftpData) => {
+    const response = await axiosInstance.post(`app-sftp/`, sftpData);
+    return response.data;
+  }, 
+
+  updateAppSFTP: async (sftpId, sftpData) => {
+    const response = await axiosInstance.put(`app-sftp/${sftpId}/`, sftpData);
+    return response.data;
+  },
 
   updateSFTP: async (sftpId, sftpData) => {
     const response = await axiosInstance.put(`hr-sftp/${sftpId}/`, sftpData);

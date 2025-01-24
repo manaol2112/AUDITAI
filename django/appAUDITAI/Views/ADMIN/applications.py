@@ -158,7 +158,6 @@ class AppPasswordViewSetbyID(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     lookup_field = 'APP_NAME'
 
-
 class AppRecordViewSet(viewsets.ModelViewSet):
     queryset = APP_RECORD.objects.all()
     serializer_class = AppRecordSerializer

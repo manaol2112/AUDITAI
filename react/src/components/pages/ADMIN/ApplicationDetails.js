@@ -16,6 +16,7 @@ import companyService from '../../../services/CompanyService';
 import { useParams } from 'react-router-dom';
 import Modal from '../../common/Modal';
 import userService from '../../../services/UserService';
+import DynamicTabs from '../../common/DynamicTabs';
 
 const ManageApplicationsDetails = () => {
 
@@ -142,6 +143,7 @@ const ManageApplicationsDetails = () => {
     const handleUserChange = (selectedOptions) => {
         setSelectedUsers(selectedOptions); 
     }
+
     
     const customMainContent = (
         <div>
@@ -191,6 +193,7 @@ const ManageApplicationsDetails = () => {
                     isMultiLine={true}
                     rows="5"
                 />
+
 
                 <div style={{ marginTop: '10px', marginBottom: '10px' }}>
                     <MultipleSelect

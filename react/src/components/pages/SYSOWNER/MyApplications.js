@@ -242,29 +242,7 @@ const SysOwnerApplications = () => {
                 </mui.Typography>
 
                 <Separator />
-
-                <mui.Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', textAlign: 'center' }}>
-                        <mui.Tooltip title="View Users">
-                            <mui.IconButton>
-                                <GroupIcon sx={{ width: 25, height: 25, color: '#046FB2' }} />
-                            </mui.IconButton>
-                        </mui.Tooltip>
-
-                        <mui.Tooltip title="Understanding IT Environment">
-                            <mui.IconButton>
-                                <MemoryRoundedIcon sx={{ width: 25, height: 25, color: '#046FB2' }} />
-                            </mui.IconButton>
-                        </mui.Tooltip>
-
-                        <mui.Tooltip title="Download Process Narrative">
-                            <mui.IconButton>
-                                <SystemUpdateAltRoundedIcon sx={{ width: 25, height: 25, color: '#046FB2' }} />
-                            </mui.IconButton>
-                        </mui.Tooltip>
-
-                    </mui.Box>
-
-
+                
                 <Suspense fallback={<div>Loading...</div>}>
                     <DataTable
                         rows={rows}

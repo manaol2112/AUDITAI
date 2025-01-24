@@ -19,7 +19,7 @@ const appPasswordService = {
 },
 
   createAppPassword: async (passwordData) => {
-    const response = await axiosInstance.post(`app-password/`, passwordData);
+    const response = await axiosInstance.post('app-password/', passwordData);
     return response.data;
   },
 
