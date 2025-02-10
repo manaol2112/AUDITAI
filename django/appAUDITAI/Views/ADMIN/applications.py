@@ -10,6 +10,7 @@ from rest_framework.views import APIView
 from django.db.models import F
 import datetime
 from datetime import date
+from rest_framework.decorators import action
 
 class AppViewSet(viewsets.ModelViewSet):
     queryset = APP_LIST.objects.all()
@@ -473,6 +474,109 @@ class TerminationProcessViewSetByID(viewsets.ModelViewSet):
         # Save the new instance
         serializer.save()
 
+class UARSODViewSet(viewsets.ModelViewSet):
+    queryset = UAR_SOD_CHECK.objects.all()
+    serializer_class = UARSODSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+
+class UARSODViewSetByUARFile(viewsets.ModelViewSet):
+    serializer_class = UARSODSerializer
+
+    def get_queryset(self):
+        # Get path parameters
+        uar_file = self.kwargs.get('UAR_FILE')  
+        role_owner = self.kwargs.get('ROLE_OWNER')  
+
+        # Start with the base queryset
+        queryset = UAR_SOD_CHECK.objects.all()
+
+        # Filter the queryset based on the path parameters
+        if uar_file :
+            queryset = queryset.filter(UAR_FILE=uar_file)
+
+        if role_owner:
+            queryset = queryset.filter(ROLE_OWNER = role_owner)
+
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        # Get the filtered queryset
+        queryset = self.get_queryset()
+        # Serialize the queryset
+        serializer = self.get_serializer(queryset, many=True)
+
+        # Return the serialized data
+        return Response(serializer.data)
+
+
+class UARSODViewSetByAPPNameCycle(viewsets.ModelViewSet):
+    serializer_class = UARSODSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Get path parameters
+        app_name = self.kwargs.get('APP_NAME')  
+        review_cycle = self.kwargs.get('REVIEW_CYCLE') 
+
+        # Start with the base queryset
+        queryset = UAR_SOD_CHECK.objects.all()
+
+        # Filter the queryset based on the path parameters
+        if app_name:
+            queryset = queryset.filter(APP_NAME=app_name)
+
+        if review_cycle:
+            queryset = queryset.filter(REVIEW_CYCLE=review_cycle)
+
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        # Get the filtered queryset
+        queryset = self.get_queryset()
+
+        # Serialize the queryset
+        serializer = self.get_serializer(queryset, many=True)
+
+        # Return the serialized data
+        return Response(serializer.data)
+    
+    def update(self, request, *args, **kwargs):
+        # Retrieve the instance based on the filtered parameters
+        app_name = self.kwargs.get('APP_NAME')
+        review_cycle = self.kwargs.get('REVIEW_CYCLE')
+        email_address = self.kwargs.get('EMAIL_ADDRESS')
+
+        # Get the object to be updated
+        try:
+            instance = UAR_SOD_CHECK.objects.get(
+                APP_NAME=app_name,
+                REVIEW_CYCLE=review_cycle,
+                EMAIL_ADDRESS=email_address
+            )
+        except UAR_SOD_CHECK.DoesNotExist:
+            return Response({"detail": "Object not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Use the serializer to update the instance
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+
+        # Validate and save
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class UARTokenView(viewsets.ModelViewSet):
+    queryset = UAR_REVIEW_TOKEN.objects.all()
+    serializer_class = UARTokenSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'TOKEN'
+
+    
 class UARProcessViewSetByID(viewsets.ModelViewSet):
     queryset = UAR_PROCESS.objects.all()
     serializer_class = UAR_ProcessSerializer

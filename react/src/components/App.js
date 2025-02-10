@@ -63,6 +63,7 @@ import SysOwnerDashboardv2 from './pages/SYSOWNER/SysOwnerDashboardv2';
 import Dashboardv2 from './pages/ADMIN/Dashboardv2';
 import ManageApplicationsv2 from './pages/ADMIN/Applicationsv2';
 import EmployeeRecord from './pages/ADMIN/EmployeeRecord';
+import UARApprovalView from './pages/SYSOWNER/UserAccessReviewApprovalView';
 
 const App = () => {
   const token = Cookies.get('token');
@@ -81,7 +82,8 @@ const App = () => {
         <Route path="/login" element={<LoginForm />} />
         <Route path="" element={<LandingPagev2 />} />
         <Route path="/register" element={<Register />} />
-
+        <Route path="/accessreview/:token" element={<UARApprovalView />} />
+        
 
         {/* Private routes based on user groups */}
         {isGroupMember('Administrator') && (

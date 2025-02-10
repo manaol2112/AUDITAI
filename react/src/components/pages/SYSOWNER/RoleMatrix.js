@@ -261,8 +261,7 @@ const RoleMatrix = () => {
     const columnsWithActionsUpdate = [
         ...mappedcolumns,
         {
-            field: 'compliance',
-            headerName: 'Actions',
+            headerName: 'Update Owner',
             width: 200,
             sortable: false,
             renderCell: renderUpdateMapping,
@@ -272,7 +271,6 @@ const RoleMatrix = () => {
     const columnsWithActions = [
         ...columns,
         {
-            field: 'compliance',
             headerName: 'Role Owner',
             width: 200,
             sortable: false,
@@ -407,7 +405,7 @@ const RoleMatrix = () => {
                     size={'sm'}
                     onClose={handleCloseMappingModal}
                     body={
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <div style={{ height: '250px', display: 'flex', flexDirection: 'column' }}>
                             <mui.Typography variant="subtitle2" sx={{ marginBottom: '20px' }}>
                                 Role Owner:
                             </mui.Typography>
@@ -432,8 +430,8 @@ const RoleMatrix = () => {
                             </mui.Button>
                         </>
                     }
-
                 />
+
 
 
 

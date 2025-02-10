@@ -215,7 +215,7 @@ const ManageApplications = () => {
                     header="Setup New Application"
                     body={
                         <>
-                            <div style={{  marginTop: '10px', marginBottom: '10px' }}>
+                            <div style={{  marginTop: '10px', marginBottom: '10px', overflow: 'auto' }}>
                                 <MultipleSelect
                                     isMultiSelect={false}
                                     placeholderText="Select Company"
@@ -241,6 +241,8 @@ const ManageApplications = () => {
                                 rows="5"
                             />
 
+                       
+
                             <div style={{ marginTop: '10px', marginBottom: '10px' }}>
                                 <MultipleSelect
                                     isMultiSelect={false}
@@ -250,6 +252,9 @@ const ManageApplications = () => {
                                     handleChange={handleTypeChange}
                                 />
                             </div>
+
+
+
 
                         </>
                     }

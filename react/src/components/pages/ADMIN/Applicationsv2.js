@@ -31,6 +31,7 @@ const ManageApplicationsv2 = () => {
     const [selectedCompany, setSelectedCompany] = useState([]);
     const [selectedType, setSelectedType] = useState([]);
     const [selectedUser, setSelectedUser] = useState([]);
+    const [soxRelevant, setSoxRelevant] = useState([]);
 
     const handleSnackbarClose = () => {
         setSnackbarOpen(false);
@@ -125,6 +126,13 @@ const ManageApplicationsv2 = () => {
         { value: 'Tool', label: 'Tool' }
     ];
 
+    const soxInScope = [
+        { value: true, label: 'Yes' },
+        { value: false, label: 'No' },
+
+    ];
+
+
     const [userList, setUserList] = useState([]);
 
     const handleCompanyChange = async (selectedCompany) => {
@@ -145,6 +153,14 @@ const ManageApplicationsv2 = () => {
         }));
     }
 
+    const handleSOXChange = async (selectedType) => {
+        setSoxRelevant(selectedType);
+
+        setAppData(prevAppData => ({
+            ...prevAppData,
+            SOX_INSCOPE: selectedType.value
+        }));
+    }
 
     const handleUserChange = (selectedOptions) => {
         setSelectedUser(selectedOptions);
@@ -269,6 +285,16 @@ const ManageApplicationsv2 = () => {
                                     selectOptions={systemType}
                                     value={selectedType}
                                     handleChange={handleTypeChange}
+                                />
+                            </div>
+
+                            <div style={{ marginTop: '10px', marginBottom: '10px' }}>
+                                <MultipleSelect
+                                    isMultiSelect={false}
+                                    placeholderText="SOX Relevant?"
+                                    selectOptions={soxInScope}
+                                    value={soxRelevant}
+                                    handleChange={handleSOXChange}
                                 />
                             </div>
 

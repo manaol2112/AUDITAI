@@ -33,6 +33,7 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import CardActionArea from '@mui/material/CardActionArea';
+import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 
 const DataTable = React.lazy(() => import('../../common/DataGrid'));
 
@@ -691,6 +692,24 @@ const SysOwnerCompliance = () => {
         );
     };
 
+    const renderAddApprovalButton = (params) => {
+        const app = params.row;
+
+        return (
+            <ThemeProvider theme={theme}>
+                <Tooltip title="Add Appproval" arrow>
+                    <mui.IconButton
+                        sx={{ color: theme.palette.primary.main }}
+                        size="small"
+                        onClick={(event) => handleProvisioningClick(event, app)}
+                    >
+                        <PersonAddAltIcon sx={{ fontSize: '18px' }} />
+                    </mui.IconButton>
+                </Tooltip>
+            </ThemeProvider>
+        );
+    };
+
     const renderTermActionButton = (params) => {
         const app = params.row;
 
@@ -736,22 +755,21 @@ const SysOwnerCompliance = () => {
         ...provisioningColumnsDetails,
         {
             field: 'compliance',
-            headerName: 'View Details',
+            headerName: 'Add Appproval',
             width: 200,
             sortable: false,
-            renderCell: renderProvActionButton,
+            renderCell: renderAddApprovalButton,
         },
+    ];
+
+    const columnsProvisioningAllUsers  = [
+        ...provisioningColumnsDetails,
+        
     ];
 
     const columnsProvisioningLateApproval = [
         ...provisioningLateApprovalColumnsDetails,
-        {
-            field: 'compliance',
-            headerName: 'View Details',
-            width: 200,
-            sortable: false,
-            renderCell: renderProvActionButton,
-        },
+        
     ];
 
     //Termination Columns
@@ -1032,7 +1050,7 @@ const SysOwnerCompliance = () => {
                         <DataTable
                             rows={provisioningRowDetails ? provisioningRowDetails : ''}
                             columns={provisioningColumnsDetails}
-                            columnsWithActions={columnsWithActionsProvisioningDetails}
+                            columnsWithActions={columnsProvisioningAllUsers}
                         />
                     </Suspense>
                 </div>
@@ -1042,7 +1060,7 @@ const SysOwnerCompliance = () => {
         {
             value: '2',
             label: (<div>
-                Missing Documentation
+               No Approval
             </div>),
             content: (
                 <div>

@@ -10,8 +10,7 @@ import Separator from '../../layout/Separator';
 import companyService from '../../../services/CompanyService';
 import ErrorBoundary from '../../common/ErrorBoundery';
 import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded';
-
-
+import CallSplitIcon from '@mui/icons-material/CallSplit';
 
 const IAAuditDashboard = () => {
 
@@ -97,6 +96,9 @@ const IAAuditDashboard = () => {
                     </mui.Grid>
                     <mui.Grid item>
                         <OutlinedCard icon="collections_bookmark" title="Policy Library" to="/SystemRoles" buttonlabel="View" />
+                    </mui.Grid>
+                    <mui.Grid item>
+                        <OutlinedCard icon="call_split" title="SOD Library" to="/SystemRoles" buttonlabel="View" />
                     </mui.Grid>
                     <mui.Grid item>
                         <OutlinedCard icon="rebase_edit" title="Process Narrative" to="/SystemRoles" buttonlabel="View" />

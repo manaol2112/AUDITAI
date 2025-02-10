@@ -18,6 +18,11 @@ const uarService = {
         return response.data;
     },
 
+  fetchUARByUARFile: async (UAR_FILE) => {
+      const response = await axiosInstance.get(`useraccessreviewsod/${UAR_FILE}/`);
+      return response.data;
+  },
+
   createUAR: async (uarData) => {
     const response = await axiosInstance.post(`useraccessreview/`, uarData);
     return response.data;
@@ -31,7 +36,36 @@ const uarService = {
   deleteUAR: async (uarID) => {
     const response = await axiosInstance.delete(`useraccessreview/${uarID}/`);
     return response.data;
-  }
+  },
+
+  //UARSODCHECK
+
+getUARSODProcessByAppCycle: async(APP_NAME, REVIEW_CYCLE) => {
+    const response = await axiosInstance.get(`useraccessreviewsod/${APP_NAME}/${REVIEW_CYCLE}/`);
+    return response.data;
+}, 
+
+createUARSODRecord: async(uarSODData) => {
+    const response = await axiosInstance.post(`uarsod/`, uarSODData);
+    return response.data;
+}, 
+
+updateUARSODRecord: async(recordID, uarSODData) => {
+    const response = await axiosInstance.put(`uarsod/${recordID}/`, uarSODData);
+    return response.data;
+}, 
+
+//Send UAR for Review
+sendUARForReview: async(uarSODData) => {
+  const response = await axiosInstance.post(`send-uar-for-review/`, uarSODData);
+  return response.data;
+}, 
+
+fetchUARByToken: async (token) => {
+  const response = await axiosInstance.get(`uartoken/${token}/`);
+  return response.data;
+},
+
 };
 
 export default uarService;

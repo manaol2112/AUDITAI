@@ -30,6 +30,16 @@ class UARDataSerializer(serializers.ModelSerializer):
         model = UAR_DATA
         fields = '__all__'
 
+class UARTokenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UAR_REVIEW_TOKEN
+        fields = '__all__'
+
+class UARSODSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UAR_SOD_CHECK
+        fields = '__all__'
+
 class AccessRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = ACCESSREQUEST

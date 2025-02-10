@@ -260,9 +260,11 @@ class APP_LIST(models.Model):
     DATE_IMPLEMENTED = models.CharField(max_length=100,blank=True,null=True)
     DATE_TERMINATED = models.DateField(null=True,blank=True)
     AUTHENTICATION_TYPE = models.CharField(max_length=50,blank=True,null=True)
-    SETUP_GENINFO = models.BooleanField(blank=True, null=True)
-    SETUP_USERDATA = models.BooleanField(blank=True, null=True)
+    SETUP_ROLLOWNER = models.BooleanField(blank=True, null=True)
+    SETUP_GENINFO = models.BooleanField(blank=True, null=True )
+    SETUP_USERDATA = models.BooleanField(blank=True, null=True) 
     SETUP_PROCESS = models.BooleanField(blank=True, null=True)
+    SOX_INSCOPE = models.BooleanField(blank=True, null=True, default=False)
     APPLICATION_OWNER = models.ManyToManyField(User, blank=True)
     PW_CONFIGURABLE = models.CharField(max_length=50,blank=True,null=True)
      #LOG
@@ -370,6 +372,7 @@ class ROLE_OWNERS(models.Model):
     ROLE_OWNERS = models.ForeignKey(HR_RECORD,on_delete=models.DO_NOTHING,blank=True,null=True)
     ROLE_NAME = models.CharField(max_length=100,blank=True,null=True)
     APP_NAME = models.ForeignKey(APP_LIST,on_delete=models.CASCADE,blank=True,null=True)
+
     class Meta:
         managed = True
         db_table = 'ROLE_OWNERS'
@@ -959,7 +962,7 @@ class HR_RECORD_IMPORT_LOG(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     JOB_NAME = models.CharField(max_length=50,blank=True,null=True)
     IMPORT_DATE = models.DateTimeField()
-    FILE_NAME = models.CharField(max_length=50,blank=True,null=True)
+    FILE_NAME = models.CharField(max_length=1000,blank=True,null=True)
     SOURCE_LINE_COUNT = models.CharField(max_length=50,blank=True,null=True)
     DESTI_LINE_COUNT = models.CharField(max_length=50,blank=True,null=True)
     JOB_COMPLETE = models.BooleanField(default=False)
@@ -986,6 +989,7 @@ class APP_RECORD(models.Model):
     OWNER_IF_SYSTEM = models.CharField(max_length=50,blank=True,null=True) 
     OWNER_IF_REGULAR = models.CharField(max_length=50,blank=True,null=True) 
     IS_ADMIN = models.CharField(max_length=50,blank=True,null=True)
+    REQUEST_ID = models.ForeignKey(ACCESSREQUEST, on_delete=models.DO_NOTHING,max_length=100,blank=True,null=True, related_name='access_request_id' )
 
     #PROVISIONING
     DATE_GRANTED = models.DateField(null=True)
@@ -1314,6 +1318,7 @@ class UAR_FILE(models.Model):
         db_table = 'UAR_FILE'
 
 
+
 class UAR_DATA(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     APP_NAME = models.ForeignKey(APP_LIST, on_delete=models.CASCADE, null=True, blank=True)
@@ -1341,6 +1346,36 @@ class UAR_NOTES(models.Model):
         managed = True
         db_table = 'UAR_NOTES'
 
+class UAR_SOD_CHECK(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    APP_NAME = models.ForeignKey(APP_LIST, on_delete=models.CASCADE, null=True, blank=True)
+    UAR_FILE = models.ForeignKey(UAR_FILE, on_delete=models.CASCADE, null=True, blank=True)
+    EMAIL_ADDRESS = models.CharField(max_length=100,blank=True,null=True)
+    REVIEW_CYCLE = models.CharField(max_length=100,blank=True,null=True)
+    ROLE_OWNER = models.ForeignKey(HR_RECORD, on_delete=models.DO_NOTHING, null=True, blank=True)
+    ROLE_NAME = models.CharField(max_length=100,blank=True,null=True)
+    WITH_SOD_VIOLATION = models.BooleanField(default=False) 
+    REVIEWED_BY = models.CharField(max_length=100,blank=True,null=True)
+    INTIATED_BY = models.CharField(max_length=100,blank=True,null=True)
+    INITIATED_ON = models.DateField(auto_now_add=False,null=True,blank=True)
+    REVIEW_COMPLETED_ON = models.DateField(auto_now_add=False,null=True,blank=True)
+    STATUS = models.CharField(max_length=100,blank=True,null=True)
+
+    class Meta:
+        managed = True
+        db_table = 'UAR_SOD_CHECK'
+
+class UAR_REVIEW_TOKEN(models.Model):
+    
+    UAR_FILE = models.ForeignKey(UAR_FILE, on_delete=models.CASCADE, null=True, blank=True)
+    ROLE_OWNER = models.ForeignKey(HR_RECORD, on_delete=models.DO_NOTHING, null=True, blank=True)
+    TOKEN = models.CharField(max_length=255, unique=True)
+    CREATED_AT = models.DateTimeField(auto_now_add=True)
+    EXPIRES_AT = models.DateTimeField()
+    IS_USED = models.BooleanField(default=False)
+
+    def is_expired(self):
+        return timezone.now() > self.EXPIRES_AT
 
 class PRIVILEGED_PROCESS(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

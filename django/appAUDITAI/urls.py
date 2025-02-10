@@ -25,6 +25,7 @@ router.register(r'users', UserViewSet)
 router.register(r'userroles', USERROLESViewSet)
 router.register(r'roleowners', RoleOwnerViewSet)
 router.register(r'systemsettings', SystemSettingViewSet)
+router.register(r'uarsod', UARSODViewSet, basename='uar_sod')
 router.register(r'hr/data',HRViewSetbyEmail)
 router.register(r'access/request',AccessRequestViewSet, basename='requests')
 router.register(r'access/approval',AccessRequestApprovalViewSet, basename='approval')
@@ -39,6 +40,7 @@ router.register(r'app-job-alert', JobAlertViewSet,  basename='job_alerting')
 router.register(r'hr-job-alert', JobAlertHRViewSet,  basename='hr_job_alerting')
 router.register(r'applications', AppViewSet)
 router.register(r'registration', RegistrationViewSet)
+router.register(r'uartoken', UARTokenView)
 router.register(r'useraccessreview', UARViewSet)
 router.register(r'app-password', AppPasswordViewSetbyApp)
 router.register(r'process/provisioning', ProvisioningProcessViewSetByID, basename='provisioning')
@@ -86,6 +88,8 @@ urlpatterns = [
     path('api/permission/<int:id>/', PermissionViewSetByID.as_view, name = 'permission-details' ),
     path('api/users/<str:username>/', UserViewSetbyID.as_view, name = 'user-details' ),
     path('api/userroles/<str:user_id>/', USERROLESViewSetbyID.as_view, name = 'user-roles' ),
+    path('api/useraccessreviewsod/<uuid:APP_NAME>/<str:REVIEW_CYCLE>/', UARSODViewSetByAPPNameCycle.as_view({'get': 'list'}), name='uarsod'),
+    path('api/useraccessreviewsod/<uuid:UAR_FILE>/', UARSODViewSetByUARFile.as_view({'get': 'list'}), name='uarsod-uarfile'),
     path('api/userroles/company/<str:COMPANY_ID>/', USERROLESViewSetbyCompany.as_view(), name = 'user-roles-company' ),
     path('api/systemsettings/<int:id>/', SystemSettingViewSetbyID.as_view, name = 'system-settings' ),
     path('api/hr-sftp/<int:id>/', HRSFTPViewSetbyID.as_view, name = 'hr-sftp' ),
@@ -103,9 +107,12 @@ urlpatterns = [
     path('api/access/myrequests/<uuid:app_id>/', AccessRequestByAppViewSet.as_view({'get': 'list'}), name='my_requests'),
     path('api/role-owners/<uuid:APP_NAME>/<str:ROLE_NAME>/', RoleOwnerViewSetbyID.as_view(), name='role-owner-by-id'),
     path('api/role-owners/<uuid:APP_NAME>/', RoleOwnerViewSetbyApp.as_view(), name='role-owner-by-app'),
-    path('test_ldap/', connect_ldap, name='connect_ldap'),   
-    path('deactivate_user/', deactivate_user, name='deactive_user'), 
+    # path('test_ldap/', connect_ldap, name='connect_ldap'),   
+    # path('deactivate_user/', deactivate_user, name='deactive_user'), 
     path('api/jobschedule/<uuid:APP_NAME>/', AppJobViewSetByID.as_view(), name='job-schedule'),
     path('api/jobalert/<uuid:APP_NAME>/', JobAlertSetByID.as_view(), name='job-alert'),
     path('api/joblog/<uuid:APP_NAME>/', AppJobUserLogFetchViewSetByID.as_view(), name='job-log'),
+    path('api/send-uar-for-review/', SendUARForReview.as_view(), name='submit-uar-for-review'),
+    path('api/review-uar-for-review/', SendUARForReview.as_view(), name='submit-uar-for-review'),
+
 ]       
