@@ -83,7 +83,6 @@ const App = () => {
         <Route path="" element={<LandingPagev2 />} />
         <Route path="/register" element={<Register />} />
         <Route path="/accessreview/:token" element={<UARApprovalView />} />
-        
 
         {/* Private routes based on user groups */}
         {isGroupMember('Administrator') && (

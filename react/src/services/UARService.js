@@ -11,16 +11,16 @@ const uarService = {
   fetchUARById: async (uarID) => {
     const response = await axiosInstance.get(`useraccessreview/${uarID}/`);
     return response.data;
-},
+  },
 
-    fetchUARByApp: async (APP_NAME) => {
-        const response = await axiosInstance.get(`useraccess-review/${APP_NAME}/`);
-        return response.data;
-    },
+  fetchUARByApp: async (APP_NAME) => {
+    const response = await axiosInstance.get(`useraccess-review/${APP_NAME}/`);
+    return response.data;
+  },
 
   fetchUARByUARFile: async (UAR_FILE) => {
-      const response = await axiosInstance.get(`useraccessreviewsod/${UAR_FILE}/`);
-      return response.data;
+    const response = await axiosInstance.get(`useraccessreviewsod/${UAR_FILE}/`);
+    return response.data;
   },
 
   createUAR: async (uarData) => {
@@ -40,31 +40,53 @@ const uarService = {
 
   //UARSODCHECK
 
-getUARSODProcessByAppCycle: async(APP_NAME, REVIEW_CYCLE) => {
+  getUARSODProcessByAppCycle: async (APP_NAME, REVIEW_CYCLE) => {
     const response = await axiosInstance.get(`useraccessreviewsod/${APP_NAME}/${REVIEW_CYCLE}/`);
     return response.data;
-}, 
+  },
 
-createUARSODRecord: async(uarSODData) => {
+  createUARSODRecord: async (uarSODData) => {
     const response = await axiosInstance.post(`uarsod/`, uarSODData);
     return response.data;
-}, 
+  },
 
-updateUARSODRecord: async(recordID, uarSODData) => {
+  updateUARSODRecord: async (recordID, uarSODData) => {
     const response = await axiosInstance.put(`uarsod/${recordID}/`, uarSODData);
     return response.data;
-}, 
+  },
 
-//Send UAR for Review
-sendUARForReview: async(uarSODData) => {
-  const response = await axiosInstance.post(`send-uar-for-review/`, uarSODData);
-  return response.data;
-}, 
+  //Send UAR for Review
+  sendUARForReview: async (uarSODData) => {
+    const response = await axiosInstance.post(`send-uar-for-review/`, uarSODData);
+    return response.data;
+  },
 
-fetchUARByToken: async (token) => {
-  const response = await axiosInstance.get(`uartoken/${token}/`);
-  return response.data;
-},
+  fetchUARByToken: async (token) => {
+    const response = await axiosInstance.get(`uartoken/${token}/`);
+    return response.data;
+  },
+
+  //CONFIGURE SCOPING 
+
+  fetchInscopeRolesByUARFile: async (UAR_FILE) => {
+    const response = await axiosInstance.get(`uarroleinscope/${UAR_FILE}/`);
+    return response.data;
+  },
+
+  createInscopeRoles: async (uarRolesData) => {
+    const response = await axiosInstance.post(`uarrolescoping/`, uarRolesData);
+    return response.data;
+  },
+
+  updateInscopeRoles: async (APP_NAME, uarRolesData) => {
+    const response = await axiosInstance.put(`uarrolescoping/${APP_NAME}/`, uarRolesData);
+    return response.data;
+  },
+
+  deleteInscopeRoles: async (ROLE_ID) => {
+    const response = await axiosInstance.delete(`uarrolescopingdelete/${ROLE_ID}/`);
+    return response.data;
+  }
 
 };
 

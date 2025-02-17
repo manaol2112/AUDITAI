@@ -576,7 +576,49 @@ class UARTokenView(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     lookup_field = 'TOKEN'
 
+class UARScopeRolesViewDeleteByID(viewsets.ModelViewSet):
+    queryset = UAR_INSCOPE_ROLES.objects.all()
+    serializer_class = UARScopeRolesSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'id'
+
+class UARScopeRolesView(viewsets.ModelViewSet):
+    queryset = UAR_INSCOPE_ROLES.objects.all()
+    serializer_class = UARScopeRolesSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'UAR_FILE'
+
+    def get_queryset(self):
+        uar_file = self.kwargs.get(self.lookup_field)
+        return UAR_INSCOPE_ROLES.objects.filter(**{self.lookup_field: uar_file})
+
+    def destroy(self, request, *args, **kwargs):
+        # Retrieve the object to delete
+        instance = self.get_object()
+        
+        # Perform the deletion
+        self.perform_destroy(instance)
+
+        # Return a success response
+        return Response(status=status.HTTP_204_NO_CONTENT)
     
+    
+class UARScopeRolesViewByUARFile(ListAPIView):
+    queryset = UAR_INSCOPE_ROLES.objects.all()
+    serializer_class = UARScopeRolesSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'UAR_FILE'
+
+    def get_queryset(self):
+        uar_file = self.kwargs.get(self.lookup_field)
+        print('This is the uar file', uar_file)
+        query = UAR_INSCOPE_ROLES.objects.filter(**{self.lookup_field: uar_file})
+        print(query)
+        return query
+
 class UARProcessViewSetByID(viewsets.ModelViewSet):
     queryset = UAR_PROCESS.objects.all()
     serializer_class = UAR_ProcessSerializer

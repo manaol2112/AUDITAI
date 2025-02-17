@@ -42,6 +42,8 @@ router.register(r'applications', AppViewSet)
 router.register(r'registration', RegistrationViewSet)
 router.register(r'uartoken', UARTokenView)
 router.register(r'useraccessreview', UARViewSet)
+router.register(r'uarrolescoping', UARScopeRolesView)
+router.register(r'uarrolescopingdelete', UARScopeRolesViewDeleteByID,basename='deleteinscoperole')
 router.register(r'app-password', AppPasswordViewSetbyApp)
 router.register(r'process/provisioning', ProvisioningProcessViewSetByID, basename='provisioning')
 router.register(r'process/termination', TerminationProcessViewSetByID, basename='termination')
@@ -114,5 +116,5 @@ urlpatterns = [
     path('api/joblog/<uuid:APP_NAME>/', AppJobUserLogFetchViewSetByID.as_view(), name='job-log'),
     path('api/send-uar-for-review/', SendUARForReview.as_view(), name='submit-uar-for-review'),
     path('api/review-uar-for-review/', SendUARForReview.as_view(), name='submit-uar-for-review'),
-
+    path('api/uarroleinscope/<uuid:UAR_FILE>/', UARScopeRolesViewByUARFile.as_view(), name='inscope-roles-list'),
 ]       

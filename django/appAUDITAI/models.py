@@ -1346,6 +1346,18 @@ class UAR_NOTES(models.Model):
         managed = True
         db_table = 'UAR_NOTES'
 
+class UAR_INSCOPE_ROLES(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    APP_NAME = models.ForeignKey(APP_LIST, on_delete=models.CASCADE, null=True, blank=True)
+    UAR_FILE = models.ForeignKey(UAR_FILE, on_delete=models.CASCADE, null=True, blank=True)
+    REVIEW_CYCLE = models.CharField(max_length=100,blank=True,null=True)
+    ROLE_NAMES = models.TextField(max_length=10000,blank=True,null=True)
+    LAST_UPDATED = models.DateField(auto_now_add=True,null=True,blank=True)
+
+    class Meta:
+        managed = True
+        db_table = 'UAR_INSCOPE_ROLES'
+
 class UAR_SOD_CHECK(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     APP_NAME = models.ForeignKey(APP_LIST, on_delete=models.CASCADE, null=True, blank=True)

@@ -30,6 +30,12 @@ class UARDataSerializer(serializers.ModelSerializer):
         model = UAR_DATA
         fields = '__all__'
 
+class UARScopeRolesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UAR_INSCOPE_ROLES
+        fields = '__all__'
+
+
 class UARTokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = UAR_REVIEW_TOKEN

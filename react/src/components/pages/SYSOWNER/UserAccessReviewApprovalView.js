@@ -32,6 +32,14 @@ import HRService from '../../../services/HrService';
 import CircleIcon from '@mui/icons-material/Circle'; // For status icon
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Button from '@mui/material/Button';
+import CardActionArea from '@mui/material/CardActionArea';
+import CardActions from '@mui/material/CardActions';
+import { set } from 'date-fns';
+import ForwardIcon from '@mui/icons-material/Forward';
 
 
 const DataTable = React.lazy(() => import('../../common/DataGrid'));
@@ -41,14 +49,20 @@ const UARApprovalView = () => {
 
     const [reviewData, setReviewData] = useState([]);
     const navigate = useNavigate();
-
     const { token } = useParams();
     const [isValidToken, setIsValidToken] = useState(true);
-
     const [hrList, setHRList] = useState([]);
     const [apps, setApps] = useState([]);
-
     const [selectedRows, setSelectedRows] = useState([]);
+    const [withUpdate, setWithUpdate] = useState(false)
+    const [isLoading, setIsLoading] = useState(false);
+    const [reviewCycle, setReviewCycle] = useState('');
+    const [approved, setApproved] = useState(0);
+    const [rejected, setRejected] = useState(0);
+    const [pendingReview, setPendingReview] = useState(0);
+    const [progress, setProgress] = useState('');
+    const [deadline, setDeadline] = useState('');
+    const [isOverdue, setIsOverdue] = useState(false);
 
     useEffect(() => {
 
@@ -60,50 +74,92 @@ const UARApprovalView = () => {
                 const today = new Date(); // Get the current date and time
 
                 if (data) {
-                    //GET THE APP NAME
 
-                    console.log('This is the data', data)
-
+                    const deadline = await uarService.fetchUARById(data.UAR_FILE)
                     
+                    if (deadline) {
+
+                        const startDate = new Date(deadline.START_DATE);
+                        const daysToComplete = deadline.DAYS_TO_COMPLETE;
+
+                        // Calculate the end date by adding the days to the start date
+                        const endDate = new Date(startDate);
+                        endDate.setDate(startDate.getDate() + daysToComplete);
+
+                        // Get today's date
+                        const today = new Date();
+
+                        // Calculate the remaining time until the deadline
+                        const remainingTime = endDate - today; // The difference in milliseconds
+
+                        // Convert milliseconds to days
+                        const remainingDays = Math.abs(Math.floor(remainingTime / (1000 * 60 * 60 * 24)));
+
+                        const isOverdue = remainingTime < 0;
+
+                        if (isOverdue) {
+                            setIsOverdue(true) 
+                        } else {
+                            setIsOverdue(false)
+                        }
+
+                        setDeadline(remainingDays + ' days');
+
+                    }
+
                     // Convert EXPIRES_AT string to Date object
                     const expiresAt = new Date(data.EXPIRES_AT);
-            
+
                     //CHECK FOR EXPIRED TOKEN
                     if (expiresAt > today) {
+
                         setIsValidToken(true)
 
                         const uar_file = await uarService.fetchUARByUARFile(data.UAR_FILE)
 
                         if (uar_file) {
-                            
+
+                            setReviewCycle(uar_file[0].REVIEW_CYCLE)
+
                             try {
                                 const app = await appService.fetchAppsById(uar_file[0].APP_NAME)
                                 if (app) {
-                                    console.log('This is the app name', app.APP_NAME)
                                     setApps(app)
                                 }
                             } catch (error) {
                                 console.error('Error fetching data:', error);
                             }
-        
 
                             const access_review = uar_file.filter(owner => owner.ROLE_OWNER === data.ROLE_OWNER)
+                            // Get count of 'Approved' and 'Rejected' statuses
+                            const approvedCount = access_review.filter(item => item.STATUS === 'Approved').length;
+                            setApproved(approvedCount)
+                            const rejectedCount = access_review.filter(item => item.STATUS === 'Rejected').length;
+                            setRejected(rejectedCount)
+                            const pendingReview = access_review.filter(item => !item.STATUS).length;
+                            setPendingReview(pendingReview);
+
+                            const totalReviewed = approvedCount + rejectedCount;
+                            const progress = (totalReviewed / access_review.length) * 100;
+
+                            // Set the progress state
+                            setProgress(progress.toFixed(0) + '%'); // Adds '%' sign
 
                             setReviewData(access_review)
 
                         }
 
-                    }  else {
+                    } else {
                         setIsValidToken(false)
                     }
-          
+
                 }
 
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
 
-          
+
         };
 
         const fetchRoleOwner = async () => {
@@ -128,9 +184,13 @@ const UARApprovalView = () => {
         fetchReviewData();
         fetchRoleOwner();
 
+        if (withUpdate) {
+            setWithUpdate(false);
+        }
 
-    }, [token]);
-    
+
+    }, [token, withUpdate]);
+
     // Toggle selection of a single row
     const handleRowSelection = (newSelection) => {
         setSelectedRows(newSelection.selectionModel);
@@ -156,11 +216,10 @@ const UARApprovalView = () => {
             NAME: user_name ? `${user_name.FIRST_NAME} ${user_name.LAST_NAME}` : '-', // Concatenating first and last names
             EMAIL_ADDRESS: item.EMAIL_ADDRESS,
             ROLE_NAME: item.ROLE_NAME,
-            STATUS: item.STATUS? item.STATUS : 'Pending Review',
+            STATUS: item.STATUS ? item.STATUS : 'Pending Review',
             uarID: item.id,
             HR_FLAG: user_name ? `${user_name.STATUS}` : 'Unknown'
         };
-
     });
 
     // Define your columns as before
@@ -173,24 +232,25 @@ const UARApprovalView = () => {
             filterable: false,    // Disable filtering
             disableColumnMenu: true, // Disable the column menu
             renderHeader: (params) => (
-              <input
-                type="checkbox"
-                onChange={handleSelectAll}
-                checked={selectedRows.length === rows.length}
-              />
+                <input
+                    type="checkbox"
+                    onChange={handleSelectAll}
+                    checked={selectedRows.length === rows.length}
+                />
             ),
             renderCell: (params) => (
-              <input
-                type="checkbox"
-                checked={selectedRows.includes(params.row.id)}
-                onChange={() => handleRowSelection({
-                  selectionModel: selectedRows.includes(params.row.id) 
-                    ? selectedRows.filter(id => id !== params.row.id) 
-                    : [...selectedRows, params.row.id]
-                })}
-              />
+                <input
+                    type="checkbox"
+                    checked={selectedRows.includes(params.row.id)}
+                    onChange={() => handleRowSelection({
+                        selectionModel: selectedRows.includes(params.row.id)
+                            ? selectedRows.filter(id => id !== params.row.id)
+                            : [...selectedRows, params.row.id]
+                    })}
+                />
             ),
-          },
+            
+        },
         { field: 'id', headerName: '#', width: 50 },
         { field: 'APP_NAME', headerName: 'System Name', flex: 1 },
         { field: 'NAME', headerName: 'Name', flex: 1 },
@@ -202,34 +262,119 @@ const UARApprovalView = () => {
     ];
 
 
-    const handleApproveAllClick = (event, phase) => {
-        console.log('This is to approve all')
+    const handleApproveAllClick = async (event, phase) => {
+        setIsLoading(true); // Set loading state to true
+
+        const today = new Date(); // Get today's date
+        const date = today.toISOString().split('T')[0]; // Format it as 'YYYY-MM-DD'
+
+        // Prepare data to update
+        const updatedData = {
+            STATUS: 'Approved',
+            REVIEW_COMPLETED_ON: date,
+        };
+
+        try {
+            // Loop through selected rows and approve each one
+            for (const rowId of selectedRows) {
+                const row = rows.find(r => r.id === rowId);  // Find the record by id
+                if (row) {
+                    const approve_user = await uarService.updateUARSODRecord(row.uarID, updatedData);
+                    if (approve_user) {
+                        console.log(`Successfully approved record with ID: ${row.uarID}`);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error approving records:', error);
+        } finally {
+            setIsLoading(false); // Reset loading state
+            setWithUpdate(true);
+        }
     };
 
-    const handleRejectAllClick = (event, phase) => {
-        console.log('This is to reject all')
+    const handleRejectAllClick = async (event, phase) => {
+        setIsLoading(true); // Set loading state to true
+
+        const today = new Date(); // Get today's date
+        const date = today.toISOString().split('T')[0]; // Format it as 'YYYY-MM-DD'
+
+        // Prepare data to update
+        const updatedData = {
+            STATUS: 'Rejected',
+            REVIEW_COMPLETED_ON: date,
+        };
+
+        try {
+            // Loop through selected rows and approve each one
+            for (const rowId of selectedRows) {
+                const row = rows.find(r => r.id === rowId);  // Find the record by id
+                if (row) {
+                    const approve_user = await uarService.updateUARSODRecord(row.uarID, updatedData);
+                    if (approve_user) {
+                        console.log(`Successfully approved record with ID: ${row.uarID}`);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error approving records:', error);
+        } finally {
+            setIsLoading(false); // Reset loading state
+            setWithUpdate(true);
+        }
     };
+
 
     const handleApproveClick = async (event, phase) => {
-        console.log('This is the id of the uar', phase.uarID, 'with user' , phase.EMAIL_ADDRESS, 'APPROVE')
+
+        setIsLoading(true); // Set loading state to true
 
         const today = new Date(); // Get today's date
         const date = today.toISOString().split('T')[0]; // Format it as 'YYYY-MM-DD' (ISO format)
 
         const updatedData = {
-            STATUS: 'Reviewed',
-            REVIEW_COMPLED_ON: date,
+            STATUS: 'Approved',
+            REVIEW_COMPLETED_ON: date,
         };
 
-        const approve_user = await uarService.updateUARSODRecord(phase.uarID, updatedData)
-
-        if (approve_user) {
-            console.log('Successfully updated record')
+        try {
+            const approve_user = await uarService.updateUARSODRecord(phase.uarID, updatedData);
+            if (approve_user) {
+                console.log('Successfully updated record');
+            }
+        } catch (error) {
+            console.error('Error updating record:', error);
+        } finally {
+            setIsLoading(false); // Reset loading state
+            setWithUpdate(true);
         }
+
     };
 
-    const handleRejectClick = (event, phase) => {
-        console.log('This is the id of the uar', phase.uarID, 'with user' , phase.EMAIL_ADDRESS, 'REJECT')
+    const handleRejectClick = async (event, phase) => {
+
+        setIsLoading(true); // Set loading state to true
+
+
+        const today = new Date(); // Get today's date
+        const date = today.toISOString().split('T')[0]; // Format it as 'YYYY-MM-DD' (ISO format)
+
+        const updatedData = {
+            STATUS: 'Rejected',
+            REVIEW_COMPLETED_ON: date,
+        };
+
+        try {
+            const approve_user = await uarService.updateUARSODRecord(phase.uarID, updatedData);
+            if (approve_user) {
+                console.log('Successfully updated record');
+            }
+        } catch (error) {
+            console.error('Error updating record:', error);
+        } finally {
+            setIsLoading(false); // Reset loading state
+            setWithUpdate(true);
+        }
     };
 
     const renderApprovalButton = (params) => {
@@ -259,6 +404,7 @@ const UARApprovalView = () => {
 
                     </mui.IconButton>
                 </Tooltip>
+
             </ThemeProvider>
         );
     };
@@ -285,57 +431,197 @@ const UARApprovalView = () => {
             },
         },
     });
-    
+
     const customMainContent = (
         <div>
             <ResponsiveContainer>
-             
 
-                <mui.Typography variant="h5" sx={{marginBottom: '20px'}}>
-                    User Access Review for {apps.APP_NAME}
+                <mui.Typography variant="h5" sx={{ marginBottom: '20px' }}>
+                {apps.APP_NAME} User Access Review Cycle {reviewCycle} 
                 </mui.Typography>
 
-                 <mui.Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px', marginBottom: '20px' }}>
-                            <mui.Button onClick={''} color="primary" variant="contained" sx={{ marginRight: '10px' }}>
-                                Approve 
-                            </mui.Button>
-                            <mui.Button onClick={''} color="primary" variant="contained">
-                                Reject 
-                            </mui.Button>
+
+                <mui.Grid container spacing={2} sx={{ marginBottom: '20px', marginTop: '10px' }}>
+                    <mui.Grid item xs={2}>
+
+                        <Card sx={{ maxWidth: 345 }}>
+                            <CardActionArea>
+                                <CardContent>
+
+                                    <mui.Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                        Review Progress
+                                    </mui.Typography>
+                                    <mui.Typography gutterBottom variant="h4" component="div">
+                                        {progress}
+                                    </mui.Typography>
+
+
+                                </CardContent>
+                            </CardActionArea>
+                        </Card>
+
+                    </mui.Grid>
+
+                    <mui.Grid item xs={2}>
+
+                        <Card sx={{ maxWidth: 345 }}>
+                            <CardActionArea>
+                                <CardContent>
+
+                                    <mui.Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                        Approved
+                                    </mui.Typography>
+                                    <mui.Typography gutterBottom variant="h4" component="div">
+                                        {approved}
+                                    </mui.Typography>
+
+                                </CardContent>
+                            </CardActionArea>
+                        </Card>
+
+
+                    </mui.Grid>
+
+                    <mui.Grid item xs={2}>
+
+                        <Card sx={{ maxWidth: 345 }}>
+                            <CardActionArea>
+                                <CardContent>
+
+                                    <mui.Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                        Rejected
+                                    </mui.Typography>
+                                    <mui.Typography gutterBottom variant="h4" component="div">
+                                        {rejected}
+                                    </mui.Typography>
+
+                                </CardContent>
+                            </CardActionArea>
+                        </Card>
+
+
+                    </mui.Grid>
+
+                    <mui.Grid item xs={2}>
+
+                        <Card sx={{ maxWidth: 345 }}>
+                            <CardActionArea>
+                                <CardContent>
+
+                                    <mui.Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                        Pending Review
+                                    </mui.Typography>
+                                    <mui.Typography gutterBottom variant="h4" component="div">
+                                        {pendingReview}
+                                    </mui.Typography>
+
+                                </CardContent>
+                            </CardActionArea>
+                        </Card>
+
+                    </mui.Grid>
+
+                    <mui.Grid item xs={2}>
+
+                        <Card sx={{ maxWidth: 345 }}>
+                            <CardActionArea>
+                                <CardContent>
+
+                                    <mui.Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                        {isOverdue ? 'Days Overdue' : 'Days Till Deadline'}
+                                    </mui.Typography>
+                                    <mui.Typography
+                                        gutterBottom
+                                        variant="h4"
+                                        component="div"
+                                        sx={{ color: isOverdue ? 'red' : 'green' }}
+                                    >
+                                        {deadline}
+                                    </mui.Typography>
+
+
+                                </CardContent>
+                            </CardActionArea>
+                        </Card>
+
+
+                    </mui.Grid>
+
+
+
+                </mui.Grid>
+
+                <mui.Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px', marginBottom: '20px' }}>
+                    <mui.Button onClick={handleApproveAllClick} color="primary" variant="contained" sx={{ marginRight: '10px' }}>
+                        Approve
+                    </mui.Button>
+                    <mui.Button onClick={handleRejectAllClick} color="primary" variant="contained" sx={{ marginRight: '10px' }}>
+                        Reject
+                    </mui.Button>
+        
                 </mui.Box>
 
                 {isValidToken ? (
                     <div>
-                       <mui.Typography>
-                       <Suspense fallback={<div>Loading...</div>}>
-                            <DataTable
-                                rows={rows}
-                                columns={columns}
-                                columnsWithActions={columnsWithActions}
-                            />
-                        </Suspense>
-                       </mui.Typography>
-                    </div>
-                ): <div>
                         <mui.Typography>
-                            <NotFound
-                                title="Record Not Found"
-                                message="The token you provided is either invalid or has expired. Please verify the token and try again. If the issue persists, contact your system administrator for assistance."
-                            />
-
+                            <Suspense fallback={<div>Loading...</div>}>
+                                <DataTable
+                                    rows={rows}
+                                    columns={columns}
+                                    columnsWithActions={columnsWithActions}
+                                />
+                            </Suspense>
                         </mui.Typography>
-                    </div>}
+                    </div>
+                ) : <div>
+                    <mui.Typography>
+                        <NotFound
+                            title="Record Not Found"
+                            message="The token you provided is either invalid or has expired. Please verify the token and try again. If the issue persists, contact your system administrator for assistance."
+                        />
+
+                    </mui.Typography>
+                </div>}
+
+                <div>
+                    {/* Conditionally show the loading spinner or the approve button */}
+                    {isLoading ? (
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                height: '100vh', // Use full viewport height
+                                position: 'absolute',
+                                top: '50',
+                                left: '0',
+                                right: '0',
+                                bottom: '0',
+                                backgroundColor: 'rgba(255, 255, 255, 0.7)', // Optional background overlay
+                            }}
+                        >
+                            <div style={{ textAlign: 'center' }}>
+                                <CircularProgress size={50} color="primary" />
+                                <mui.Typography variant="subtitle1">
+                                    Saving Record...
+                                </mui.Typography>
+                            </div>
+                        </div>
+                    ) : (
+                        <div></div>
+                    )}
+                </div>
 
             </ResponsiveContainer>
         </div>
     )
 
     return (
-            <Suspense fallback="Loading...">
-                <div>
-                    <SysOwnerSideBar mainContent={customMainContent} />
-                </div>
-            </Suspense>
+        <Suspense fallback="Loading...">
+            <div>
+                <SysOwnerSideBar mainContent={customMainContent} />
+            </div>
+        </Suspense>
     );
 };
 
